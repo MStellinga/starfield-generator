@@ -8,8 +8,13 @@ const MODE_EDIT = 1;
 const MODE_ADD = 2;
 var mode = MODE_VIEW;
 
+const BASE_WIDTH = 712;
+const BASE_HEIGHT = 420;
+var width = BASE_WIDTH;
+var height = BASE_HEIGHT;
+
 function createInputField(value, id){
-    var field = document.createElement('input');
+    let field = document.createElement('input');
     if(id){
         field.id = id;
     }
@@ -19,13 +24,13 @@ function createInputField(value, id){
 }
 
 function createClusterInputField(starCluster, attribute){
-    var field = createInputField(starCluster[attribute]);    
-    field.addEventListener("blur", (function(starCluster){
-            return function(event){
-                starCluster[attribute] = parseInt(event.target.value);
-            }
-        })(starCluster));
-    return field;
+  let field = createInputField(starCluster[attribute]);    
+  field.addEventListener("blur", (function(starCluster){
+          return function(event){
+              starCluster[attribute] = parseInt(event.target.value);
+          }
+      })(starCluster));
+  return field;
 }
  
 function createPicker(element){
@@ -57,169 +62,164 @@ function createPicker(element){
       });
 }
 
-function createStarsSection(){
-    var stars = document.getElementById('stars');
-    stars.innerHTML = '<h2>Stars</h2>'; 
+function createSettingsSection(){
+  let generate = document.getElementById('generate');
+  generate.innerHTML = '<h2>Generate settings</h2>'; 
 
-    var button = document.createElement('button');
-    button.innerText = 'Generate stars';
-    button.addEventListener("click", ()=>{
-      setMode(MODE_VIEW);
-      generateStars();
-    });
-    stars.appendChild(button);
-}
+  let table = document.createElement('table');
+  let tbody = document.createElement('tbody');
+  
+  let tr = document.createElement('tr');
+  let td = document.createElement('td');
+  td.innerText = 'Bubble sizes';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(30,'nebula-bubble-base-size'));    
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.innerText = '-';
+  tr.appendChild(td);    
+  td = document.createElement('td');
+  td.appendChild(createInputField(160,'nebula-bubble-max-size'));    
+  tr.appendChild(td);
+  tbody.appendChild(tr);
 
-function createNebulaSection(){
-    var nebula = document.getElementById('nebula');
-    nebula.innerHTML = '<h2>Nebula Generation</h2>'; 
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Dark center size';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(30,'nebula-push-base-size'));
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.innerText = '-';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(80,'nebula-push-max-size'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
 
-    var table = document.createElement('table');
-    var tbody = document.createElement('tbody');
-    
-    var tr = document.createElement('tr');
-    var td = document.createElement('td');
-    td.innerText = 'Bubble sizes';
-    tr.appendChild(td);
-    td = document.createElement('td');
-    td.appendChild(createInputField(30,'nebula-bubble-base-size'));    
-    tr.appendChild(td);
-    td = document.createElement('td');
-    td.innerText = '-';
-    tr.appendChild(td);    
-    td = document.createElement('td');
-    td.appendChild(createInputField(160,'nebula-bubble-max-size'));    
-    tr.appendChild(td);
-    tbody.appendChild(tr);
+  table.appendChild(tbody);
+  generate.appendChild(table);
 
-    tr = document.createElement('tr');
-    td = document.createElement('td');
-    td.innerText = 'Dark center size';
-    tr.appendChild(td);
-    td = document.createElement('td');
-    td.appendChild(createInputField(30,'nebula-push-base-size'));
-    tr.appendChild(td);
-    td = document.createElement('td');
-    td.innerText = '-';
-    tr.appendChild(td);
-    td = document.createElement('td');
-    td.appendChild(createInputField(80,'nebula-push-max-size'));
-    tr.appendChild(td);
-    tbody.appendChild(tr);
+  let starButton = document.createElement('button');
+  starButton.innerText = 'Generate stars';
+  starButton.addEventListener("click", ()=>{
+    setMode(MODE_VIEW);
+    generateStars();
+  });
+  generate.appendChild(starButton);
 
-    table.appendChild(tbody);
-    nebula.appendChild(table);
-
-    var button = document.createElement('button');
-    button.innerText = 'Generate nebula';
-    button.addEventListener("click", ()=>{ 
-      setMode(MODE_VIEW);
-      generateNebula();
-    });
-    nebula.appendChild(button);
+  let nebulaButton = document.createElement('button');
+  nebulaButton.innerText = 'Generate nebula';
+  nebulaButton.addEventListener("click", ()=>{ 
+    setMode(MODE_VIEW);
+    generateNebula();
+  });
+  generate.appendChild(nebulaButton);
 }
 
 export function showClusters(){
-    var clusters = document.getElementById('clusters');
-    clusters.innerHTML = '<h2>Clusters</h2>'; // Clear it
-    var clusterTable = document.createElement('table');
-    var thead  = document.createElement('thead');
-    thead.innerHTML = "<tr><th>X</th><th>Y</th><th>Strength</th><th>Stars[1]</th><th>Stars[2]</th><th>Stars[3]</th><th>Nebula bubbles</th><th>Color</th><th></th></tr>"
-    clusterTable.appendChild(thead);
-  
-    var editor = document.getElementById('cluster-editor');
-    editor.innerHTML = '';
+  let clusters = document.getElementById('clusters');
+  clusters.innerHTML = '<h2>Background / Clusters</h2>'; // Clear it
+  let clusterTable = document.createElement('table');
+  let thead  = document.createElement('thead');
+  thead.innerHTML = "<tr><th></th><th>Power</th><th>Stars 1</th><th>Stars 2</th><th>Stars 3</th><th>Bubbles</th><th>Color</th><th></th></tr>"
+  clusterTable.appendChild(thead);
 
-    var tbody = document.createElement('tbody');
-    var starClusters = getClusters();
-    for(var i=0; i<starClusters.length; i++){
-      var cluster = document.createElement('tr');
-      cluster.innerHTML = i ==0 ? '<td colspan=2>Background</td>' : '<td>'+starClusters[i].x+'</td><td>'+starClusters[i].y+'</td>';
-  
-      var td = document.createElement('td');    
-      if(i>0) {
-        td.appendChild(createClusterInputField(starClusters[i], 'strength'));
-      }
-      cluster.appendChild(td);
-      td = document.createElement('td');
-      td.appendChild(createClusterInputField(starClusters[i], 'size1stars'));
-      cluster.appendChild(td);
-      td = document.createElement('td');
-      td.appendChild(createClusterInputField(starClusters[i], 'size2stars'));
-      cluster.appendChild(td);
-      td = document.createElement('td');
-      td.appendChild(createClusterInputField(starClusters[i], 'size3stars'));
-      cluster.appendChild(td);
-      td = document.createElement('td');
-      td.appendChild(createClusterInputField(starClusters[i], 'bubbles'));
-      cluster.appendChild(td);
-  
-      td = document.createElement('td');
-      if(i>0) {
-        var colorPicker = document.createElement('div');
-        td.appendChild(colorPicker);
-        cluster.appendChild(td);      
-        var picker = createPicker(colorPicker);
-        var c = 'rgb('+starClusters[i].r+','+starClusters[i].g+','+starClusters[i].b+')';
-        picker.on('init', (function(c,picker){
-          return function(){
-              picker.setColor(c);
-          }
-        })(c,picker));
-        picker.on('change', (function(idx){
-          return function(color){                          
-            setClusterColor(idx,color);    
-            updateClusterCircles();          
-          }
-        })(i));
-      }
-  
-      td = document.createElement('td');
-      if(i>0) {
-        var removeButton = document.createElement('button');
-        removeButton.innerHTML = "X";
-        removeButton.addEventListener("click", (function(idx){
-          return function(event){
-            starClusters.splice(idx,1);
-            showClusters();
-            event.preventDefault();
-          }
-        })(i));
-        td.appendChild(removeButton);
+  let editor = document.getElementById('cluster-editor');
+  editor.innerHTML = '';
 
-        var clusterCircle = document.createElement('div');
-        clusterCircle.classList.add('cluster-circle');
-        clusterCircle.setAttribute('data-cluster-id',i);
-        clusterCircle.style.left = starClusters[i].x + 'px';
-        clusterCircle.style.top = starClusters[i].y + 'px';
-        clusterCircle.style.backgroundColor = 'rgb('+starClusters[i].r+','+starClusters[i].g+','+starClusters[i].b+')';
-        editor.appendChild(clusterCircle);
-      }
-      cluster.appendChild(td);    
-      tbody.appendChild(cluster);
+  let tbody = document.createElement('tbody');
+  let starClusters = getClusters();
+  for(let i=0; i<starClusters.length; i++){
+    let cluster = document.createElement('tr');
+    cluster.innerHTML = i ==0 ? '<td></td>' : '<td>'+i+'</td>';
+
+    let td = document.createElement('td');    
+    if(i>0) {
+      td.appendChild(createClusterInputField(starClusters[i], 'strength'));
     }
-    clusterTable.appendChild(tbody);
-    clusters.appendChild(clusterTable);
+    cluster.appendChild(td);
+    td = document.createElement('td');
+    td.appendChild(createClusterInputField(starClusters[i], 'size1stars'));
+    cluster.appendChild(td);
+    td = document.createElement('td');
+    td.appendChild(createClusterInputField(starClusters[i], 'size2stars'));
+    cluster.appendChild(td);
+    td = document.createElement('td');
+    td.appendChild(createClusterInputField(starClusters[i], 'size3stars'));
+    cluster.appendChild(td);
+    td = document.createElement('td');
+    td.appendChild(createClusterInputField(starClusters[i], 'bubbles'));
+    cluster.appendChild(td);
 
-    var addButton = document.createElement('button');
-    addButton.id = 'add-cluster-button';
-    addButton.innerText='Add';
-    addButton.addEventListener("click",onAddClusterClick);    
-    clusters.appendChild(addButton);
+    td = document.createElement('td');
+    if(i>0) {
+      let colorPicker = document.createElement('div');
+      td.appendChild(colorPicker);
+      cluster.appendChild(td);      
+      let picker = createPicker(colorPicker);
+      let c = 'rgb('+starClusters[i].r+','+starClusters[i].g+','+starClusters[i].b+')';
+      picker.on('init', (function(c,picker){
+        return function(){
+            picker.setColor(c);
+        }
+      })(c,picker));
+      picker.on('change', (function(idx){
+        return function(color){                          
+          setClusterColor(idx,color);    
+          updateClusterCircles();          
+        }
+      })(i));
+    }
 
-    var editButton = document.createElement('button');
-    editButton.id = 'edit-cluster-button';
-    editButton.innerText='Edit';
-    editButton.addEventListener("click",onEditClusterClick);
-    clusters.appendChild(editButton);
-    setMode(mode);
+    td = document.createElement('td');
+    if(i>0) {
+      let removeButton = document.createElement('button');
+      removeButton.innerHTML = "X";
+      removeButton.addEventListener("click", (function(idx){
+        return function(event){
+          starClusters.splice(idx,1);
+          showClusters();
+          event.preventDefault();
+        }
+      })(i));
+      td.appendChild(removeButton);
+
+      let clusterCircle = document.createElement('div');
+      clusterCircle.classList.add('cluster-circle');
+      clusterCircle.setAttribute('data-cluster-id',i);
+      clusterCircle.style.left = starClusters[i].x + 'px';
+      clusterCircle.style.top = starClusters[i].y + 'px';
+      clusterCircle.style.backgroundColor = 'rgb('+starClusters[i].r+','+starClusters[i].g+','+starClusters[i].b+')';
+      editor.appendChild(clusterCircle);
+    }
+    cluster.appendChild(td);    
+    tbody.appendChild(cluster);
+  }
+  clusterTable.appendChild(tbody);
+  clusters.appendChild(clusterTable);
+
+  let addButton = document.createElement('button');
+  addButton.id = 'add-cluster-button';
+  addButton.innerText='Add';
+  addButton.addEventListener("click",onAddClusterClick);    
+  clusters.appendChild(addButton);
+
+  let editButton = document.createElement('button');
+  editButton.id = 'edit-cluster-button';
+  editButton.innerText='Edit';
+  editButton.addEventListener("click",onEditClusterClick);
+  clusters.appendChild(editButton);
+  setMode(mode);
 }
 
 function updateClusterCircles(){
-  var circles = document.getElementsByClassName('cluster-circle');    
-  var starClusters = getClusters();
-  for(var i=0; i<circles.length; i++){
-    var idx = circles[i].getAttribute('data-cluster-id');    
+  let circles = document.getElementsByClassName('cluster-circle');    
+  let starClusters = getClusters();
+  for(let i=0; i<circles.length; i++){
+    let idx = circles[i].getAttribute('data-cluster-id');    
     circles[i].style.left = starClusters[idx].x + 'px';
     circles[i].style.top = starClusters[idx].y + 'px';
     circles[i].style.backgroundColor = 'rgb('+starClusters[idx].r+','+starClusters[idx].g+','+starClusters[idx].b+')';
@@ -246,7 +246,7 @@ function setMode(newMode){
       editor.style.cursor = '';
       addButton.style.display = '';
       editButton.innerText = 'Done';
-      for(var i=0; i<dragHandles.length; i++){
+      for(let i=0; i<dragHandles.length; i++){
         dragHandles[i].draggable = true;
         dragHandles[i].style.cursor = 'pointer';
       }
@@ -257,7 +257,7 @@ function setMode(newMode){
       editor.style.cursor = 'crosshair';
       addButton.style.display = 'none';
       editButton.innerText = 'Cancel';
-      for(var i=0; i<dragHandles.length; i++){
+      for(let i=0; i<dragHandles.length; i++){
         dragHandles[i].draggable = false;
         dragHandles[i].style.cursor = 'crosshair';
       }
@@ -298,25 +298,72 @@ function onEditClusterClick(event){
   }
 }
 
+function createImageSettingsSection(){
+  let imageSettings = document.getElementById('imagesize');
+  imageSettings.innerHTML = '<h2>Image</h2>';
+  
+  let table = document.createElement('table');
+  let tbody = document.createElement('tbody');
+
+  let tr = document.createElement('tr');
+  let td = document.createElement('td');
+  td.innerText = 'Image size';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(712,'image-width'));
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.innerText = 'x';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(420,'image-height'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  table.appendChild(tbody);
+  imageSettings.appendChild(table);
+
+  let sizeButton = document.createElement('button');
+  sizeButton.id = 'save-size-button';
+  sizeButton.innerText='Set';
+  sizeButton.addEventListener("click",onSetSizeClick);
+  imageSettings.appendChild(sizeButton);
+}
+
+function onSetSizeClick(event){
+  width = parseInt(document.getElementById('image-width').value);
+  height = parseInt(document.getElementById('image-height').value);
+  if(isNaN(width)){
+    width = BASE_WIDTH;
+  }
+  if(isNaN(height)){
+    width = BASE_HEIGHT;
+  }  
+  createCanvas();
+  showClusters();   
+}
+
 function createProgressSection(){
-    var progress = document.getElementById('progress');
-    progress.innerHTML = '<div id="progress-done" style="width:0%"></div>';
+  let progress = document.getElementById('progress');
+  progress.innerHTML = '<div id="progress-done" style="width:0%"></div>';
 }
 
 function createCanvas(){
-  var picture = document.getElementById("picture");
+  let picture = document.getElementById("picture");
+  picture.innerHTML='';
+  picture.style.width=''+(width+3)+'px';
+  picture.style.height=''+(height+3)+'px';
 
-  var canvas = document.createElement('canvas');
+  let canvas = document.createElement('canvas');
   canvas.id = 'star-canvas';
-  // TODO sizing
-  canvas.width=712;
-  canvas.height=420;       
+  canvas.width=width;
+  canvas.height=height;       
 
-  var editor = document.createElement('div');
+  let editor = document.createElement('div');
   editor.id='cluster-editor';
   editor.style.display = 'none';
-  editor.style.width='712px';
-  editor.style.height='420px';
+  editor.style.width=''+width+'px';
+  editor.style.height=''+height+'px';
   editor.addEventListener('click',onClusterClick);
   picture.appendChild(editor);
 
@@ -332,9 +379,9 @@ function createCanvas(){
   editor.addEventListener("drop", function(event) {
     let idx = parseInt(event.dataTransfer.getData('index'));    
     if(!isNaN(idx)){
-      var rect = event.target.getBoundingClientRect();      
-      var x = Math.round(event.clientX - rect.left); 
-      var y = Math.round(event.clientY - rect.top);  
+      let rect = event.target.getBoundingClientRect();      
+      let x = Math.round(event.clientX - rect.left); 
+      let y = Math.round(event.clientY - rect.top);  
       getClusters()[idx].x = x;
       getClusters()[idx].y = y;
       updateClusterCircles();
@@ -345,9 +392,9 @@ function createCanvas(){
 }
 
 export function createUI(){
-    createStarsSection();
-    createNebulaSection();
-    createProgressSection();
-    createCanvas();
-    showClusters();       
+  createImageSettingsSection();
+  createSettingsSection();    
+  createProgressSection();
+  createCanvas();
+  showClusters();       
 }

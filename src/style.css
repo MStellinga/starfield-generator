@@ -21,7 +21,7 @@ button {
 .container {
   margin-left: auto;
   margin-right: auto;
-  width: 726px;
+  width: 24em;
 }
 
 .section {
@@ -32,7 +32,7 @@ button {
 }
 
 .smallfield{
-  width: 4.5em;
+  width: 3em;
   padding: 3px;
 }
 
@@ -51,6 +51,7 @@ button {
 #clusters table th {
   padding: 5px;
   text-align: center;
+  font-size: small;
 }
 #clusters table td {
   padding: 1px;
@@ -73,4 +74,12 @@ button {
 
 #star-canvas {
   background-color: black;
+}
+
+#picture {
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #d0d0ff;  
+  padding: 3px;
+  background-color: #006090;
 }
