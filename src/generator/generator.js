@@ -4,10 +4,10 @@ var nebulaBubbleBasePushDistance = 80;
 var nebulaBubbleMaxPushDistance = 30;
 
 var starClusters = [
-    {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:0, bubbles:100, generated:0 },
-    {x: 80, y: 50,   strength: 30, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:0, bubbles:100, generated:0 },
-    {x: 350, y: 250, strength: 10, r: 0, g: 150, b:200, size1stars:500, size2stars:50, size3stars:0, bubbles:100, generated:0 },
-    {x: 600, y: 320, strength: 40, r: 0, g: 0, b:250, size1stars:500, size2stars:50, size3stars:0, bubbles:100, generated:0 },
+    {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:100, generated:0 },
+    {x: 80, y: 50,   strength: 30, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:10, bubbles:100, generated:0 },
+    {x: 350, y: 250, strength: 10, r: 0, g: 150, b:200, size1stars:500, size2stars:50, size3stars:10, bubbles:100, generated:0 },
+    {x: 600, y: 320, strength: 40, r: 0, g: 0, b:250, size1stars:500, size2stars:50, size3stars:10, bubbles:100, generated:0 },
 ];
 
 var starPixels;
@@ -21,6 +21,9 @@ function setPixel(pixels, x, y, r, g, b){
   var n1 = new Date().getTime();
   x = Math.round(x);
   y = Math.round(y);
+  if(x<0 || x >= fieldWidth || y<0 || y >= fieldHeight){
+    return;
+  }
   
   let idx = (y * fieldWidth * 4) + (x * 4);         
   pixels[idx] = pixels[idx] + r;
@@ -60,17 +63,40 @@ function generateClusterLocation(clusterIdx){
 function createStar(starSize, clusterIdx) {  
   var pnt = generateClusterLocation(clusterIdx);
   var brightness = Math.random() * 255;
+  var brightness2 = brightness / 2;
+  var brightness4 = brightness / 4;
   setPixel(starPixels,pnt.x,pnt.y,brightness,brightness,brightness,true);
-  // TODO starSize 3  
-  if(starSize >= 2){
-    setPixel(starPixels,pnt.x-1,pnt.y,brightness/2,brightness/2,brightness/2);
-    setPixel(starPixels,pnt.x+1,pnt.y,brightness/2,brightness/2,brightness/2);
-    setPixel(starPixels,pnt.x,pnt.y-1,brightness/2,brightness/2,brightness/2);
-    setPixel(starPixels,pnt.x,pnt.y+1,brightness/2,brightness/2,brightness/2);
-    setPixel(starPixels,pnt.x-1,pnt.y-1,brightness/4,brightness/4,brightness/4);
-    setPixel(starPixels,pnt.x+1,pnt.y-1,brightness/4,brightness/4,brightness/4);
-    setPixel(starPixels,pnt.x-1,pnt.y+1,brightness/4,brightness/4,brightness/4);
-    setPixel(starPixels,pnt.x+1,pnt.y+1,brightness/4,brightness/4,brightness/4);
+  // TODO starSize 3    
+  if(starSize == 2){
+    setPixel(starPixels,pnt.x-1,pnt.y,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x+1,pnt.y,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x,pnt.y-1,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x,pnt.y+1,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x-1,pnt.y-1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x+1,pnt.y-1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x-1,pnt.y+1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x+1,pnt.y+1,brightness4,brightness4,brightness4);
+  } else if(starSize == 3){
+    setPixel(starPixels,pnt.x-1,pnt.y,brightness,brightness,brightness);
+    setPixel(starPixels,pnt.x+1,pnt.y,brightness,brightness,brightness);
+    setPixel(starPixels,pnt.x,pnt.y-1,brightness,brightness,brightness);
+    setPixel(starPixels,pnt.x,pnt.y+1,brightness,brightness,brightness);
+    setPixel(starPixels,pnt.x-2,pnt.y,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x+2,pnt.y,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x,pnt.y-2,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x,pnt.y+2,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x-1,pnt.y-1,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x+1,pnt.y-1,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x-1,pnt.y+1,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x+1,pnt.y+1,brightness2,brightness2,brightness2);
+    setPixel(starPixels,pnt.x-2,pnt.y-1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x+2,pnt.y-1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x-2,pnt.y+1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x+2,pnt.y+1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x-1,pnt.y-2,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x+1,pnt.y-2,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x-1,pnt.y+2,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x+1,pnt.y+2,brightness4,brightness4,brightness4);
   }
 }
 
