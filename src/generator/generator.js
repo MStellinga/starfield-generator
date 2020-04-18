@@ -1,5 +1,3 @@
-
-var nebulaColorVariation = 5;
 var nebulaBubbleBaseSize = 30;
 var nebulaBubbleMaxSize = 160;
 var nebulaBubbleBasePushDistance = 80;
@@ -7,114 +5,49 @@ var nebulaBubbleMaxPushDistance = 30;
 
 var starClusters = [
     {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:0, bubbles:100, generated:0 },
-    {x: 80, y: 50,   strength: 30, r: 0, g: 105, b:50, size1stars:500, size2stars:50, size3stars:0, bubbles:500, generated:0 },
-    {x: 205, y: 200, strength: 80, r: 0, g: 50, b:200, size1stars:500, size2stars:50, size3stars:0, bubbles:500, generated:0 },
-    {x: 420, y: 290, strength: 30, r: 0, g: 100, b:100, size1stars:500, size2stars:50, size3stars:0, bubbles:500, generated:0 },
-    {x: 600, y: 320, strength: 150, r: 0, g: 0, b:250, size1stars:500, size2stars:50, size3stars:0, bubbles:500, generated:0 },
+    {x: 80, y: 50,   strength: 30, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:0, bubbles:100, generated:0 },
+    {x: 350, y: 250, strength: 10, r: 0, g: 150, b:200, size1stars:500, size2stars:50, size3stars:0, bubbles:100, generated:0 },
+    {x: 600, y: 320, strength: 40, r: 0, g: 0, b:250, size1stars:500, size2stars:50, size3stars:0, bubbles:100, generated:0 },
 ];
 
-var ctx;
-var pixelData;
 var starPixels;
 var nebulaPixels;
-var tmpPixels;
-var width;
-var height;
+var fieldWidth;
+var fieldHeight;
 
-export function initStarPixels(wdt, hgt){
-  width = wdt;
-  height = hgt;
-  starPixels = new Array(width);
-  tmpPixels = new Array(width);
-  for(var x=0; x<starPixels.length;x++){
-    starPixels[x] = new Array(height);
-    tmpPixels[x] = new Array(height);
-    for(var y=0; y<height; y++) {
-      starPixels[x][y] = {r:0,g:0,b:0};
-      tmpPixels[x][y] = {r:0,g:0,b:0};
-    }
-  }
-}
-export function initNebulaPixels(wdt, hgt){
-  width = wdt;
-  height = hgt;
-  nebulaPixels = new Array(width);
-  tmpPixels = new Array(width);
-  for(var x=0; x<nebulaPixels.length;x++){
-    nebulaPixels[x] = new Array(height);
-    tmpPixels[x] = new Array(height);
-    for(var y=0; y<height; y++) {
-      nebulaPixels[x][y] = {r:0,g:0,b:0};
-      tmpPixels[x][y] = {r:0,g:0,b:0};
-    }
-  }
-}
+var total = 0;
 
-function setPixel(pixels, x, y, r, g, b){
+function setPixel(pixels, x, y, r, g, b){    
+  var n1 = new Date().getTime();
   x = Math.round(x);
   y = Math.round(y);
-  if(x<0 || x >= pixels.length){
-    return;
-  }
-  if(y<0 || y >= pixels[x].length){
-    return;
-  }
-  var r1 = pixels[x][y].r + r;
-  var g1 = pixels[x][y].g + g;
-  var b1 = pixels[x][y].b + b;
-  pixels[x][y] = {r:r1,g:g1,b:b1};
+  
+  let idx = (y * fieldWidth * 4) + (x * 4);         
+  pixels[idx] = pixels[idx] + r;
+  pixels[idx+1] = pixels[idx+1] + g;
+  pixels[idx+2] = pixels[idx+2] + b;
+  total += new Date().getTime() - n1;
 }
 
-export function paint(){
-  if(starPixels) {
-    for(var x=0; x<starPixels.length; x++) {
-      for(var y=0; y<starPixels[x].length; y++) {        
-        tmpPixels[x][y].r = starPixels[x][y] ? starPixels[x][y].r : 0;
-        tmpPixels[x][y].g = starPixels[x][y] ? starPixels[x][y].g : 0;
-        tmpPixels[x][y].b = starPixels[x][y] ? starPixels[x][y].b : 0;        
-      }
-    }
-  }
-  if(nebulaPixels){
-    for(var x=0; x<nebulaPixels.length; x++) {
-      for(var y=0; y<nebulaPixels[x].length; y++) {
-        if(!nebulaPixels[x][y])
-          continue;
-        tmpPixels[x][y].r = tmpPixels[x][y].r + nebulaPixels[x][y].r;
-        if(tmpPixels[x][y].r >255 ){
-          tmpPixels[x][y].r = 255;
-        } 
-        tmpPixels[x][y].g = tmpPixels[x][y].g + nebulaPixels[x][y].g;
-        if(tmpPixels[x][y].g >255 ){
-          tmpPixels[x][y].g = 255;
-        } 
-        tmpPixels[x][y].b = tmpPixels[x][y].b + nebulaPixels[x][y].b;
-        if(tmpPixels[x][y].b >255 ){
-          tmpPixels[x][y].b = 255;
-        } 
-      }
-    }    
-  }
-  var d  = pixelData.data;
-  for(var i=0; i<tmpPixels.length; i++) {
-    for(var j=0; j<tmpPixels[i].length; j++) {      
-      d[0]   = tmpPixels[i][j].r;
-      d[1]   = tmpPixels[i][j].g;
-      d[2]   = tmpPixels[i][j].b;
-      d[3]   = 255;
-      ctx.putImageData( pixelData, i, j);
-    }
-  }
+export function paint(context){  
+  console.log(total);
+  var imageData = context.createImageData(fieldWidth, fieldHeight);
+  for(let i=0; i<imageData.data.length; i++){    
+    let val = starPixels && starPixels[i] ? starPixels[i] : 0;
+    val = nebulaPixels && nebulaPixels[i] ? val + nebulaPixels[i] : val;        
+    imageData.data[i] = val > 255 ? 255 : Math.round(val);
+  }  
+  context.putImageData(imageData,0,0);  
 }
 
 function generateClusterLocation(clusterIdx){
   if(clusterIdx == -1){
     return {
-      x: Math.random() * width,
-      y: Math.random() * height
+      x: Math.random() * fieldWidth,
+      y: Math.random() * fieldHeight
     };
   } else {
-    var len = starClusters[clusterIdx].strength + Math.max(width/2,height/2);
+    var len = starClusters[clusterIdx].strength + Math.max(fieldWidth/2,fieldHeight/2);
     var distance = Math.random() * (0.2+0.8*Math.random()) * len;    
     var angle = Math.random() * Math.PI * 2;   
     return {
@@ -159,7 +92,7 @@ function createNebulaBubble(clusterIdx) {
     total += val;
   }
   for(var j=0;j<starClusters.length; j++) {
-    var fact =  dists[j]/total;
+    var fact =  1.0 - dists[j]/total;
     color.r += starClusters[j].r * fact;
     color.g += starClusters[j].g * fact;
     color.b += starClusters[j].b * fact;
@@ -167,20 +100,19 @@ function createNebulaBubble(clusterIdx) {
   
   // Add some color randomness and determine strength
   var strength = (starClusters[clusterIdx].strength * Math.random()) / (15*starClusters[clusterIdx].bubbles);
-  color.r = color.r * strength + (Math.random() * nebulaColorVariation)/100;
-  color.g = color.g * strength + (Math.random() * nebulaColorVariation)/100;
-  color.b = color.b * strength + (Math.random() * nebulaColorVariation)/100;  
+  color.r = color.r * strength;
+  color.g = color.g * strength;
+  color.b = color.b * strength;  
   // Determine max affected area
   var xMin = Math.floor(Math.max(0,center.x - size));
-  var xMax = Math.floor(Math.min(width,center.x + size));
+  var xMax = Math.floor(Math.min(fieldWidth,center.x + size));
   var yMin = Math.floor(Math.max(0,center.y - size));
-  var yMax = Math.floor(Math.min(height,center.y + size));
+  var yMax = Math.floor(Math.min(fieldHeight,center.y + size));
   
   var distancePerAngle = [];
   for(var i=0;i<10;i++){
     distancePerAngle.push(0.8 + Math.random()*0.2);
   }
-
 
   for(var x=xMin; x<xMax; x++) {
     for(var y=yMin; y<yMax; y++) {   
@@ -200,7 +132,7 @@ function createNebulaBubble(clusterIdx) {
         interpolatedColor = interpolateColors({r:0,g:0,b:0}, color, distToCenter/(pushDistance*sizeMod));                
       }
       // Add noise
-      interpolatedColor = interpolateColors(color,{r:0,g:0,b:0}, Math.random()/5);                
+      interpolatedColor = interpolateColors(interpolatedColor,{r:0,g:0,b:0}, Math.random()/5);                
       setPixel(nebulaPixels,x,y,interpolatedColor.r, interpolatedColor.g , interpolatedColor.b);
     }
   }
@@ -276,6 +208,14 @@ export function setClusterColor(idx, color){
   starClusters[idx].b =rgb[2];
 }
 
+export function addNewCluster(x,y){
+  starClusters.push({
+    x: x, y: y,
+    strength: 50, r: 255, g: 255, b:255, 
+    size1stars:300, size2stars:50, size3stars:0, bubbles:200, generated:0 
+  });
+}
+
 export function generate(clusterIdx, nebula, amount){  
   var idx = clusterIdx;        
   var notDone = starClusters[idx].generated < getClusterTotalToGenerate(clusterIdx, nebula);    
@@ -299,26 +239,25 @@ export function generate(clusterIdx, nebula, amount){
   return notDone;  
 }
 
-function setContext(context) {
-  ctx = context;
-  pixelData = ctx.createImageData(1,1);
-}
-
-function setSettings(settings){
-  nebulaColorVariation = settings[0];
-  nebulaBubbleBaseSize = settings[1];
-  nebulaBubbleMaxSize = settings[2];
-  nebulaBubbleBasePushDistance = settings[3];
-  nebulaBubbleMaxPushDistance = settings[4];
-}
-
-export function init(settings, nebula, context, width,height){
-  setSettings(settings);
-  setContext(context);    
+export function init(settings, nebula, width, height){
+  fieldWidth = width;
+  fieldHeight = height;
+  nebulaBubbleBaseSize = settings[0];
+  nebulaBubbleMaxSize = settings[1];
+  nebulaBubbleBasePushDistance = settings[2];
+  nebulaBubbleMaxPushDistance = settings[3];  
   resetGenerated();
-  if(nebula){    
-    initNebulaPixels(width,height);
+  if(nebula){        
+    nebulaPixels = new Array(width*height*4);
+    for(var i=0; i<nebulaPixels.length; i+=4){
+      nebulaPixels[i]=nebulaPixels[i+1]=nebulaPixels[i+2]=0;
+      nebulaPixels[i+3]=255;
+    }
   } else {    
-    initStarPixels(width,height);
+    starPixels = new Array(width*height*4);    
+    for(var i=0; i<starPixels.length; i+=4){
+      starPixels[i]=starPixels[i+1]=starPixels[i+2]=0;
+      starPixels[i+3]=255;
+    }
   }
 }
