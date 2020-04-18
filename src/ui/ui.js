@@ -352,7 +352,7 @@ function createCanvas(){
   let picture = document.getElementById("picture");
   picture.innerHTML='';
   picture.style.width=''+(width+3)+'px';
-  picture.style.height=''+(height+3)+'px';
+  // picture.style.height=''+(height+3)+'px';
 
   let canvas = document.createElement('canvas');
   canvas.id = 'star-canvas';

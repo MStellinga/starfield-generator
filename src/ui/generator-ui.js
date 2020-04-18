@@ -29,6 +29,12 @@ function doGenerate(idx, nebula) {
         setTimeout(()=>{doGenerate(idx+1, nebula)},0);    
     } else {          
       paint(canvas.getContext("2d"));
+      let picture = document.getElementById("picture");
+      let image = document.createElement('img');
+      image.src=''+canvas.toDataURL("image/png");
+      image.alt = 'Starfield';
+      picture.removeChild(canvas);
+      picture.appendChild(image);
       progressDiv.style.width = "0%";
     }
   } 
