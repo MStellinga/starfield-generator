@@ -28,13 +28,7 @@ function doGenerate(idx, nebula) {
     } else if(idx + 1 < clusterCount) {      
         setTimeout(()=>{doGenerate(idx+1, nebula)},0);    
     } else {          
-      paint(canvas.getContext("2d"));
-      let picture = document.getElementById("picture");
-      let image = document.createElement('img');
-      image.src=''+canvas.toDataURL("image/png");
-      image.alt = 'Starfield';
-      picture.removeChild(canvas);
-      picture.appendChild(image);
+      paint(canvas.getContext("2d"));      
       progressDiv.style.width = "0%";
     }
   } 
@@ -51,7 +45,8 @@ function initVariables(nebula){
     nebulaBubbleBaseSize: getAsInt('nebula-bubble-base-size',30),
     nebulaBubbleMaxSize: getAsInt('nebula-bubble-max-size',160),
     nebulaCenterBaseSize: getAsInt('nebula-push-base-size',80),
-    nebulaCenterMaxSize: getAsInt('nebula-push-max-size',30)
+    nebulaCenterMaxSize: getAsInt('nebula-push-max-size',30),
+    colorDistanceFalloff: getAsInt('color-distance-falloff',2)
   }
   init(settings, nebula,width,height);
 }

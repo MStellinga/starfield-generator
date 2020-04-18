@@ -2,6 +2,7 @@ var nebulaBubbleBaseSize = 30;
 var nebulaBubbleMaxSize = 160;
 var nebulaBubbleCenterBaseSize = 80;
 var nebulaBubbleCenterMaxSize = 30;
+var colorDistanceFalloff = 2;
 
 var starClusters = [
     {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:500, generated:0 },
@@ -61,40 +62,43 @@ function generateClusterLocation(clusterIdx){
 
 function createStar(starSize, clusterIdx) {  
   let pnt = generateClusterLocation(clusterIdx);
-  let brightness = Math.random() * 255;
-  let brightness2 = brightness / 2;
-  let brightness4 = brightness / 4;
-  setPixel(starPixels,pnt.x,pnt.y,brightness,brightness,brightness,true);
+  let brightness = Math.random();  
+  let r1 = brightness * starClusters[0].r;
+  let g1 = brightness * starClusters[0].g;
+  let b1 = brightness * starClusters[0].b;
+  let r2 = r1/2, g2=g1/2, b2=b1/2;
+  let r4 = r1/4, g4=g1/4, b4=b1/4;
+  setPixel(starPixels,pnt.x,pnt.y,r1,g1,b1,true);
   if(starSize == 2){
-    setPixel(starPixels,pnt.x-1,pnt.y,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x+1,pnt.y,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x,pnt.y-1,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x,pnt.y+1,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x-1,pnt.y-1,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x+1,pnt.y-1,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x-1,pnt.y+1,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x+1,pnt.y+1,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x-1,pnt.y,r2,g2,b2);
+    setPixel(starPixels,pnt.x+1,pnt.y,r2,g2,b2);
+    setPixel(starPixels,pnt.x,pnt.y-1,r2,g2,b2);
+    setPixel(starPixels,pnt.x,pnt.y+1,r2,g2,b2);
+    setPixel(starPixels,pnt.x-1,pnt.y-1,r4,g4,b4);
+    setPixel(starPixels,pnt.x+1,pnt.y-1,r4,g4,b4);
+    setPixel(starPixels,pnt.x-1,pnt.y+1,r4,g4,b4);
+    setPixel(starPixels,pnt.x+1,pnt.y+1,r4,g4,b4);
   } else if(starSize == 3){
-    setPixel(starPixels,pnt.x-1,pnt.y,brightness,brightness,brightness);
-    setPixel(starPixels,pnt.x+1,pnt.y,brightness,brightness,brightness);
-    setPixel(starPixels,pnt.x,pnt.y-1,brightness,brightness,brightness);
-    setPixel(starPixels,pnt.x,pnt.y+1,brightness,brightness,brightness);
-    setPixel(starPixels,pnt.x-2,pnt.y,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x+2,pnt.y,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x,pnt.y-2,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x,pnt.y+2,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x-1,pnt.y-1,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x+1,pnt.y-1,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x-1,pnt.y+1,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x+1,pnt.y+1,brightness2,brightness2,brightness2);
-    setPixel(starPixels,pnt.x-2,pnt.y-1,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x+2,pnt.y-1,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x-2,pnt.y+1,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x+2,pnt.y+1,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x-1,pnt.y-2,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x+1,pnt.y-2,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x-1,pnt.y+2,brightness4,brightness4,brightness4);
-    setPixel(starPixels,pnt.x+1,pnt.y+2,brightness4,brightness4,brightness4);
+    setPixel(starPixels,pnt.x-1,pnt.y,r1,g1,b1);
+    setPixel(starPixels,pnt.x+1,pnt.y,r1,g1,b1);
+    setPixel(starPixels,pnt.x,pnt.y-1,r1,g1,b1);
+    setPixel(starPixels,pnt.x,pnt.y+1,r1,g1,b1);
+    setPixel(starPixels,pnt.x-2,pnt.y,r2,g2,b2);
+    setPixel(starPixels,pnt.x+2,pnt.y,r2,g2,b2);
+    setPixel(starPixels,pnt.x,pnt.y-2,r2,g2,b2);
+    setPixel(starPixels,pnt.x,pnt.y+2,r2,g2,b2);
+    setPixel(starPixels,pnt.x-1,pnt.y-1,r2,g2,b2);
+    setPixel(starPixels,pnt.x+1,pnt.y-1,r2,g2,b2);
+    setPixel(starPixels,pnt.x-1,pnt.y+1,r2,g2,b2);
+    setPixel(starPixels,pnt.x+1,pnt.y+1,r2,g2,b2);
+    setPixel(starPixels,pnt.x-2,pnt.y-1,r4,g4,b4);
+    setPixel(starPixels,pnt.x+2,pnt.y-1,r4,g4,b4);
+    setPixel(starPixels,pnt.x-2,pnt.y+1,r4,g4,b4);
+    setPixel(starPixels,pnt.x+2,pnt.y+1,r4,g4,b4);
+    setPixel(starPixels,pnt.x-1,pnt.y-2,r4,g4,b4);
+    setPixel(starPixels,pnt.x+1,pnt.y-2,r4,g4,b4);
+    setPixel(starPixels,pnt.x-1,pnt.y+2,r4,g4,b4);
+    setPixel(starPixels,pnt.x+1,pnt.y+2,r4,g4,b4);
   }
 }
 
@@ -112,7 +116,8 @@ function createNebulaBubble(clusterIdx) {
   let dists=[];
   for(let j=0;j<starClusters.length; j++) {
     let val = Math.sqrt(Math.pow(starClusters[j].x-center.x,2) + Math.pow(starClusters[j].y-center.y,2));
-    dists.push(val);
+    // higher falloff to make more saturated colors around clusters
+    dists.push(val*colorDistanceFalloff);
     total += val;
   }
   for(let j=0;j<starClusters.length; j++) {
@@ -244,7 +249,7 @@ export function generate(clusterIdx, nebula, amount){
   let idx = clusterIdx;        
   let notDone = starClusters[idx].generated < getClusterTotalToGenerate(clusterIdx, nebula);    
   for(let i=0; i < amount && notDone; i++) {
-    if(nebula){
+    if(nebula){      
       createNebulaBubble(clusterIdx);
     } else {
       let starSize = 1;
@@ -270,6 +275,7 @@ export function init(settings, nebula, width, height){
   nebulaBubbleMaxSize = settings.nebulaBubbleMaxSize;
   nebulaBubbleCenterBaseSize = settings.nebulaCenterBaseSize;
   nebulaBubbleCenterMaxSize= settings.nebulaCenterMaxSize;  
+  colorDistanceFalloff = settings.colorDistanceFalloff;
   resetGenerated();
   if(nebula){        
     nebulaPixels = new Array(width*height*4);

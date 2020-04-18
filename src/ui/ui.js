@@ -99,6 +99,17 @@ function createSettingsSection(){
   tr.appendChild(td);
   tbody.appendChild(tr);
 
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Color-distance fall-off';
+  td.colSpan = 3;
+  tr.appendChild(td);
+  td = document.createElement('td');
+  
+  td.appendChild(createInputField(2,'color-distance-falloff'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
   table.appendChild(tbody);
   generate.appendChild(table);
 
@@ -154,25 +165,23 @@ export function showClusters(){
     td.appendChild(createClusterInputField(starClusters[i], 'bubbles'));
     cluster.appendChild(td);
 
-    td = document.createElement('td');
-    if(i>0) {
-      let colorPicker = document.createElement('div');
-      td.appendChild(colorPicker);
-      cluster.appendChild(td);      
-      let picker = createPicker(colorPicker);
-      let c = 'rgb('+starClusters[i].r+','+starClusters[i].g+','+starClusters[i].b+')';
-      picker.on('init', (function(c,picker){
-        return function(){
-            picker.setColor(c);
-        }
-      })(c,picker));
-      picker.on('change', (function(idx){
-        return function(color){                          
-          setClusterColor(idx,color);    
-          updateClusterCircles();          
-        }
-      })(i));
-    }
+    td = document.createElement('td');    
+    let colorPicker = document.createElement('div');
+    td.appendChild(colorPicker);
+    cluster.appendChild(td);      
+    let picker = createPicker(colorPicker);
+    let c = 'rgb('+starClusters[i].r+','+starClusters[i].g+','+starClusters[i].b+')';
+    picker.on('init', (function(c,picker){
+      return function(){
+          picker.setColor(c);
+      }
+    })(c,picker));
+    picker.on('change', (function(idx){
+      return function(color){                          
+        setClusterColor(idx,color);    
+        updateClusterCircles();          
+      }
+    })(i));
 
     td = document.createElement('td');
     if(i>0) {
@@ -389,6 +398,21 @@ function createCanvas(){
   });
   
   picture.appendChild(canvas);  
+
+  let a = document.createElement('a');
+  a.id = 'download';
+  a.download='Starfield.png';
+  let button = document.createElement('button');
+  button.addEventListener('click',download);
+  button.innerText='Save to file';
+  a.appendChild(button);
+  picture.appendChild(a);
+}
+
+function download() {
+  let download = document.getElementById("download");
+  let image = document.getElementById("star-canvas").toDataURL("image/png").replace("image/png", "image/octet-stream");
+  download.setAttribute("href", image);
 }
 
 export function createUI(){
