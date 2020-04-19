@@ -20,7 +20,7 @@ function createInputField(value, id){
     }
     field.value = value;
     field.type='text';
-    field.pattern = '\d{5}';
+    field.pattern = '[0-9\\.]{1,5}';
     field.classList.add("smallfield");      
     return field;
 }
