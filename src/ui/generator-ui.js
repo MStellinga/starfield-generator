@@ -5,9 +5,19 @@ var width;
 var height;
 
 var batchSize = 10;
+var generating = false;
 
 function getAsInt(elementId, fallback){
   let result = parseInt(document.getElementById(elementId).value);
+  if(isNaN(result)){
+      document.getElementById(elementId).value = fallback;
+      result = fallback;
+  }
+  return result;
+}
+
+function getAsFloat(elementId, fallback){
+  let result = parseFloat(document.getElementById(elementId).value);
   if(isNaN(result)){
       document.getElementById(elementId).value = fallback;
       result = fallback;
@@ -30,6 +40,7 @@ function doGenerate(idx, nebula) {
     } else {          
       paint(canvas.getContext("2d"));      
       progressDiv.style.width = "0%";
+      generating = false;
     }
   } 
 }
@@ -46,17 +57,26 @@ function initVariables(nebula){
     nebulaBubbleMaxSize: getAsInt('nebula-bubble-max-size',160),
     nebulaCenterBaseSize: getAsInt('nebula-push-base-size',80),
     nebulaCenterMaxSize: getAsInt('nebula-push-max-size',30),
-    colorDistanceFalloff: getAsInt('color-distance-falloff',2)
+    colorDistanceFalloff: getAsFloat('color-distance-falloff',2),
+    colorDampening: getAsFloat('color-dampening',4)
   }
   init(settings, nebula,width,height);
 }
   
 export function generateStars(){
+  if(generating){
+    return;
+  }
+  generating = true;
   initVariables(false);            
   doGenerate(0, false);    
 }
 
 export function generateNebula(){
+  if(generating){
+    return;
+  }
+  generating = true;
   initVariables(true);            
   doGenerate(0, true);    
 }

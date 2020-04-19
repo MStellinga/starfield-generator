@@ -8,8 +8,8 @@ const MODE_EDIT = 1;
 const MODE_ADD = 2;
 var mode = MODE_VIEW;
 
-const BASE_WIDTH = 712;
-const BASE_HEIGHT = 420;
+const BASE_WIDTH = 800;
+const BASE_HEIGHT = 400;
 var width = BASE_WIDTH;
 var height = BASE_HEIGHT;
 
@@ -19,6 +19,8 @@ function createInputField(value, id){
         field.id = id;
     }
     field.value = value;
+    field.type='text';
+    field.pattern = '\d{5}';
     field.classList.add("smallfield");      
     return field;
 }
@@ -64,7 +66,7 @@ function createPicker(element){
 
 function createSettingsSection(){
   let generate = document.getElementById('generate');
-  generate.innerHTML = '<h2>Generate settings</h2>'; 
+  generate.innerHTML = '<h2>Settings</h2>'; 
 
   let table = document.createElement('table');
   let tbody = document.createElement('tbody');
@@ -105,8 +107,17 @@ function createSettingsSection(){
   td.colSpan = 3;
   tr.appendChild(td);
   td = document.createElement('td');
-  
   td.appendChild(createInputField(2,'color-distance-falloff'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Color dampening';
+  td.colSpan = 3;
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(4,'color-dampening'));
   tr.appendChild(td);
   tbody.appendChild(tr);
 
@@ -248,6 +259,7 @@ function setMode(newMode){
       editor.style.cursor = '';
       addButton.style.display = '';
       editButton.innerText = 'Edit';
+      addButton.innerText = 'Add';
       break;
     case MODE_EDIT:
       editor.style.display = '';
@@ -255,6 +267,7 @@ function setMode(newMode){
       editor.style.cursor = '';
       addButton.style.display = '';
       editButton.innerText = 'Done';
+      addButton.innerText = 'Add';
       for(let i=0; i<dragHandles.length; i++){
         dragHandles[i].draggable = true;
         dragHandles[i].style.cursor = 'pointer';
@@ -263,9 +276,9 @@ function setMode(newMode){
     case MODE_ADD:
       editor.style.display = '';
       canvas.style.display = 'none';
-      editor.style.cursor = 'crosshair';
-      addButton.style.display = 'none';
-      editButton.innerText = 'Cancel';
+      editor.style.cursor = 'crosshair';      
+      editButton.innerText = 'Edit';
+      addButton.innerText = 'Done';
       for(let i=0; i<dragHandles.length; i++){
         dragHandles[i].draggable = false;
         dragHandles[i].style.cursor = 'crosshair';
@@ -290,6 +303,9 @@ function onAddClusterClick(event){
     case MODE_EDIT:
       setMode(MODE_ADD);
       break;    
+    case MODE_ADD:
+      setMode(MODE_VIEW);
+      break;  
   }
 }
 
@@ -302,7 +318,7 @@ function onEditClusterClick(event){
       setMode(MODE_VIEW);
       break;
     case MODE_ADD:
-      setMode(MODE_VIEW);
+      setMode(MODE_EDIT);
       break;
   }
 }
@@ -319,13 +335,13 @@ function createImageSettingsSection(){
   td.innerText = 'Image size';
   tr.appendChild(td);
   td = document.createElement('td');
-  td.appendChild(createInputField(712,'image-width'));
+  td.appendChild(createInputField(BASE_WIDTH,'image-width'));
   tr.appendChild(td);
   td = document.createElement('td');
   td.innerText = 'x';
   tr.appendChild(td);
   td = document.createElement('td');
-  td.appendChild(createInputField(420,'image-height'));
+  td.appendChild(createInputField(BASE_HEIGHT,'image-height'));
   tr.appendChild(td);
   tbody.appendChild(tr);
 
@@ -361,7 +377,6 @@ function createCanvas(){
   let picture = document.getElementById("picture");
   picture.innerHTML='';
   picture.style.width=''+(width+3)+'px';
-  // picture.style.height=''+(height+3)+'px';
 
   let canvas = document.createElement('canvas');
   canvas.id = 'star-canvas';

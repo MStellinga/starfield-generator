@@ -3,12 +3,13 @@ var nebulaBubbleMaxSize = 160;
 var nebulaBubbleCenterBaseSize = 80;
 var nebulaBubbleCenterMaxSize = 30;
 var colorDistanceFalloff = 2;
+var colorDampening = 4;
 
 var starClusters = [
-    {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:500, generated:0 },
-    {x: 80, y: 50,   strength: 30, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0 },
+    {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:0, generated:0 },
+    {x: 80, y: 50,   strength: 60, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0 },
     {x: 350, y: 250, strength: 30, r: 0, g: 150, b:200, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0 },
-    {x: 600, y: 320, strength: 40, r: 0, g: 0, b:250, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0 },
+    {x: 600, y: 320, strength: 300, r: 0, g: 0, b:250, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0 },
 ];
 
 var starPixels;
@@ -17,6 +18,7 @@ var fieldWidth;
 var fieldHeight;
 
 var total = 0;
+var totalBubblesLog = 0;
 
 function setPixel(pixels, x, y, r, g, b){    
   let n1 = new Date().getTime();
@@ -50,8 +52,8 @@ function generateClusterLocation(clusterIdx){
       y: Math.random() * fieldHeight
     };
   } else {
-    let len = starClusters[clusterIdx].strength + Math.max(fieldWidth/2,fieldHeight/2);
-    let distance = Math.random() * (0.2+0.8*Math.random()) * len;    
+    let len = starClusters[clusterIdx].strength + Math.max(fieldWidth/8,fieldHeight/8);
+    let distance = len - (Math.random() * (0.9+0.1*Math.random()) * len);    
     let angle = Math.random() * Math.PI * 2;   
     return {
       x: starClusters[clusterIdx].x + distance*Math.cos(angle), 
@@ -127,8 +129,9 @@ function createNebulaBubble(clusterIdx) {
     color.b += starClusters[j].b * fact;
   }
   
-  // Add some color randomness and determine strength
-  let strength = (starClusters[clusterIdx].strength * Math.random()) / (15*starClusters[clusterIdx].bubbles);
+  // Add some color randomness and determine strength  
+  var clusterStrength = starClusters[clusterIdx].strength / (totalBubblesLog*colorDampening*starClusters[clusterIdx].bubbles);
+  let strength = (0.3 + 0.3 * Math.random()) *  clusterStrength;
   color.r = color.r * strength;
   color.g = color.g * strength;
   color.b = color.b * strength;  
@@ -172,7 +175,6 @@ function determineSizeModifier(distancePerAngle, angleIdx, anglePart) {
   if(anglePart > 0.5) {
     let nextIdx = (angleIdx + 1) > 9 ? 0 : (angleIdx + 1);                
     result = distancePerAngle[angleIdx] * (1.5-anglePart) + distancePerAngle[nextIdx] * (anglePart-0.5);
-    //console.log(""+angleIdx+"|"+anglePart+"> " + distancePerAngle[angleIdx] + "|"+distancePerAngle[nextIdx]+"="+result);
   } else if(anglePart < 0.5){
     let prevIdx = (angleIdx - 1) < 0 ? 9 : (angleIdx - 1);          
     result = distancePerAngle[prevIdx] * (0.5-anglePart) + distancePerAngle[angleIdx] * (0.5+anglePart);    
@@ -276,7 +278,13 @@ export function init(settings, nebula, width, height){
   nebulaBubbleCenterBaseSize = settings.nebulaCenterBaseSize;
   nebulaBubbleCenterMaxSize= settings.nebulaCenterMaxSize;  
   colorDistanceFalloff = settings.colorDistanceFalloff;
+  colorDampening = settings.colorDampening;
   resetGenerated();
+  let totalBubbles = 0;
+  for(var i=0; i<starClusters.length; i++) {
+    totalBubbles += starClusters[i].bubbles;
+  }
+  totalBubblesLog = Math.log2(totalBubbles);
   if(nebula){        
     nebulaPixels = new Array(width*height*4);
     for(let i=0; i<nebulaPixels.length; i+=4){
