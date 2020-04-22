@@ -1,5 +1,5 @@
 import {setClusterColor, addNewCluster, getClusters} from '../generator/generator.js';
-import {generateStars, generateNebula} from './generator-ui.js';
+import {generateStars, generateNebula, generateFractal, cancelGenerate} from './generator-ui.js';
 import '@simonwep/pickr/dist/themes/classic.min.css'; 
 import Pickr from '@simonwep/pickr';
 
@@ -64,81 +64,36 @@ function createPicker(element){
       });
 }
 
-function createSettingsSection(){
-  let generate = document.getElementById('generate');
-  generate.innerHTML = '<h2>Settings</h2>'; 
-
+function createImageSettingsSection(){
+  let imageSettings = document.getElementById('imagesize');
+  imageSettings.innerHTML = '<h2>Image</h2>';
+  
   let table = document.createElement('table');
   let tbody = document.createElement('tbody');
-  
+
   let tr = document.createElement('tr');
   let td = document.createElement('td');
-  td.innerText = 'Bubble sizes';
+  td.innerText = 'Image size';
   tr.appendChild(td);
   td = document.createElement('td');
-  td.appendChild(createInputField(30,'nebula-bubble-base-size'));    
+  td.appendChild(createInputField(BASE_WIDTH,'image-width'));
   tr.appendChild(td);
   td = document.createElement('td');
-  td.innerText = '-';
-  tr.appendChild(td);    
-  td = document.createElement('td');
-  td.appendChild(createInputField(160,'nebula-bubble-max-size'));    
-  tr.appendChild(td);
-  tbody.appendChild(tr);
-
-  tr = document.createElement('tr');
-  td = document.createElement('td');
-  td.innerText = 'Dark center size';
+  td.innerText = 'x';
   tr.appendChild(td);
   td = document.createElement('td');
-  td.appendChild(createInputField(30,'nebula-push-base-size'));
-  tr.appendChild(td);
-  td = document.createElement('td');
-  td.innerText = '-';
-  tr.appendChild(td);
-  td = document.createElement('td');
-  td.appendChild(createInputField(80,'nebula-push-max-size'));
-  tr.appendChild(td);
-  tbody.appendChild(tr);
-
-  tr = document.createElement('tr');
-  td = document.createElement('td');
-  td.innerText = 'Color-distance fall-off';
-  td.colSpan = 3;
-  tr.appendChild(td);
-  td = document.createElement('td');
-  td.appendChild(createInputField(2,'color-distance-falloff'));
-  tr.appendChild(td);
-  tbody.appendChild(tr);
-
-  tr = document.createElement('tr');
-  td = document.createElement('td');
-  td.innerText = 'Color dampening';
-  td.colSpan = 3;
-  tr.appendChild(td);
-  td = document.createElement('td');
-  td.appendChild(createInputField(4,'color-dampening'));
+  td.appendChild(createInputField(BASE_HEIGHT,'image-height'));
   tr.appendChild(td);
   tbody.appendChild(tr);
 
   table.appendChild(tbody);
-  generate.appendChild(table);
+  imageSettings.appendChild(table);
 
-  let starButton = document.createElement('button');
-  starButton.innerText = 'Generate stars';
-  starButton.addEventListener("click", ()=>{
-    setMode(MODE_VIEW);
-    generateStars();
-  });
-  generate.appendChild(starButton);
-
-  let nebulaButton = document.createElement('button');
-  nebulaButton.innerText = 'Generate nebula';
-  nebulaButton.addEventListener("click", ()=>{ 
-    setMode(MODE_VIEW);
-    generateNebula();
-  });
-  generate.appendChild(nebulaButton);
+  let sizeButton = document.createElement('button');
+  sizeButton.id = 'save-size-button';
+  sizeButton.innerText='Set';
+  sizeButton.addEventListener("click",onSetSizeClick);
+  imageSettings.appendChild(sizeButton);
 }
 
 export function showClusters(){
@@ -146,7 +101,7 @@ export function showClusters(){
   clusters.innerHTML = '<h2>Background / Clusters</h2>'; // Clear it
   let clusterTable = document.createElement('table');
   let thead  = document.createElement('thead');
-  thead.innerHTML = "<tr><th></th><th>Power</th><th>Stars 1</th><th>Stars 2</th><th>Stars 3</th><th>Bubbles</th><th>Color</th><th></th></tr>"
+  thead.innerHTML = "<tr><th></th><th>Power</th><th>Stars 1</th><th>Stars 2</th><th>Stars 3</th><th>Bubbles</th><th>Fractal</th><th>Color</th><th></th></tr>"
   clusterTable.appendChild(thead);
 
   let editor = document.getElementById('cluster-editor');
@@ -174,6 +129,9 @@ export function showClusters(){
     cluster.appendChild(td);
     td = document.createElement('td');
     td.appendChild(createClusterInputField(starClusters[i], 'bubbles'));
+    cluster.appendChild(td);
+    td = document.createElement('td');
+    td.appendChild(createClusterInputField(starClusters[i], 'fractalSize'));
     cluster.appendChild(td);
 
     td = document.createElement('td');    
@@ -233,6 +191,193 @@ export function showClusters(){
   editButton.addEventListener("click",onEditClusterClick);
   clusters.appendChild(editButton);
   setMode(mode);
+}
+
+function createSettingsSection(){
+  let generate = document.getElementById('generate');
+  generate.innerHTML = '<h2>Settings</h2>'; 
+
+  let table = document.createElement('table');
+  let tbody = document.createElement('tbody');
+  
+  let tr = document.createElement('tr');
+  let td = document.createElement('td');
+  td.innerText = 'Bubble sizes';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(30,'nebula-bubble-base-size'));    
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.innerText = '-';
+  tr.appendChild(td);    
+  td = document.createElement('td');
+  td.appendChild(createInputField(160,'nebula-bubble-max-size'));    
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Dark center size';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(30,'nebula-push-base-size'));
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.innerText = '-';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(80,'nebula-push-max-size'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Bubble distance fall-off';
+  td.colSpan = 3;
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(2,'color-distance-falloff'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Bubble color desaturate';
+  td.colSpan = 3;
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(4,'color-dampening'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Fractal division count';
+  td.colSpan = 3;
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(6,'fractal-division-count'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Fractal min size';
+  td.colSpan = 3;
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(5,'fractal-minsize'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');
+  td = document.createElement('td');
+  td.innerText = 'Fractal color gain (%)';
+  td.colSpan = 3;
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createInputField(10,'fractal-color-gain'));
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  table.appendChild(tbody);
+  generate.appendChild(table);
+
+  let genLabel = document.createElement('label');
+  genLabel.innerText = 'Generate';
+  generate.appendChild(genLabel);
+
+  let starButton = document.createElement('button');
+  starButton.id = 'button-generate-stars';
+  starButton.innerText = 'Stars';
+  starButton.addEventListener("click", ()=>{
+    setMode(MODE_VIEW);
+    generateStars();
+  });
+  generate.appendChild(starButton);
+
+  let nebulaButton = document.createElement('button');
+  nebulaButton.id = 'button-generate-nebula';
+  nebulaButton.innerText = 'Bubble nebula';
+  nebulaButton.addEventListener("click", ()=>{ 
+    setMode(MODE_VIEW);
+    generateNebula();
+  });
+  generate.appendChild(nebulaButton);
+
+  let fractalButton = document.createElement('button');
+  fractalButton.id = 'button-generate-fractal';
+  fractalButton.innerText = 'Fractal nebula';
+  fractalButton.addEventListener("click", ()=>{ 
+    setMode(MODE_VIEW);
+    generateFractal();
+  });
+  generate.appendChild(fractalButton);
+
+  let cancelButton = document.createElement('button');
+  cancelButton.id = 'button-generate-cancel';
+  cancelButton.innerText = 'Cancel';
+  cancelButton.style.display = 'none';
+  cancelButton.addEventListener("click", ()=>{ 
+    cancelGenerate();
+  });
+  generate.appendChild(cancelButton);
+}
+
+function createProgressSection(){
+  let progress = document.getElementById('progress');
+  progress.innerHTML = '<div id="progress-done" style="width:0%"></div>';
+}
+
+function createCanvas(){
+  let picture = document.getElementById("picture");
+  picture.innerHTML='';
+  picture.style.width=''+(width+3)+'px';
+
+  let canvas = document.createElement('canvas');
+  canvas.id = 'star-canvas';
+  canvas.width=width;
+  canvas.height=height;       
+
+  let editor = document.createElement('div');
+  editor.id='cluster-editor';
+  editor.style.display = 'none';
+  editor.style.width=''+width+'px';
+  editor.style.height=''+height+'px';
+  editor.addEventListener('click',onClusterClick);
+  picture.appendChild(editor);
+
+  document.addEventListener("dragstart", function(event) {
+    let idx = parseInt(event.target.getAttribute('data-cluster-id'));    
+    if(!isNaN(idx)){
+      event.dataTransfer.setData('index',''+idx);
+    }
+  });  
+  editor.addEventListener("dragover", function(event) {
+    event.preventDefault();
+  });  
+  editor.addEventListener("drop", function(event) {
+    let idx = parseInt(event.dataTransfer.getData('index'));    
+    if(!isNaN(idx)){
+      let rect = event.target.getBoundingClientRect();      
+      let x = Math.round(event.clientX - rect.left); 
+      let y = Math.round(event.clientY - rect.top);  
+      getClusters()[idx].x = x;
+      getClusters()[idx].y = y;
+      updateClusterCircles();
+    }
+  });
+  
+  picture.appendChild(canvas);  
+
+  let a = document.createElement('a');
+  a.id = 'download';
+  a.download='Starfield.png';
+  let button = document.createElement('button');
+  button.addEventListener('click',download);
+  button.innerText='Save to file';
+  a.appendChild(button);
+  picture.appendChild(a);
 }
 
 function updateClusterCircles(){
@@ -323,38 +468,6 @@ function onEditClusterClick(event){
   }
 }
 
-function createImageSettingsSection(){
-  let imageSettings = document.getElementById('imagesize');
-  imageSettings.innerHTML = '<h2>Image</h2>';
-  
-  let table = document.createElement('table');
-  let tbody = document.createElement('tbody');
-
-  let tr = document.createElement('tr');
-  let td = document.createElement('td');
-  td.innerText = 'Image size';
-  tr.appendChild(td);
-  td = document.createElement('td');
-  td.appendChild(createInputField(BASE_WIDTH,'image-width'));
-  tr.appendChild(td);
-  td = document.createElement('td');
-  td.innerText = 'x';
-  tr.appendChild(td);
-  td = document.createElement('td');
-  td.appendChild(createInputField(BASE_HEIGHT,'image-height'));
-  tr.appendChild(td);
-  tbody.appendChild(tr);
-
-  table.appendChild(tbody);
-  imageSettings.appendChild(table);
-
-  let sizeButton = document.createElement('button');
-  sizeButton.id = 'save-size-button';
-  sizeButton.innerText='Set';
-  sizeButton.addEventListener("click",onSetSizeClick);
-  imageSettings.appendChild(sizeButton);
-}
-
 function onSetSizeClick(event){
   width = parseInt(document.getElementById('image-width').value);
   height = parseInt(document.getElementById('image-height').value);
@@ -366,62 +479,6 @@ function onSetSizeClick(event){
   }  
   createCanvas();
   showClusters();   
-}
-
-function createProgressSection(){
-  let progress = document.getElementById('progress');
-  progress.innerHTML = '<div id="progress-done" style="width:0%"></div>';
-}
-
-function createCanvas(){
-  let picture = document.getElementById("picture");
-  picture.innerHTML='';
-  picture.style.width=''+(width+3)+'px';
-
-  let canvas = document.createElement('canvas');
-  canvas.id = 'star-canvas';
-  canvas.width=width;
-  canvas.height=height;       
-
-  let editor = document.createElement('div');
-  editor.id='cluster-editor';
-  editor.style.display = 'none';
-  editor.style.width=''+width+'px';
-  editor.style.height=''+height+'px';
-  editor.addEventListener('click',onClusterClick);
-  picture.appendChild(editor);
-
-  document.addEventListener("dragstart", function(event) {
-    let idx = parseInt(event.target.getAttribute('data-cluster-id'));    
-    if(!isNaN(idx)){
-      event.dataTransfer.setData('index',''+idx);
-    }
-  });  
-  editor.addEventListener("dragover", function(event) {
-    event.preventDefault();
-  });  
-  editor.addEventListener("drop", function(event) {
-    let idx = parseInt(event.dataTransfer.getData('index'));    
-    if(!isNaN(idx)){
-      let rect = event.target.getBoundingClientRect();      
-      let x = Math.round(event.clientX - rect.left); 
-      let y = Math.round(event.clientY - rect.top);  
-      getClusters()[idx].x = x;
-      getClusters()[idx].y = y;
-      updateClusterCircles();
-    }
-  });
-  
-  picture.appendChild(canvas);  
-
-  let a = document.createElement('a');
-  a.id = 'download';
-  a.download='Starfield.png';
-  let button = document.createElement('button');
-  button.addEventListener('click',download);
-  button.innerText='Save to file';
-  a.appendChild(button);
-  picture.appendChild(a);
 }
 
 function download() {
