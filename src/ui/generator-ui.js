@@ -70,8 +70,8 @@ function initVariables(mode){
   let settings = {    
     nebulaBubbleBaseSize: getAsInt('nebula-bubble-base-size',30),
     nebulaBubbleMaxSize: getAsInt('nebula-bubble-max-size',160),
-    nebulaCenterBaseSize: getAsInt('nebula-push-base-size',80),
-    nebulaCenterMaxSize: getAsInt('nebula-push-max-size',30),
+    nebulaBubbleCenterBaseSize: getAsInt('nebula-push-base-size',80),
+    nebulaBubbleCenterMaxSize: getAsInt('nebula-push-max-size',30),
     colorDistanceFalloff: getAsFloat('color-distance-falloff',2),
     colorDampening: getAsFloat('color-dampening',4),
     fractalDivisionCount: getAsInt('fractal-division-count',6),

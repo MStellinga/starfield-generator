@@ -3,16 +3,6 @@ export const GENERATE_NEBULA=1;
 export const GENERATE_FRACTAL=2;
 
 var settings;
-var nebulaBubbleBaseSize = 30;
-var nebulaBubbleMaxSize = 160;
-var nebulaBubbleCenterBaseSize = 80;
-var nebulaBubbleCenterMaxSize = 30;
-var colorDistanceFalloff = 2;
-var colorDampening = 4;
-var fractalDivisionCount = 6;
-var fractalMinSize = 5;
-var fractalColorGain = 10;
-
 var starClusters = [
     {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:0, generated:0, fractalSize: 0 },
     {x: 80, y: 50,   strength: 100, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
@@ -33,13 +23,13 @@ var totalBubbles = 0;
 var totalBubblesLog = 0;
 var precision = 0.1;
 
-function setPixel(pixels, x, y, r, g, b){    
+function setPixel(pixels, x, y, r, g, b) {    
   x = Math.round(x);
   y = Math.round(y);
   if(x<0 || x >= fieldWidth || y<0 || y >= fieldHeight){
     return;
-  }
-  
+  }  
+
   let idx = (y * fieldWidth * 4) + (x * 4);         
   pixels[idx] = pixels[idx] + r;
   pixels[idx+1] = pixels[idx+1] + g;
@@ -58,19 +48,6 @@ export function paint(context){
     let valB = starPixels && starPixels[i+2] ? starPixels[i+2] : 0;
     valB = nebulaPixels && nebulaPixels[i+2] ? valB + nebulaPixels[i+2] : valB;        
     valB = fractalPixels && fractalPixels[i+2] ? valB + fractalPixels[i+2] : valB;    
-    // Handle blooming 
-    // if(valR>255) {
-    //   valG += (valR-255)/10;
-    //   valB += (valR-255)/10;
-    // }
-    // if(valG>255) {
-    //   valR += (valG-255)/10;
-    //   valB += (valG-255)/10;
-    // }
-    // if(valB>255) {
-    //   valR += (valB-255)/10;
-    //   valG += (valB-255)/10;
-    // }
     // Now paint that sucker
     imageData.data[i] = valR > 255 ? 255 : Math.round(valR);    
     imageData.data[i+1] = valG > 255 ? 255 : Math.round(valG);
@@ -141,8 +118,8 @@ function createStar(starSize, clusterIdx) {
 
 function createNebulaBubble(clusterIdx) {  
   let center = generateClusterLocation(clusterIdx);
-  let size = nebulaBubbleBaseSize + Math.random() * (nebulaBubbleMaxSize-nebulaBubbleBaseSize);
-  let centerSize = nebulaBubbleCenterBaseSize + Math.random() * (nebulaBubbleCenterMaxSize-nebulaBubbleCenterBaseSize);
+  let size = settings.nebulaBubbleBaseSize + Math.random() * (settings.nebulaBubbleMaxSize-settings.nebulaBubbleBaseSize);
+  let centerSize = settings.nebulaBubbleCenterBaseSize + Math.random() * (settings.nebulaBubbleCenterMaxSize-settings.nebulaBubbleCenterBaseSize);
   if(centerSize > size) {
     let tmp = size;
     size = centerSize;
@@ -154,19 +131,20 @@ function createNebulaBubble(clusterIdx) {
   for(let j=0;j<starClusters.length; j++) {    
     let val = Math.sqrt(Math.pow(starClusters[j].x-center.x,2) + Math.pow(starClusters[j].y-center.y,2));
     // higher falloff to make more saturated colors around clusters
-    dists.push(val*colorDistanceFalloff);
+    dists.push(val*settings.colorDistanceFalloff);
     total += val;
-  }
+  }  
   for(let j=0;j<starClusters.length; j++) {
     let fact =  1.0 - dists[j]/total;
-    let fact2 = fact * starClusters[j].bubbles/totalBubbles;
+    let fact2 = fact * starClusters[j].bubbles/totalBubbles;    
     color.r += starClusters[j].r * fact * fact2;
     color.g += starClusters[j].g * fact * fact2;
     color.b += starClusters[j].b * fact * fact2;
+    
   }
-  
+
   // Add some color randomness and determine strength  
-  var clusterStrength = starClusters[clusterIdx].strength / (totalBubblesLog*colorDampening*starClusters[clusterIdx].bubbles);
+  var clusterStrength = starClusters[clusterIdx].strength / (totalBubblesLog*settings.colorDampening*starClusters[clusterIdx].bubbles);
   let strength = (2 + 0.6 * Math.random()) *  clusterStrength;
   color.r = color.r * strength;
   color.g = color.g * strength;
@@ -179,18 +157,18 @@ function createFractal(clusterIdx){
   if(starClusters[clusterIdx].fractalSize == 0){
     return;
   }
-  fractalAngles = Array(fractalDivisionCount);
-  let angle = (2*Math.PI) / fractalDivisionCount;
+  fractalAngles = Array(settings.fractalDivisionCount);
+  let angle = (2*Math.PI) / settings.fractalDivisionCount;
   for(let i=0; i<fractalAngles.length; i++) {
     fractalAngles[i] = (i * angle )/(2*Math.PI)*10;
   }    
   let strength;
-  if(fractalColorGain < 0){
-    strength = (50/-fractalColorGain)*Math.log2(starClusters[clusterIdx].fractalSize);
-  } else if(fractalColorGain == 0){
+  if(settings.fractalColorGain < 0){
+    strength = (50/-settings.fractalColorGain)*Math.log2(starClusters[clusterIdx].fractalSize);
+  } else if(settings.fractalColorGain == 0){
     strength = 5*Math.log2(starClusters[clusterIdx].fractalSize);
   } else {
-    strength = 5*fractalColorGain*Math.log2(starClusters[clusterIdx].fractalSize);
+    strength = 5*settings.fractalColorGain*Math.log2(starClusters[clusterIdx].fractalSize);
   }
   let color = {
     r: Math.abs(starClusters[clusterIdx].r / strength) ,
@@ -208,11 +186,11 @@ function createFractal(clusterIdx){
 
 function drawFractal(x, y, size, color) {       
   var edgePositionsForAngles = drawBubble(fractalPixels, x, y, color, size * 0.8, size, fractalAngles);
-  if(size > fractalMinSize) {        
+  if(size > settings.fractalMinSize) {        
     let color2 = {
-      r: color.r * (100+fractalColorGain)/100,
-      g: color.g * (100+fractalColorGain)/100,
-      b: color.b * (100+fractalColorGain)/100
+      r: color.r * (100+settings.fractalColorGain)/100,
+      g: color.g * (100+settings.fractalColorGain)/100,
+      b: color.b * (100+settings.fractalColorGain)/100
     }        
     for(let i=0; i < edgePositionsForAngles.length; i++) {
       if(edgePositionsForAngles[i].x != -1 && edgePositionsForAngles[i].y != -1) {      
@@ -234,7 +212,8 @@ function nextFractalItem() {
   }
 }
 
-function drawBubble(pixels, centerX, centerY, color, innerSize, outerSize, rimAngles){
+function drawBubble(pixels, centerX, centerY, color, innerSize, outerSize, rimAngles){  
+  
   // Determine max affected area
   let xMin = Math.floor(Math.max(0,centerX - outerSize));
   let xMax = Math.floor(Math.min(fieldWidth,centerX + outerSize));
@@ -264,7 +243,7 @@ function drawBubble(pixels, centerX, centerY, color, innerSize, outerSize, rimAn
         continue;
       } 
       let randomPart = 1-(Math.random()/5);      
-      let sizePart = (distToCenter >= (innerSize*sizeMod)) ? 1 : distToCenter/(innerSize*sizeMod);
+      let sizePart = (distToCenter >= (innerSize*sizeMod)) ? 1 : distToCenter/(innerSize*sizeMod);      
       let interpolatedColor= {
         r: color.r * sizePart * randomPart,
         g: color.g * sizePart * randomPart,
@@ -305,8 +284,8 @@ function getClusterTotalToGenerate(clusterIdx, mode){
   if(mode == GENERATE_NEBULA){
     return starClusters[clusterIdx].bubbles;
   } else if(mode == GENERATE_FRACTAL) {    
-    if(starClusters[clusterIdx].fractalSize-fractalMinSize > 0){
-      return 2.5 * Math.pow(fractalDivisionCount, Math.log2(starClusters[clusterIdx].fractalSize-fractalMinSize));    
+    if(starClusters[clusterIdx].fractalSize-settings.fractalMinSize > 0){
+      return 2.5 * Math.pow(settings.fractalDivisionCount, Math.log2(starClusters[clusterIdx].fractalSize-settings.fractalMinSize));    
     } else {
       return 0;
     }
@@ -341,6 +320,7 @@ function resetGenerated(){
   for(let i=0; i<starClusters.length; i++){
     starClusters[i].generated = 0;
   }
+  fractalItems = [];
 }
 
 export function getClusters() {
@@ -391,15 +371,6 @@ export function init(settingsFromUI, mode, width, height){
   fieldWidth = width;
   fieldHeight = height;
   settings = settingsFromUI;
-  nebulaBubbleBaseSize = settingsFromUI.nebulaBubbleBaseSize;
-  nebulaBubbleMaxSize = settingsFromUI.nebulaBubbleMaxSize;
-  nebulaBubbleCenterBaseSize = settingsFromUI.nebulaCenterBaseSize;
-  nebulaBubbleCenterMaxSize= settingsFromUI.nebulaCenterMaxSize;  
-  colorDistanceFalloff = settingsFromUI.colorDistanceFalloff;
-  colorDampening = settingsFromUI.colorDampening;
-  fractalDivisionCount = settingsFromUI.fractalDivisionCount;
-  fractalMinSize = settingsFromUI.fractalMinSize;
-  fractalColorGain = settingsFromUI.fractalColorGain;
 
   resetGenerated();
   totalBubbles = 0;
