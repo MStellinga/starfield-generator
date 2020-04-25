@@ -25,6 +25,20 @@ function createInputField(value, id){
     return field;
 }
 
+function createCheckbox(text, id){
+  let wrapper = document.createElement('div');
+  let field = document.createElement('input');
+  if(id){
+      field.id = id;
+  }  
+  field.type='checkbox';
+  wrapper.appendChild(field);
+  let span = document.createElement("span");
+  span.innerText= text;
+  wrapper.appendChild(span);
+  return wrapper;
+}
+
 function createClusterInputField(starCluster, attribute){
   let field = createInputField(starCluster[attribute]);    
   field.addEventListener("blur", (function(starCluster){
@@ -278,6 +292,17 @@ function createSettingsSection(){
   td = document.createElement('td');
   td.appendChild(createInputField(10,'fractal-color-gain'));
   tr.appendChild(td);
+  tbody.appendChild(tr);
+
+  tr = document.createElement('tr');  
+  td = document.createElement('td');
+  td.colSpan=2;
+  td.appendChild(createCheckbox("Blur nebula","blur-nebula-checkbox"));  
+  tr.appendChild(td);
+  td = document.createElement('td');
+  td.appendChild(createCheckbox("Blur fractal","blur-fractal-checkbox"));  
+  td.colSpan=2;
+  tr.appendChild(td);  
   tbody.appendChild(tr);
 
   table.appendChild(tbody);

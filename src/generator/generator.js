@@ -30,15 +30,57 @@ function setPixel(pixels, x, y, r, g, b) {
     return;
   }  
 
-  let idx = (y * fieldWidth * 4) + (x * 4);         
+  let idx = (y * fieldWidth * 3) + (x * 3);         
   pixels[idx] = pixels[idx] + r;
   pixels[idx+1] = pixels[idx+1] + g;
   pixels[idx+2] = pixels[idx+2] + b;
 }
 
+function fillPixel(pixels, x, y, toFill, fallback) {  
+  if(x<0 || x >= fieldWidth || y<0 || y >= fieldHeight){
+    toFill.r += fallback.r;
+    toFill.g += fallback.g;
+    toFill.b += fallback.b;
+    return;
+  }  
+
+  let idx = (y * fieldWidth * 3) + (x * 3);         
+  toFill.r += pixels[idx];
+  toFill.g += pixels[idx+1];
+  toFill.b += pixels[idx+1];  
+}
+
+function blurPixels(pixels) {
+  let newPixels = new Array(pixels.length);
+  for(let x=0; x<fieldWidth; x++) {
+    for(let y=0; y<fieldHeight; y++) {
+      let baseVal = {r:0,g:0,b:0};
+      fillPixel(pixels, x,y,baseVal,undefined);   
+      let val = {r: baseVal.r*8,g: baseVal.g*8,b: baseVal.b*8} ;
+      fillPixel(pixels, x-1,y-1,val, baseVal);
+      fillPixel(pixels, x-1,y,val, baseVal);
+      fillPixel(pixels, x-1,y+1,val, baseVal);
+      fillPixel(pixels, x,y-1,val, baseVal);
+      fillPixel(pixels, x,y+1,val, baseVal);
+      fillPixel(pixels, x+1,y-1,val, baseVal);
+      fillPixel(pixels, x+1,y,val, baseVal);
+      fillPixel(pixels, x+1,y+1,val, baseVal);
+
+      let idx = (y * fieldWidth * 3) + (x * 3);         
+      newPixels[idx] = val.r/16;
+      newPixels[idx+1] = val.g/16;
+      newPixels[idx+2] = val.b/16;
+    }
+  }  
+  for(let i=0; i<pixels.length; i++) {
+    pixels[i] = newPixels[i];
+  }
+}
+
 export function paint(context){    
   let imageData = context.createImageData(fieldWidth, fieldHeight);
-  for(let i=0; i<imageData.data.length; i+=4){    
+  let i = 0;
+  for(let j=0; j<imageData.data.length; j+=4){        
     let valR = starPixels && starPixels[i] ? starPixels[i] : 0;
     valR = nebulaPixels && nebulaPixels[i] ? valR + nebulaPixels[i] : valR;        
     valR = fractalPixels && fractalPixels[i] ? valR + fractalPixels[i] : valR;            
@@ -49,10 +91,11 @@ export function paint(context){
     valB = nebulaPixels && nebulaPixels[i+2] ? valB + nebulaPixels[i+2] : valB;        
     valB = fractalPixels && fractalPixels[i+2] ? valB + fractalPixels[i+2] : valB;    
     // Now paint that sucker
-    imageData.data[i] = valR > 255 ? 255 : Math.round(valR);    
-    imageData.data[i+1] = valG > 255 ? 255 : Math.round(valG);
-    imageData.data[i+2] = valB > 255 ? 255 : Math.round(valB);
-    imageData.data[i+3] = 255;
+    imageData.data[j] = valR > 255 ? 255 : Math.round(valR);    
+    imageData.data[j+1] = valG > 255 ? 255 : Math.round(valG);
+    imageData.data[j+2] = valB > 255 ? 255 : Math.round(valB);
+    imageData.data[j+3] = 255;
+    i+=3;
   }  
   context.putImageData(imageData,0,0);  
 }
@@ -367,6 +410,22 @@ export function generate(clusterIdx, mode, amount){
   return notDone;  
 }
 
+export function applyBlur(mode) {
+  if(mode == GENERATE_NEBULA){    
+    if(settings.blurNebala){    
+      blurPixels(nebulaPixels);
+    }
+  } else if(mode == GENERATE_FRACTAL){
+    if(settings.blurFractal){    
+      blurPixels(fractalPixels);
+    }
+  } else {
+    if(settings.blurStars){    
+      blurPixels(starPixels);
+    }
+  }
+}
+
 export function init(settingsFromUI, mode, width, height){
   fieldWidth = width;
   fieldHeight = height;
@@ -379,25 +438,22 @@ export function init(settingsFromUI, mode, width, height){
   }
   totalBubblesLog = Math.log2(totalBubbles);
   if(mode == GENERATE_NEBULA){        
-    nebulaPixels = new Array(width*height*4);
-    for(let i=0; i<nebulaPixels.length; i+=4){
-      nebulaPixels[i]=nebulaPixels[i+1]=nebulaPixels[i+2]=0;
-      nebulaPixels[i+3]=255;
+    nebulaPixels = new Array(width*height*3);
+    for(let i=0; i<nebulaPixels.length; i++){
+      nebulaPixels[i]=0;
     }
   } else if(mode == GENERATE_FRACTAL){
-    fractalPixels = new Array(width*height*4);    
-    for(let i=0; i<fractalPixels.length; i+=4){
-      fractalPixels[i]=fractalPixels[i+1]=fractalPixels[i+2]=0;
-      fractalPixels[i+3]=255;
+    fractalPixels = new Array(width*height*3);    
+    for(let i=0; i<fractalPixels.length; i++){
+      fractalPixels[i]=0;
     }
     for(var i=0; i<starClusters.length; i++) {
       createFractal(i);
     }
   } else {    
-    starPixels = new Array(width*height*4);    
-    for(let i=0; i<starPixels.length; i+=4){
-      starPixels[i]=starPixels[i+1]=starPixels[i+2]=0;
-      starPixels[i+3]=255;
+    starPixels = new Array(width*height*3);    
+    for(let i=0; i<starPixels.length; i++){
+      starPixels[i]=0;
     }
   }
 }

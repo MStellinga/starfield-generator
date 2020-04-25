@@ -1,4 +1,4 @@
-import { init, generate, getClusters,getProgress, paint, GENERATE_FRACTAL, GENERATE_NEBULA, GENERATE_STARS} from '../generator/generator.js';
+import { init, generate, getClusters,getProgress, applyBlur, paint, GENERATE_FRACTAL, GENERATE_NEBULA, GENERATE_STARS} from '../generator/generator.js';
 
 var canvas;
 var width;
@@ -15,6 +15,11 @@ function getAsInt(elementId, fallback){
       result = fallback;
   }
   return result;
+}
+
+function getAsBool(elementId){
+  let box = document.getElementById(elementId);  
+  return box.checked;
 }
 
 function getAsFloat(elementId, fallback){
@@ -47,6 +52,7 @@ function doGenerate(idx, mode) {
        setTimeout(()=>{doGenerate(idx+1, mode)},0);    
     } else {          
       console.log(canceled ? 'Canceled' : 'Done');
+      applyBlur(mode);            
       paint(canvas.getContext("2d"));      
       progressDiv.style.width = "0%";
       generating = false;
@@ -77,7 +83,10 @@ function initVariables(mode){
     fractalDivisionCount: getAsInt('fractal-division-count',6),
     fractalMinSize: getAsInt('fractal-minsize',5),
     fractalColorGain: getAsInt('fractal-color-gain',10),
-  }
+    blurNebula: getAsBool('blur-nebula-checkbox'),
+    blurFractal: getAsBool('blur-fractal-checkbox'),
+    blueStars: false
+  }  
   init(settings, mode, width, height);
 }
   
