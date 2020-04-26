@@ -43,7 +43,7 @@ function GeneratorUI() {
   const [handled, setHandled] = useState(-1);
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState(GENERATE_STARS);
-  const batchSize = 100;
+  const batchSize = 1000;
 
   const updateCluster = (idx, name,val) => {    
     let newCluster;
