@@ -24,14 +24,17 @@ function Picture (props){
 
     const [mode,setMode] = useState(MODE_VIEW);
     const starCanvas = useRef(null);
+    const [pictureData,setPictureData] = useState('');
 
     function paintCanvas(){
-        paint(starCanvas.current.getContext("2d"));
+        let canvas = starCanvas.current;
+        paint(canvas.getContext("2d"));
+        setPictureData(canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     }
 
     useLayoutEffect(() => {
         if(props.shouldPaint){                        
-            paintCanvas();
+            paintCanvas();            
             props.donePainting();
         }
     }, [props, props.shouldPaint]);
@@ -91,6 +94,11 @@ function Picture (props){
                 )}
             </div>
         ))}
+        <div class={style.pictureEditButtons}>
+            <a href={pictureData} download="Starfield.png">
+                <button>Save to File</button>
+            </a>
+        </div>
     </div>);  
 }
 

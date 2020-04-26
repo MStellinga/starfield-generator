@@ -24,15 +24,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/starfields/assets/icons/mstile-150x150.png"
   },
   {
-    "revision": "a71c508bd5996dcb78aa",
-    "url": "/starfields/bundle.10d14.esm.js"
+    "revision": "262f6bfcadffb0cfd530",
+    "url": "/starfields/bundle.77751.esm.js"
   },
   {
-    "revision": "a71c508bd5996dcb78aa",
+    "revision": "262f6bfcadffb0cfd530",
     "url": "/starfields/bundle.ca7c8.css"
   },
   {
-    "revision": "f97aac45513750e4b1cc518885246302",
+    "revision": "dcff51625df89e81a88163904a82e5c5",
     "url": "/starfields/index.html"
   },
   {
