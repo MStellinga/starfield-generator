@@ -94,14 +94,14 @@ function GeneratorUI() {
     if(!canceled && handled>-1) {    
       const timer = setTimeout(() => {
         let clusterCount = clusters.length;
-        if(!idx < clusterCount) {
+        if(idx < clusterCount) {
           let done = !generate(idx, mode, batchSize);         
           let progress = getProgress(mode);          
           setProgress(progress>99 ? 100 : progress);
           setHandled(handled+10);            
           if(done && idx + 1 < clusterCount) {      
             setIdx(idx+1);
-          } else if(done){          
+          } else if(done){                      
             applyBlur(mode);                        
             setProgress(0);
             setShouldPaint(true);
@@ -112,12 +112,13 @@ function GeneratorUI() {
       return () => clearTimeout(timer);
     } else if(canceled){
       setProgress(0);
+      setHandled(-1);
       setShouldPaint(true);
     }    
   }, [canceled, clusters.length, handled, idx, mode]);
 
   function startGenerate(mode){
-    prepareGenerate(settings, mode, width, height);
+    prepareGenerate(settings, clusters, mode, width, height);
     setCanceled(false);
     setMode(mode);
     setIdx(0);

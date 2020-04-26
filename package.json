@@ -6,10 +6,10 @@
   "homepage": ".",
   "scripts": {
     "build": "preact build",
-    "serve": "sirv build --cors --single",
     "start": "preact watch",
     "lint": "eslint src",
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "eslintConfig": {
     "extends": "preact",
@@ -26,8 +26,7 @@
     "jest": "^24.9.0",
     "jest-preset-preact": "^1.0.0",
     "preact-cli": "^3.0.0-rc.6",
-    "preact-render-spy": "^1.2.1",
-    "sirv-cli": "^0.4.5"
+    "preact-render-spy": "^1.2.1"
   },
   "dependencies": {
     "preact": "^10.3.2",

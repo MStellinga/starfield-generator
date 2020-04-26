@@ -3,13 +3,7 @@ export const GENERATE_NEBULA=1;
 export const GENERATE_FRACTAL=2;
 
 let settings;
-let starClusters = [
-    {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:0, generated:0, fractalSize: 0 },
-    {x: 80, y: 50,   strength: 100, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
-    {x: 350, y: 250, strength: 30, r: 0, g: 150, b:200, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
-    {x: 600, y: 320, strength: 300, r: 0, g: 0, b:250, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
-    {x: 400, y: 200, strength: 300, r: 180, g: 0, b:180, size1stars:0, size2stars:0, size3stars:0, bubbles:0, generated:0, fractalSize: 100 },
-];
+let starClusters;
 
 let starPixels;
 let nebulaPixels;
@@ -363,25 +357,6 @@ function resetGenerated(){
   fractalItems = [];
 }
 
-export function getClusters() {
-  return starClusters;
-}
-
-export function setClusterColor(idx, color){
-  let rgb = color.toRGBA();
-  starClusters[idx].r =rgb[0];
-  starClusters[idx].g =rgb[1];
-  starClusters[idx].b =rgb[2];
-}
-
-export function addNewCluster(x,y){
-  starClusters.push({
-    x, y,
-    strength: 50, r: 255, g: 255, b:255, 
-    size1stars:300, size2stars:50, size3stars:0, bubbles:200, generated:0, fractalSize: 0
-  });
-}
-
 export function generate(clusterIdx, mode, amount){    
   let idx = clusterIdx;        
   let notDone = (fractalItems.length > 0) ||  (starClusters[idx].generated < getClusterTotalToGenerate(clusterIdx, mode));    
@@ -421,10 +396,11 @@ export function applyBlur(mode) {
   }
 }
 
-export function prepareGenerate(settingsFromUI, mode, width, height){
+export function prepareGenerate(settingsFromUI, clustersFromUI, mode, width, height){
   fieldWidth = width;
   fieldHeight = height;
   settings = settingsFromUI;
+  starClusters = clustersFromUI;
 
   resetGenerated();
   totalBubbles = 0;

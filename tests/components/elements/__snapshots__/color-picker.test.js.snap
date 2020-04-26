@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test color picker Color picker renders correctly 1`] = `"<div><div class=\\"pickerButton\\" style=\\"background-color: rgb(1,2,3);\\"></div></div>"`;

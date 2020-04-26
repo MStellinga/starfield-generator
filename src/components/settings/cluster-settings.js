@@ -29,7 +29,7 @@ function ClusterSettings (props) {
             <td><TextInput value={cluster.bubbles} onChange={setInt(index,'bubbles')} /></td>
             <td><TextInput value={cluster.fractalSize} onChange={setInt(index,'fractalSize')} /></td>
             <td><ColorPicker color={cluster} onChange={setColor(index)} /></td>
-            <td><button onClick={()=>{props.removeCallback(index)}}>X</button></td>
+            <td>{((index>0 && <button onClick={()=>{props.removeCallback(index)}}>X</button>))}</td>
         </tr>
     );
 
