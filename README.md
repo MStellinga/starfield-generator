@@ -4,7 +4,8 @@ A simple javascript star field generator.
 See https://martinstellinga.com for details.
 
 # Usage
-Open the index.html in the dist folder
+Change the relative path in preact.config.js
+Create a new build. Deploy the contents of the build folder to your web server of choice
 
 # To run a local development copy
 `npm install`

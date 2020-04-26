@@ -15,7 +15,6 @@ function ImageSettings(props) {
     }
 
     return (<div class={style.section}>
-        <h2>Image</h2>
         <div>
             Image size <TextInput value={props.width} onChange={setWidth} /> x <TextInput value={props.height} onChange={setHeight} />            
         </div>

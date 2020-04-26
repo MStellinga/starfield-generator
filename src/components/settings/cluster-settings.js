@@ -34,7 +34,7 @@ function ClusterSettings (props) {
     );
 
     return (<div class={style.section}>
-        <h2>Background / Clusters</h2>
+        <h2>Clusters</h2>
         <table class={clusterStyle.clusters}>
             <thead>
                 <tr>

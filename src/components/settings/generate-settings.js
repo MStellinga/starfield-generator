@@ -26,8 +26,7 @@ function GenerateSettings(props) {
     }
 
     return(
-        <div class={style.section}>
-            <h2>Settings</h2>
+        <div class={style.section}>            
             <table>
                 <tbody>
                     <tr>
@@ -35,36 +34,35 @@ function GenerateSettings(props) {
                         <td><TextInput value={props.settings.nebulaBubbleBaseSize} onChange={setInt('nebulaBubbleBaseSize')} /></td>
                         <td>-</td>
                         <td><TextInput value={props.settings.nebulaBubbleMaxSize} onChange={setInt('nebulaBubbleMaxSize')} /></td>
+
+                        <td colspan="3">Fractal division count</td>
+                        <td><TextInput value={props.settings.fractalDivisionCount} onChange={setInt('fractalDivisionCount')} /></td>
                     </tr>
                     <tr>
                         <td>Dark center size</td>
                         <td><TextInput value={props.settings.nebulaBubbleCenterBaseSize} onChange={setInt('nebulaBubbleCenterBaseSize')} /></td>
                         <td>-</td>
                         <td><TextInput value={props.settings.nebulaBubbleCenterMaxSize} onChange={setInt('nebulaBubbleCenterMaxSize')} /></td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">Bubble distance fall-off</td>
-                        <td><TextInput value={props.settings.colorDistanceFalloff} onChange={setFloat('colorDistanceFalloff')} /></td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">Bubble color desaturate</td>
-                        <td><TextInput value={props.settings.colorDampening} onChange={setFloat('colorDampening')} /></td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">Fractal division count</td>
-                        <td><TextInput value={props.settings.fractalDivisionCount} onChange={setInt('fractalDivisionCount')} /></td>
-                    </tr>
-                    <tr>
+
                         <td colspan="3">Fractal min size</td>
                         <td><TextInput value={props.settings.fractalMinSize} onChange={setInt('fractalMinSize')} /></td>
                     </tr>
                     <tr>
+                        <td colspan="3">Bubble distance fall-off</td>
+                        <td><TextInput value={props.settings.colorDistanceFalloff} onChange={setFloat('colorDistanceFalloff')} /></td>
+
                         <td colspan="3">Fractal color gain (%)</td>
                         <td><TextInput value={props.settings.fractalColorGain} onChange={setInt('fractalColorGain')} /></td>
                     </tr>
                     <tr>
-                        <td colspan="2"><Checkbox label="Blur nebula" value={props.settings.blurNebula} onChange={setBool('blurNebula')} /></td>
-                        <td colspan="2"><Checkbox label="Blur fractal" value={props.settings.blurFractal} onChange={setBool('blurFractal')} /></td>
+                        <td colspan="3">Bubble color desaturate</td>
+                        <td><TextInput value={props.settings.colorDampening} onChange={setFloat('colorDampening')} /></td>
+
+                        <td colspan="4" />
+                    </tr>                    
+                    <tr>
+                        <td colspan="4"><Checkbox label="Blur nebula" value={props.settings.blurNebula} onChange={setBool('blurNebula')} /></td>
+                        <td colspan="4"><Checkbox label="Blur fractal" value={props.settings.blurFractal} onChange={setBool('blurFractal')} /></td>
                     </tr>
                 </tbody>
             </table>
