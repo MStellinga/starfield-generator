@@ -24,31 +24,19 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/starfields/assets/icons/mstile-150x150.png"
   },
   {
-    "revision": "61c5b706bee773bbca7f",
-    "url": "/starfields/bundle.61c5b.js"
+    "revision": "a71c508bd5996dcb78aa",
+    "url": "/starfields/bundle.10d14.esm.js"
   },
   {
-    "revision": "61c5b706bee773bbca7f",
+    "revision": "a71c508bd5996dcb78aa",
     "url": "/starfields/bundle.ca7c8.css"
   },
   {
-    "revision": "14b8c35861d48731899b43cc8a96cf09",
+    "revision": "f97aac45513750e4b1cc518885246302",
     "url": "/starfields/index.html"
   },
   {
     "revision": "cee1de55db024a96361b",
-    "url": "/starfields/polyfills.cee1d.js"
-  },
-  {
-    "revision": "144c6ff1323d2d15182a7d2af08d027e",
-    "url": "/starfields/sw-debug.js"
-  },
-  {
-    "revision": "5bd877ddc7ecb17b5111860376d5bf8c",
-    "url": "/starfields/sw-esm.js"
-  },
-  {
-    "revision": "942a6f40805dad5bdfd11d946de65195",
-    "url": "/starfields/sw.js"
+    "url": "/starfields/polyfills.02f5b.esm.js"
   }
 ]);

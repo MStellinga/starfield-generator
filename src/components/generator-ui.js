@@ -29,10 +29,10 @@ function GeneratorUI() {
   const [clusters, setClusters] = useState(
     [
       {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255,a:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:0, generated:0, fractalSize: 0 },
-      {x: 80, y: 50,   strength: 100, r: 0, g: 200, b:50,a:255, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
-      {x: 350, y: 250, strength: 30, r: 0, g: 150, b:200,a:255, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
-      {x: 600, y: 320, strength: 300, r: 0, g: 0, b:250,a:255, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
-      {x: 400, y: 200, strength: 300, r: 180, g: 0, b:180,a:255, size1stars:0, size2stars:0, size3stars:0, bubbles:0, generated:0, fractalSize: 100 },
+      {x: 80, y: 50,   strength: 100, r: 0, g: 200, b:250,a:255, size1stars:300, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
+      {x: 350, y: 250, strength: 30, r: 0, g: 150, b:200,a:255, size1stars:300, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
+      {x: 600, y: 320, strength: 300, r: 0, g: 0, b:250,a:255, size1stars:300, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
+      {x: 400, y: 200, strength: 300, r: 230, g: 0, b:40,a:255, size1stars:0, size2stars:0, size3stars:0, bubbles:0, generated:0, fractalSize: 100 },
     ]
   );
   const [width,setWidth] = useState(800);
@@ -43,7 +43,7 @@ function GeneratorUI() {
   const [handled, setHandled] = useState(-1);
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState(GENERATE_STARS);
-  const batchSize = 10;
+  const batchSize = 100;
 
   const updateCluster = (idx, name,val) => {    
     let newCluster;
