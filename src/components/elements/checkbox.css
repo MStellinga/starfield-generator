@@ -1,0 +1,8 @@
+.checkbox {
+    display:inline-block;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.checkbox span{
+    margin-left: 5px;
+}

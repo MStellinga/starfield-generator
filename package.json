@@ -1,27 +1,44 @@
 {
-  "name": "star-generator",
-  "version": "1.0.0",
-  "description": "A webapp to generate a star field",
-  "author": "Martin Stellinga",
+  "private": true,
+  "name": "starfield-generator",
+  "version": "0.9.0",
   "license": "MIT",
-  "main": "index.js",
+  "homepage": ".",
   "scripts": {
-    "build": "webpack --mode production",
-    "start": "webpack-dev-server --config ./webpack.config.js --mode development --open"
+    "build": "preact build",
+    "serve": "sirv build --cors --single",
+    "start": "preact watch",
+    "lint": "eslint src",
+    "test": "jest"
   },
-  "keywords": [],
+  "eslintConfig": {
+    "extends": "preact",
+    "ignorePatterns": [
+      "build/"
+    ]
+  },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/node": "^7.8.7",
-    "@babel/preset-env": "^7.9.5",
-    "babel-loader": "^8.1.0",
-    "css-loader": "^3.5.2",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-preact-pure": "^2.0.0",
+    "eslint": "^6.0.1",
+    "eslint-config-preact": "^1.1.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^24.9.0",
+    "jest-preset-preact": "^1.0.0",
+    "preact-cli": "^3.0.0-rc.6",
+    "preact-render-spy": "^1.2.1",
+    "sirv-cli": "^0.4.5"
   },
   "dependencies": {
-    "@simonwep/pickr": "^1.5.1",
-    "style-loader": "^1.1.4"
+    "preact": "^10.3.2",
+    "preact-render-to-string": "^5.1.4",
+    "react-color": "^2.18.0"
+  },
+  "jest": {
+    "preset": "jest-preset-preact",
+    "setupFiles": [
+      "<rootDir>/tests/__mocks__/browserMocks.js",
+      "<rootDir>/tests/__mocks__/setupTests.js"
+    ]
   }
 }

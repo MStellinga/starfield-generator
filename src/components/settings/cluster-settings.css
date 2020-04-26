@@ -1,0 +1,10 @@
+.clusters th {
+    padding: 5px;
+    text-align: center;
+    font-size: small;
+}
+
+.clusters td {
+    padding: 1px;
+    text-align: center;
+}

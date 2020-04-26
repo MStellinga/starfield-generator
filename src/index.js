@@ -1,6 +1,3 @@
-import { createUI } from './ui/ui.js';
-import css from './style.css';
+import App from './components/app';
 
-document.addEventListener('DOMContentLoaded', function() {
-    createUI();
- }, false);
+export default App;

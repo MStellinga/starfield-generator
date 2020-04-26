@@ -2,8 +2,8 @@ export const GENERATE_STARS=0;
 export const GENERATE_NEBULA=1;
 export const GENERATE_FRACTAL=2;
 
-var settings;
-var starClusters = [
+let settings;
+let starClusters = [
     {x: -1, y: -1,   strength: 0, r: 255, g: 255, b:255, size1stars:2000, size2stars:100, size3stars:50, bubbles:0, generated:0, fractalSize: 0 },
     {x: 80, y: 50,   strength: 100, r: 0, g: 200, b:50, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
     {x: 350, y: 250, strength: 30, r: 0, g: 150, b:200, size1stars:500, size2stars:50, size3stars:10, bubbles:500, generated:0, fractalSize: 0 },
@@ -11,17 +11,17 @@ var starClusters = [
     {x: 400, y: 200, strength: 300, r: 180, g: 0, b:180, size1stars:0, size2stars:0, size3stars:0, bubbles:0, generated:0, fractalSize: 100 },
 ];
 
-var starPixels;
-var nebulaPixels;
-var fractalPixels;
-var fieldWidth;
-var fieldHeight;
-var fractalAngles;
-var fractalItems = [];
+let starPixels;
+let nebulaPixels;
+let fractalPixels;
+let fieldWidth;
+let fieldHeight;
+let fractalAngles;
+let fractalItems = [];
 
-var totalBubbles = 0;
-var totalBubblesLog = 0;
-var precision = 0.1;
+let totalBubbles = 0;
+let totalBubblesLog = 0;
+let precision = 0.1;
 
 function setPixel(pixels, x, y, r, g, b) {    
   x = Math.round(x);
@@ -106,15 +106,14 @@ function generateClusterLocation(clusterIdx){
       x: Math.random() * fieldWidth,
       y: Math.random() * fieldHeight
     };
-  } else {
-    let len = starClusters[clusterIdx].strength + Math.max(fieldWidth/8,fieldHeight/8);
-    let distance = len - (Math.random() * (0.9+0.1*Math.random()) * len);    
-    let angle = Math.random() * Math.PI * 2;   
-    return {
-      x: starClusters[clusterIdx].x + distance*Math.cos(angle), 
-      y: starClusters[clusterIdx].y + distance*Math.sin(angle) 
-    };    
-  }
+  } 
+  let len = starClusters[clusterIdx].strength + Math.max(fieldWidth/8,fieldHeight/8);
+  let distance = len - (Math.random() * (0.9+0.1*Math.random()) * len);    
+  let angle = Math.random() * Math.PI * 2;   
+  return {
+    x: starClusters[clusterIdx].x + distance*Math.cos(angle), 
+    y: starClusters[clusterIdx].y + distance*Math.sin(angle) 
+  };  
 }
 
 function createStar(starSize, clusterIdx) {  
@@ -187,7 +186,7 @@ function createNebulaBubble(clusterIdx) {
   }
 
   // Add some color randomness and determine strength  
-  var clusterStrength = starClusters[clusterIdx].strength / (totalBubblesLog*settings.colorDampening*starClusters[clusterIdx].bubbles);
+  let clusterStrength = starClusters[clusterIdx].strength / (totalBubblesLog*settings.colorDampening*starClusters[clusterIdx].bubbles);
   let strength = (2 + 0.6 * Math.random()) *  clusterStrength;
   color.r = color.r * strength;
   color.g = color.g * strength;
@@ -222,13 +221,13 @@ function createFractal(clusterIdx){
       x: starClusters[clusterIdx].x,
       y: starClusters[clusterIdx].y,      
       size: starClusters[clusterIdx].fractalSize,
-      color: color
+      color
     }
   );
 }
 
 function drawFractal(x, y, size, color) {       
-  var edgePositionsForAngles = drawBubble(fractalPixels, x, y, color, size * 0.8, size, fractalAngles);
+  let edgePositionsForAngles = drawBubble(fractalPixels, x, y, color, size * 0.8, size, fractalAngles);
   if(size > settings.fractalMinSize) {        
     let color2 = {
       r: color.r * (100+settings.fractalColorGain)/100,
@@ -249,7 +248,7 @@ function drawFractal(x, y, size, color) {
 }
 
 function nextFractalItem() {
-  var item = fractalItems.pop();  
+  let item = fractalItems.pop();  
   if(item){
     drawFractal(item.x, item.y, item.size, item.color);
   }
@@ -269,8 +268,8 @@ function drawBubble(pixels, centerX, centerY, color, innerSize, outerSize, rimAn
     distancePerAngle.push(0.8 + Math.random()*0.2);
   }
   
-  var pointsOnRim = Array(rimAngles.length);
-  for(var i=0; i<rimAngles.length; i++){
+  let pointsOnRim = Array(rimAngles.length);
+  for(let i=0; i<rimAngles.length; i++){
     pointsOnRim[i] = {x:-1,y:-1,dist: 0}
   }  
   // Now draw the bubble
@@ -329,12 +328,10 @@ function getClusterTotalToGenerate(clusterIdx, mode){
   } else if(mode == GENERATE_FRACTAL) {    
     if(starClusters[clusterIdx].fractalSize-settings.fractalMinSize > 0){
       return 2.5 * Math.pow(settings.fractalDivisionCount, Math.log2(starClusters[clusterIdx].fractalSize-settings.fractalMinSize));    
-    } else {
-      return 0;
-    }
-  } else {
-    return starClusters[clusterIdx].size1stars + starClusters[clusterIdx].size2stars + starClusters[clusterIdx].size3stars;
-  }
+    } 
+    return 0;    
+  } 
+  return starClusters[clusterIdx].size1stars + starClusters[clusterIdx].size2stars + starClusters[clusterIdx].size3stars;
 }
 
 function getTotalToGenerate(mode){
@@ -379,7 +376,7 @@ export function setClusterColor(idx, color){
 
 export function addNewCluster(x,y){
   starClusters.push({
-    x: x, y: y,
+    x, y,
     strength: 50, r: 255, g: 255, b:255, 
     size1stars:300, size2stars:50, size3stars:0, bubbles:200, generated:0, fractalSize: 0
   });
@@ -419,21 +416,19 @@ export function applyBlur(mode) {
     if(settings.blurFractal){    
       blurPixels(fractalPixels);
     }
-  } else {
-    if(settings.blurStars){    
-      blurPixels(starPixels);
-    }
+  } else if(settings.blurStars){    
+    blurPixels(starPixels);
   }
 }
 
-export function init(settingsFromUI, mode, width, height){
+export function prepareGenerate(settingsFromUI, mode, width, height){
   fieldWidth = width;
   fieldHeight = height;
   settings = settingsFromUI;
 
   resetGenerated();
   totalBubbles = 0;
-  for(var i=0; i<starClusters.length; i++) {
+  for(let i=0; i<starClusters.length; i++) {
     totalBubbles += starClusters[i].bubbles;
   }
   totalBubblesLog = Math.log2(totalBubbles);
@@ -447,7 +442,7 @@ export function init(settingsFromUI, mode, width, height){
     for(let i=0; i<fractalPixels.length; i++){
       fractalPixels[i]=0;
     }
-    for(var i=0; i<starClusters.length; i++) {
+    for(let i=0; i<starClusters.length; i++) {
       createFractal(i);
     }
   } else {    
