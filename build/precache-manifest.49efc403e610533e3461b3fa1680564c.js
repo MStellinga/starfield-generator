@@ -24,15 +24,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/starfields/assets/icons/mstile-150x150.png"
   },
   {
-    "revision": "2c5d396e3da763fe0e4a",
-    "url": "/starfields/bundle.2c5d3.js"
+    "revision": "34505063a3c5ecaee251",
+    "url": "/starfields/bundle.34505.js"
   },
   {
-    "revision": "2c5d396e3da763fe0e4a",
+    "revision": "34505063a3c5ecaee251",
     "url": "/starfields/bundle.ca7c8.css"
   },
   {
-    "revision": "c0f0508bc08f63b4e9feb8fd22b175d3",
+    "revision": "910f9745fce448b73e83e3aede77caa7",
     "url": "/starfields/index.html"
   },
   {
@@ -44,7 +44,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/starfields/sw-debug.js"
   },
   {
-    "revision": "4889cfb7afdf60215600530c42c28778",
+    "revision": "ed838e824a1c8a742edb1c7d98f56535",
     "url": "/starfields/sw-esm.js"
   },
   {

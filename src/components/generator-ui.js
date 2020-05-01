@@ -20,7 +20,7 @@ function GeneratorUI() {
       colorDampening: 4.0,
       fractalDivisionCount: 6,
       fractalMinSize: 5,
-      fractalColorGain: 10,
+      fractalColorGain: 42,
       blueStars: false,
       blurNebula: false,
       blurFractal: false      
