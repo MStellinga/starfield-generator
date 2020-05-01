@@ -24,19 +24,31 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/starfields/assets/icons/mstile-150x150.png"
   },
   {
-    "revision": "34505063a3c5ecaee251",
-    "url": "/starfields/bundle.c60ab.esm.js"
+    "revision": "ebf6ac3a43cac32d16c8",
+    "url": "/starfields/bundle.ebf6a.js"
   },
   {
-    "revision": "34505063a3c5ecaee251",
-    "url": "/starfields/bundle.ca7c8.css"
+    "revision": "ebf6ac3a43cac32d16c8",
+    "url": "/starfields/bundle.f4b2e.css"
   },
   {
-    "revision": "910f9745fce448b73e83e3aede77caa7",
+    "revision": "eda4da772514acf08a36b21e8a664d49",
     "url": "/starfields/index.html"
   },
   {
     "revision": "cee1de55db024a96361b",
-    "url": "/starfields/polyfills.02f5b.esm.js"
+    "url": "/starfields/polyfills.cee1d.js"
+  },
+  {
+    "revision": "144c6ff1323d2d15182a7d2af08d027e",
+    "url": "/starfields/sw-debug.js"
+  },
+  {
+    "revision": "23e5028b69a9de556ebda5cb91508126",
+    "url": "/starfields/sw-esm.js"
+  },
+  {
+    "revision": "942a6f40805dad5bdfd11d946de65195",
+    "url": "/starfields/sw.js"
   }
 ]);
