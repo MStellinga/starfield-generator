@@ -19,19 +19,19 @@
   },
   "devDependencies": {
     "enzyme": "^3.10.0",
-    "enzyme-adapter-preact-pure": "^2.0.0",
+    "enzyme-adapter-preact-pure": "^2.2.3",
     "eslint": "^6.0.1",
     "eslint-config-preact": "^1.1.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-preset-preact": "^1.0.0",
-    "preact-cli": "^3.0.0-rc.6",
+    "preact-cli": "^3.0.1",
     "preact-render-spy": "^1.2.1"
   },
   "dependencies": {
-    "preact": "^10.3.2",
-    "preact-render-to-string": "^5.1.4",
-    "react-color": "^2.18.0"
+    "preact": "^10.4.8",
+    "preact-render-to-string": "^5.1.10",
+    "react-color": "^2.18.1"
   },
   "jest": {
     "preset": "jest-preset-preact",
