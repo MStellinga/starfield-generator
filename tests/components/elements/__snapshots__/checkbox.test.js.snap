@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Test Checkbox Checkbox renders checked input with a label 1`] = `"<div class=\\"checkbox\\"><input type=\\"checkbox\\" checked=\\"true\\" /><span>Test</span></div>"`;
-
-exports[`Test Checkbox Checkbox renders input with a label 1`] = `"<div class=\\"checkbox\\"><input type=\\"checkbox\\" /><span>Test</span></div>"`;

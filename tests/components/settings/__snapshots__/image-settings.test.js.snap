@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Test Image settings Image settings renders 1`] = `"<div class=\\"section\\"><div>Image size <input type=\\"text\\" pattern=\\"-?[0-9\\\\.]{1,5}\\" class=\\"smallfield\\" value=\\"1\\" /> x <input type=\\"text\\" pattern=\\"-?[0-9\\\\.]{1,5}\\" class=\\"smallfield\\" value=\\"2\\" /></div></div>"`;

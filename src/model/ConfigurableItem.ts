@@ -1,0 +1,29 @@
+import {Point} from "./Point";
+import {RGBColor} from "react-color";
+
+enum ItemType {
+    STARCLUSTER,
+    NEBULA
+}
+
+abstract class ConfigurableItem {
+
+    id: number;
+    counter: number;
+
+    protected constructor(id: number) {
+        this.id = id;
+        this.counter = 0
+    }
+
+    abstract setPoint(index: number, point: Point): void;
+
+    abstract getType(): ItemType;
+
+    abstract getPointsToRender(): Array<Point>
+
+    abstract getColor(): RGBColor
+
+}
+
+export {ConfigurableItem, ItemType}
