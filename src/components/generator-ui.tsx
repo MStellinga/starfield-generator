@@ -8,6 +8,7 @@ import {ConfigurableItem, ItemType} from "../model/ConfigurableItem";
 import {ConfigurableItemUI} from "./settings/ConfigurableItemUI";
 import {CanvasWidget} from "./elements/canvas-widget";
 import {Starcluster, StarClusterType} from "../model/Starcluster";
+import {Nebula} from "../model/Nebula";
 
 type GeneratorUIState = {
     progress: number,
@@ -84,24 +85,29 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     }
 
     onRender(id: number) {
-        for (let i = 0; i < this.state.renderItems.length; i++) {
-            if (this.state.renderItems[i].id === id) {
-                if (this.state.renderItems[i].getType() === ItemType.STARCLUSTER) {
-                    this.state.generator.renderStars(i, this.state.renderItems[i] as Starcluster);
+        this.state.renderItems
+            .filter((item) => {
+                return item.id === id
+            })
+            .forEach((item => {
+                if (item.getType() === ItemType.STARCLUSTER) {
+                    this.state.generator.renderStars(item.id, item as Starcluster);
+                    this.setState({shouldPaint: true});
+                } else {
+                    this.state.generator.renderNebula(item.id, item as Nebula);
                     this.setState({shouldPaint: true});
                 }
-                break;
-            }
-        }
+            }))
     }
 
     onRemoveSettings(id: number) {
-        let newRenderItems = []
-        for (let i = 0; i < this.state.renderItems.length; i++) {
-            if (this.state.renderItems[i].id !== id) {
-                newRenderItems.push(this.state.renderItems[i])
-            }
+        let newRenderItems = this.state.renderItems.filter((item) => {
+            return item.id !== id
+        });
+        for (let i = 0; i < newRenderItems.length; i++) {
+            newRenderItems[i].id = i;
         }
+        this.state.generator.clearAllLayers();
         this.setState({renderItems: newRenderItems})
     }
 
@@ -164,7 +170,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                         return item.getPointsToRender().map((point, index) => {
                             return <CanvasWidget
                                 key={item.id + '-' + item.counter + '-' + index + '-' + point.x + '|' + point.y}
-                                id={{id: item.id, index: index}} center={point} backgroundColor={item.getColor()}/>
+                                id={{id: item.id, index: index}} center={point}/>
                         })
                     })}
                 </Canvas>

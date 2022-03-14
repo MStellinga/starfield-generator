@@ -19,6 +19,16 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         expanded: true
     }
 
+    getIdAsLetter() {
+        if (this.props.settings.id < 26) {
+            return String.fromCharCode('A'.charCodeAt(0) + this.props.settings.id);
+        } else if (this.props.settings.id < 52) {
+            return String.fromCharCode('a'.charCodeAt(0) + this.props.settings.id - 26);
+        } else {
+            return 'X';
+        }
+    }
+
     onSwitchType(event: ChangeEvent<HTMLSelectElement>) {
         if (event.currentTarget.selectedIndex === 0) {
             let id = this.props.settings.id;
@@ -81,6 +91,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         return <tbody>
         <tr className="topSectionRow">
             <td>
+                {this.getIdAsLetter()}
                 <select onChange={(event) => {
                     this.onSwitchType(event)
                 }} defaultValue="Stars">
@@ -121,7 +132,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
                 this.onChangeValue("maxBrightness", event.currentTarget.value)
             }}/></td>
 
-            <td colSpan={3}>Bloom:</td>
+            <td colSpan={2}>Bloom:</td>
             <td><input className="numberField" value={this.props.settings.blooming} onChange={(event) => {
                 this.onChangeValue("blooming", event.currentTarget.value)
             }}/></td>

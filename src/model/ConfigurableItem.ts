@@ -22,8 +22,6 @@ abstract class ConfigurableItem {
 
     abstract getPointsToRender(): Array<Point>
 
-    abstract getColor(): RGBColor
-
 }
 
 export {ConfigurableItem, ItemType}

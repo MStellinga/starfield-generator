@@ -1,4 +1,4 @@
-import {RGBColor} from "react-color";
+import {HSLColor, RGBColor} from "react-color";
 import {Point} from "./Point";
 import {hslToRgb} from "../util/colorUtil";
 import {ConfigurableItem, ItemType} from "./ConfigurableItem";
@@ -34,7 +34,7 @@ class Nebula extends ConfigurableItem {
     minSeedRadius = 100;
     maxSeedRadius = 150;
 
-    hue: number = 200;
+    hue: number = 200.0;
     nebulaType: NebulaType;
 
     minRadiusPart: number = 0.5;
@@ -87,9 +87,12 @@ class Nebula extends ConfigurableItem {
         this.counter++;
     }
 
-    getColor(): RGBColor {
-        let rgb = hslToRgb(this.hue, 255, 255)
-        return {r: rgb[0], g: rgb[1], b: rgb[2]}
+    getColor(): HSLColor {
+        return {
+            h: this.hue,
+            l: 1.0,
+            s: 1.0,
+        }
     }
 
     getType() {
@@ -172,6 +175,9 @@ class Nebula extends ConfigurableItem {
             case 'maxAngleOffset':
                 this.maxAngleOffset = newFloat;
                 break;
+            case 'hue':
+                this.hue = newFloat;
+                break;
         }
     }
 
@@ -253,4 +259,4 @@ class Nebula extends ConfigurableItem {
 
 }
 
-export {Nebula};
+export {Nebula, NebulaBubble};

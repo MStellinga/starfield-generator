@@ -1,6 +1,7 @@
 import React, {ChangeEvent} from "react";
 import {Nebula} from "../../model/Nebula";
 import {Starcluster} from "../../model/Starcluster";
+import {ColorResult, HuePicker} from "react-color";
 
 
 type NebulaConfigurationUIProps = {
@@ -78,10 +79,26 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         this.props.renderCallback()
     }
 
+    onHueChange(color: ColorResult) {
+        this.props.settings.setFloatProperty("hue", "" + color.hsl.h)
+        this.props.updateSettingsCallback(this.props.settings);
+    }
+
+    getIdAsLetter() {
+        if (this.props.settings.id < 26) {
+            return String.fromCharCode('A'.charCodeAt(0) + this.props.settings.id);
+        } else if (this.props.settings.id < 52) {
+            return String.fromCharCode('a'.charCodeAt(0) + this.props.settings.id - 26);
+        } else {
+            return 'X';
+        }
+    }
+
     render() {
         return <tbody>
         <tr className="topSectionRow">
             <td>
+                {this.getIdAsLetter()}
                 <select onChange={(event) => {
                     this.onSwitchType(event)
                 }} defaultValue="Nebula">
@@ -119,13 +136,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                        onChange={(event) => {
                            this.onChangeIntValue("maxSeedRadius", event.currentTarget.value)
                        }}/></td>
-
-            <td>Hue:</td>
-            <td><input className="numberField" value={this.props.settings.hue}
-                       onChange={(event) => {
-                           this.onChangeIntValue("hue", event.currentTarget.value)
-                       }}/></td>
-
+            <td></td>
             <td>
                 <button
                     onClick={() => this.setState({expanded: !this.state.expanded})}>{this.state.expanded ? '^' : 'V'}</button>
@@ -209,6 +220,12 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                 <td colSpan={8}/>
             </tr>)
         }
+        <tr>
+            <td>Hue:</td>
+            <td colSpan={10}><HuePicker color={this.props.settings.getColor()} onChange={color => {
+                this.onHueChange(color)
+            }}/></td>
+        </tr>
         </tbody>
     }
 

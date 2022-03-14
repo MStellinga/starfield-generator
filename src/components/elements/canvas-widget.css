@@ -1,19 +1,19 @@
 
 .canvasCircle {
-    width: 20px;
-    height: 20px;
-    border-radius: 10px;
-    margin-left: -10px;
-    margin-top: -10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    margin-left: -13px;
+    margin-top: -13px;
     background-color: #dddddd;
-    opacity: 0.7;
+    opacity: 0.9;
     position: absolute;
     cursor: pointer;
 }
 
 .canvasCircle div {
     color: black;
-    margin: 1px 0;
+    margin: 4px 0;
     text-align: center;
     font-size: small;
 }

@@ -1,6 +1,5 @@
 import {ConfigurableItem, ItemType} from "./ConfigurableItem";
 import {Point} from "./Point";
-import {RGBColor} from "react-color";
 import {
     generateRandomPointAlongPath,
     generateRandomPointInCircle,
@@ -98,10 +97,6 @@ class Starcluster extends ConfigurableItem {
             case StarClusterType.PATH:
                 return this.points.length > 1;
         }
-    }
-
-    getColor(): RGBColor {
-        return {r: 255, g: 255, b: 255}
     }
 
     setProperty(property: string, newValue: string) {

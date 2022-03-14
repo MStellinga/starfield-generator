@@ -1,8 +1,9 @@
 import {Star, Starcluster} from "../model/Starcluster";
 import {Point} from "../model/Point";
 import {distanceToPoint} from "../util/mathHelper";
+import {Nebula, NebulaBubble} from "../model/Nebula";
 
-class StarRenderData {
+class RenderData {
 
     width: number;
     height: number;
@@ -50,19 +51,19 @@ class Generator {
     width: number;
     height: number;
 
-    starClusterRenders: Array<StarRenderData>
+    layers: Array<RenderData>
 
     constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
-        this.starClusterRenders = []
+        this.layers = []
     }
 
     isValidPoint(point: Point) {
         return point.x >= 0 && point.x < this.width && point.y >= 0 && point.y < this.height;
     }
 
-    drawStar(renderData: StarRenderData, star: Star, maxBrightness: number, blooming: number) {
+    drawStar(renderData: RenderData, star: Star, maxBrightness: number, blooming: number) {
         let falloff = 3.6 - (blooming / 100.0)
         let brightness = star.brightness * maxBrightness;
         let adjustedBrightness = brightness / 2.0;
@@ -85,14 +86,35 @@ class Generator {
         }
     }
 
-    renderStars(index: number, cluster: Starcluster) {
-        while (this.starClusterRenders.length <= index) {
-            this.starClusterRenders.push(new StarRenderData(this.width, this.height));
+    drawBubble(renderData: RenderData, nebula: NebulaBubble, hue: number) {
+
+    }
+
+    clearAllLayers() {
+        this.layers = [];
+    }
+
+    createLayerData(index: number): RenderData {
+        while (this.layers.length <= index) {
+            this.layers.push(new RenderData(this.width, this.height));
         }
-        this.starClusterRenders[index].clear();
+        this.layers[index].clear();
+        return this.layers[index]
+    }
+
+    renderStars(index: number, cluster: Starcluster) {
         let stars = cluster.generateStars();
+        let layer = this.createLayerData(index);
         stars.forEach((star) => {
-            this.drawStar(this.starClusterRenders[index], star, cluster.maxBrightness, cluster.blooming)
+            this.drawStar(layer, star, cluster.maxBrightness, cluster.blooming)
+        });
+    }
+
+    renderNebula(index: number, nebula: Nebula) {
+        let bubbles = nebula.generateNebulae();
+        let layer = this.createLayerData(index);
+        bubbles.forEach((bubble) => {
+            this.drawBubble(layer, bubble, nebula.hue)
         });
     }
 
@@ -103,8 +125,8 @@ class Generator {
         let imageData = context.createImageData(this.width, this.height);
         for (let i = 0; i < imageData.data.length; i += 4) {
             let brightness = 0.0;
-            for (let j = 0; j < this.starClusterRenders.length; j++) {
-                brightness += this.starClusterRenders[j].getValue(i / 4);
+            for (let j = 0; j < this.layers.length; j++) {
+                brightness += this.layers[j].getValue(i / 4);
             }
             imageData.data[i] = brightness <= 255 ? brightness : 255;
             imageData.data[i + 1] = brightness <= 255 ? brightness : 255;
