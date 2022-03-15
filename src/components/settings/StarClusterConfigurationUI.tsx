@@ -1,6 +1,7 @@
 import React, {ChangeEvent} from "react";
 import {Starcluster, StarClusterType} from "../../model/Starcluster";
 import {Nebula} from "../../model/Nebula";
+import Slider from "rc-slider";
 
 type StarClusterConfigurationUIProps = {
     settings: Starcluster;
@@ -16,7 +17,7 @@ type StarClusterConfigurationUIState = {
 class StarClusterConfigurationUI extends React.Component<StarClusterConfigurationUIProps, StarClusterConfigurationUIState> {
 
     state: StarClusterConfigurationUIState = {
-        expanded: true
+        expanded: false
     }
 
     getIdAsLetter() {
@@ -42,7 +43,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         this.props.updateSettingsCallback(this.props.settings);
     }
 
-    onChangeValue(property: string, newValue: string) {
+    onChangeValue(property: string, newValue: string|number) {
         this.props.settings.setProperty(property, newValue)
         this.props.updateSettingsCallback(this.props.settings);
     }
@@ -127,15 +128,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
 
             {!this.showRadius() && (<td colSpan={4}/>)}
 
-            <td>Max. brightness:</td>
-            <td><input className="numberField" value={this.props.settings.maxBrightness} onChange={(event) => {
-                this.onChangeValue("maxBrightness", event.currentTarget.value)
-            }}/></td>
-
-            <td colSpan={2}>Bloom:</td>
-            <td><input className="numberField" value={this.props.settings.blooming} onChange={(event) => {
-                this.onChangeValue("blooming", event.currentTarget.value)
-            }}/></td>
+            <td colSpan={4}/>
 
             <td>
                 <button
@@ -166,24 +159,32 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
                 <td><input className="numberField" value={pt.y} onChange={(event) => {
                     this.onChangePointY(index, event.currentTarget.value)
                 }}/></td>
-                <td colSpan={3}/>
-                <td>{this.props.settings.canRemovePoints() && (<button onClick={() => {
+                <td className="pushLeft">{this.props.settings.canRemovePoints() && (<button onClick={() => {
                     this.deletePoint(index)
                 }}>X</button>)}</td>
             </tr>
         })}
         {this.state.expanded && this.props.settings.canAddPoints() &&
             (<tr>
-                <td/>
-                <td>
+                <td colSpan={6}/>
+                <td className="pushLeft">
                     <button onClick={() => {
                         this.onAddPoint()
                     }}>+
                     </button>
                 </td>
-                <td colSpan={8}/>
             </tr>)
         }
+        <tr>
+            <td>Brightness:</td>
+            <td colSpan={5}><Slider value={this.props.settings.brightness} onChange={(newValue) => {
+                this.onChangeValue("brightness", newValue as number)
+            }}/></td>
+            <td>Bloom:</td>
+            <td colSpan={5}><Slider value={this.props.settings.blooming} onChange={(newValue) => {
+                this.onChangeValue("blooming", newValue as number)
+            }}/></td>
+        </tr>
         </tbody>
     }
 

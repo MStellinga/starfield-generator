@@ -2,7 +2,8 @@ import React, {ChangeEvent} from "react";
 import {Nebula} from "../../model/Nebula";
 import {Starcluster} from "../../model/Starcluster";
 import {ColorResult, HuePicker} from "react-color";
-
+import Slider from "rc-slider";
+import 'rc-slider/assets/index.css';
 
 type NebulaConfigurationUIProps = {
     settings: Nebula;
@@ -18,7 +19,7 @@ type NebulaConfigurationUIState = {
 class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, NebulaConfigurationUIState> {
 
     state: NebulaConfigurationUIState = {
-        expanded: true
+        expanded: false
     }
 
     onSwitchType(event: ChangeEvent<HTMLSelectElement>) {
@@ -29,12 +30,12 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         }
     }
 
-    onChangeIntValue(property: string, newValue: string) {
+    onChangeIntValue(property: string, newValue: string|number) {
         this.props.settings.setIntProperty(property, newValue)
         this.props.updateSettingsCallback(this.props.settings);
     }
 
-    onChangeFloatValue(property: string, newValue: string) {
+    onChangeFloatValue(property: string, newValue: string|number) {
         this.props.settings.setFloatProperty(property, newValue)
         this.props.updateSettingsCallback(this.props.settings);
     }
@@ -136,7 +137,6 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                        onChange={(event) => {
                            this.onChangeIntValue("maxSeedRadius", event.currentTarget.value)
                        }}/></td>
-            <td></td>
             <td>
                 <button
                     onClick={() => this.setState({expanded: !this.state.expanded})}>{this.state.expanded ? '^' : 'V'}</button>
@@ -180,14 +180,14 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                        }}/></td>
 
             <td>Angle shift/step:</td>
-            <td><input className="numberField" value={this.props.settings.minSeedRadius}
+            <td><input className="numberField" value={this.props.settings.minAngleOffset}
                        onChange={(event) => {
                            this.onChangeFloatValue("minAngleOffset", event.currentTarget.value)
                        }}/></td>
             <td>-</td>
-            <td><input className="numberField" value={this.props.settings.maxSeedRadius}
+            <td><input className="numberField" value={this.props.settings.maxAngleOffset}
                        onChange={(event) => {
-                           this.onChangeIntValue("maxAngleOffset", event.currentTarget.value)
+                           this.onChangeFloatValue("maxAngleOffset", event.currentTarget.value)
                        }}/></td>
         </tr>
         {this.state.expanded && this.props.settings.getPointsToRender().map((pt, index) => {
@@ -202,28 +202,44 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                 <td><input className="numberField" value={pt.y} onChange={(event) => {
                     this.onChangePointY(index, event.currentTarget.value)
                 }}/></td>
-                <td colSpan={3}/>
-                <td>{this.props.settings.canRemovePoints() && (<button onClick={() => {
+                <td className="pushLeft">{this.props.settings.canRemovePoints() && (<button onClick={() => {
                     this.deletePoint(index)
                 }}>X</button>)}</td>
             </tr>
         })}
         {this.state.expanded && this.props.settings.canAddPoints() &&
             (<tr>
-                <td/>
-                <td>
+                <td colSpan={6} />
+                <td  className="pushLeft">
                     <button onClick={() => {
                         this.onAddPoint()
                     }}>+
                     </button>
                 </td>
-                <td colSpan={8}/>
             </tr>)
         }
         <tr>
             <td>Hue:</td>
-            <td colSpan={10}><HuePicker color={this.props.settings.getColor()} onChange={color => {
+            <td colSpan={6}><HuePicker color={this.props.settings.getColor()} onChange={color => {
                 this.onHueChange(color)
+            }}/></td>
+            <td colSpan={2}>Inner fade:</td>
+            <td colSpan={6}><Slider value={this.props.settings.innerFade} onChange={(newValue) => {
+                                        this.onChangeIntValue("innerFade", newValue as number)
+                                    }}/></td>
+        </tr>
+        <tr>
+            <td>Brightness:</td>
+            <td colSpan={4}><Slider value={this.props.settings.brightness} onChange={(newValue) => {
+                this.onChangeIntValue("brightness", newValue as number)
+            }}/></td>
+            <td>Smooth:</td>
+            <td colSpan={2}><Slider value={this.props.settings.smooth} onChange={(newValue) => {
+                this.onChangeIntValue("smooth", newValue as number)
+            }}/></td>
+            <td colSpan={1}>Outer fade:</td>
+            <td colSpan={6}><Slider value={this.props.settings.outerFade} onChange={(newValue) => {
+                this.onChangeIntValue("outerFade", newValue as number)
             }}/></td>
         </tr>
         </tbody>

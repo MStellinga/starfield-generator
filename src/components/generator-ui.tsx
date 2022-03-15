@@ -8,7 +8,7 @@ import {ConfigurableItem, ItemType} from "../model/ConfigurableItem";
 import {ConfigurableItemUI} from "./settings/ConfigurableItemUI";
 import {CanvasWidget} from "./elements/canvas-widget";
 import {Starcluster, StarClusterType} from "../model/Starcluster";
-import {Nebula} from "../model/Nebula";
+import {Nebula, NebulaType} from "../model/Nebula";
 
 type GeneratorUIState = {
     progress: number,
@@ -40,17 +40,19 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     createInitialItems() {
         let cluster1 = new Starcluster(0, [{x: 0, y: 0}, {x: 712, y: 480}])
         cluster1.clusterType = StarClusterType.RECTANGULAR;
-        cluster1.maxBrightness = 150;
-        cluster1.blooming = 130;
-        cluster1.nrOfStars = 500;
+        cluster1.brightness = 10;
+        cluster1.blooming = 50;
+        cluster1.nrOfStars = 800;
         let cluster2 = new Starcluster(1, [{x: 360, y: 240}]);
         cluster2.clusterType = StarClusterType.CIRCULAR;
         cluster2.minRadius = 200;
         cluster2.maxRadius = 300;
-        cluster2.maxBrightness = 400;
-        cluster2.blooming = 170;
+        cluster2.brightness = 40;
+        cluster2.blooming = 70;
         cluster2.nrOfStars = 100;
-        return [cluster1, cluster2];
+        let nebula1 = new Nebula(2, [{x: 105, y: 150},{x: 400, y: 160},{x: 620, y: 265}])
+        nebula1.nebulaType = NebulaType.PATH
+        return [cluster1, cluster2, nebula1];
     }
 
     onUpdateCanvasItem(id: number, index: number, point: Point) {
@@ -130,7 +132,6 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         return (
             <div>
                 <div className="container">
-
                     <div className="section">
                         <table>
                             {this.state.renderItems.map(item => {

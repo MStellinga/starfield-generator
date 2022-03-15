@@ -2,16 +2,26 @@ import {Star, Starcluster} from "../model/Starcluster";
 import {Point} from "../model/Point";
 import {distanceToPoint} from "../util/mathHelper";
 import {Nebula, NebulaBubble} from "../model/Nebula";
+import {hslToRgb} from "../util/colorUtil";
+
+enum LayerType {
+    SATURATION,
+    LIGHT
+}
 
 class RenderData {
 
     width: number;
     height: number;
+    hue: number;
     values: Array<number>
+    type: LayerType
 
     constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
+        this.type = LayerType.LIGHT;
+        this.hue = 0;
         this.values = [];
     }
 
@@ -64,11 +74,11 @@ class Generator {
     }
 
     drawStar(renderData: RenderData, star: Star, maxBrightness: number, blooming: number) {
-        let falloff = 3.6 - (blooming / 100.0)
-        let brightness = star.brightness * maxBrightness;
+        let falloff = 3.6 - (blooming / 40.0)
+        let brightness = star.brightness * maxBrightness * 10;
         let adjustedBrightness = brightness / 2.0;
         let radius = 0
-        while (adjustedBrightness > 5.0 && radius < this.width) {
+        while (adjustedBrightness > 0.5 && radius < this.width) {
             radius++;
             adjustedBrightness = adjustedBrightness / falloff;
         }
@@ -86,8 +96,19 @@ class Generator {
         }
     }
 
-    drawBubble(renderData: RenderData, nebula: NebulaBubble, hue: number) {
-
+    drawBubble(renderData: RenderData, nebula: NebulaBubble) {
+        let center = nebula.center;
+        let radius = Math.round(nebula.radius);
+        let leftTop = {x: center.x - radius, y: center.y - radius}
+        for (let x = leftTop.x; x < leftTop.x + radius * 2; x++) {
+            for (let y = leftTop.y; y < leftTop.y + radius * 2; y++) {
+                let pt = {x: x, y: y}
+                let dist = distanceToPoint(center, pt);
+                if (dist < radius && this.isValidPoint(pt)) {
+                    renderData.addValue(pt, 100)
+                }
+            }
+        }
     }
 
     clearAllLayers() {
@@ -105,16 +126,19 @@ class Generator {
     renderStars(index: number, cluster: Starcluster) {
         let stars = cluster.generateStars();
         let layer = this.createLayerData(index);
+        layer.type = LayerType.LIGHT;
         stars.forEach((star) => {
-            this.drawStar(layer, star, cluster.maxBrightness, cluster.blooming)
+            this.drawStar(layer, star, cluster.brightness, cluster.blooming)
         });
     }
 
     renderNebula(index: number, nebula: Nebula) {
         let bubbles = nebula.generateNebulae();
         let layer = this.createLayerData(index);
+        layer.hue = nebula.hue;
+        layer.type = LayerType.SATURATION;
         bubbles.forEach((bubble) => {
-            this.drawBubble(layer, bubble, nebula.hue)
+            this.drawBubble(layer, bubble)
         });
     }
 
@@ -124,13 +148,31 @@ class Generator {
         }
         let imageData = context.createImageData(this.width, this.height);
         for (let i = 0; i < imageData.data.length; i += 4) {
-            let brightness = 0.0;
-            for (let j = 0; j < this.layers.length; j++) {
-                brightness += this.layers[j].getValue(i / 4);
+            let h = 0.0;
+            let s = 0.0;
+            let l = 0.0;
+            this.layers.forEach(layer => {
+                let value = layer.getValue(i / 4);
+                if(layer.type === LayerType.SATURATION) {
+                    h += layer.hue * value;
+                    s += value;
+                    if(s>0) {
+                        l += 25;
+                    }
+                } else {
+                    l += value;
+                }
+            });
+            if(s > 0) {
+                h = h / s;
             }
-            imageData.data[i] = brightness <= 255 ? brightness : 255;
-            imageData.data[i + 1] = brightness <= 255 ? brightness : 255;
-            imageData.data[i + 2] = brightness <= 255 ? brightness : 255;
+            let rgb = hslToRgb(h/360.0,s/100.0,l/100.0);
+            // if(s > 0) {
+            //     console.log(`(${h},${s},${l}) -> (${rgb[0]},${rgb[1]},${rgb[2]})`)
+            // }
+            imageData.data[i] = rgb[0];
+            imageData.data[i + 1] = rgb[1];
+            imageData.data[i + 2] = rgb[2];
             imageData.data[i + 3] = 255;
         }
         context.putImageData(imageData, 0, 0);

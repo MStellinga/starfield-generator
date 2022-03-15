@@ -33,8 +33,8 @@ class Starcluster extends ConfigurableItem {
     points: Array<Point>;
     maxRadius: number = 50;
     minRadius: number = 100;
-    maxBrightness: number = 255;
-    blooming: number = 100; // 1- 255
+    brightness: number = 100;
+    blooming: number = 25; // 0 - 100
 
     clusterType: StarClusterType = StarClusterType.CIRCULAR;
 
@@ -50,7 +50,7 @@ class Starcluster extends ConfigurableItem {
         copy.minRadius = this.minRadius;
         copy.maxRadius = this.maxRadius;
         copy.clusterType = this.clusterType;
-        copy.maxBrightness = this.maxBrightness;
+        copy.brightness = this.brightness;
         copy.blooming = this.blooming;
         copy.nrOfStars = this.nrOfStars;
         return copy;
@@ -99,10 +99,15 @@ class Starcluster extends ConfigurableItem {
         }
     }
 
-    setProperty(property: string, newValue: string) {
-        let newInt = newValue === '' ? 0 : parseInt(newValue);
-        if (isNaN(newInt)) {
-            return
+    setProperty(property: string, newValue: string|number) {
+        let newInt: number;
+        if(typeof newValue == 'string') {
+            newInt = newValue === '' ? 0 : parseInt(newValue as string);
+            if (isNaN(newInt)) {
+                return
+            }
+        } else {
+            newInt = newValue as number
         }
         switch (property) {
             case 'clusterType':
@@ -120,8 +125,8 @@ class Starcluster extends ConfigurableItem {
             case 'nrOfStars':
                 this.nrOfStars = toRange(newInt, 0);
                 break;
-            case 'maxBrightness':
-                this.maxBrightness = toRange(newInt, 1, 1000);
+            case 'brightness':
+                this.brightness = newInt;
                 break;
             case 'blooming':
                 this.blooming = toRange(newInt, 0, 255);

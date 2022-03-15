@@ -1,6 +1,5 @@
-import {HSLColor, RGBColor} from "react-color";
+import {HSLColor} from "react-color";
 import {Point} from "./Point";
-import {hslToRgb} from "../util/colorUtil";
 import {ConfigurableItem, ItemType} from "./ConfigurableItem";
 import {generateRandomPointAlongPath, generateRandomPointInCircle, toRange} from "../util/mathHelper";
 
@@ -27,7 +26,7 @@ class Nebula extends ConfigurableItem {
 
     points: Array<Point>;
 
-    nrOfSeeds = 10;
+    nrOfSeeds = 5;
 
     radius = 100;
 
@@ -38,13 +37,20 @@ class Nebula extends ConfigurableItem {
     nebulaType: NebulaType;
 
     minRadiusPart: number = 0.5;
-    maxRadiusPart: number = 0.9;
+    maxRadiusPart: number = 0.6;
 
-    minAngleOffset: number = -1;
-    maxAngleOffset: number = 1;
+    minAngleOffset: number = -0.5;
+    maxAngleOffset: number = 0.5;
 
-    fractalCount: number = 10;
+    fractalCount: number = 6;
     subdivisionCount: number = 5;
+
+    innerFade: number = 20;
+    outerFade: number = 90;
+
+    smooth: number = 10;
+
+    brightness: number = 20;
 
     constructor(id: number, points: Array<Point>) {
         super(id)
@@ -90,8 +96,8 @@ class Nebula extends ConfigurableItem {
     getColor(): HSLColor {
         return {
             h: this.hue,
-            l: 1.0,
-            s: 1.0,
+            l: 50.0,
+            s: 100.0,
         }
     }
 
@@ -127,10 +133,15 @@ class Nebula extends ConfigurableItem {
         }
     }
 
-    setIntProperty(property: string, newValue: string) {
-        let newInt = newValue === '' ? 0 : parseInt(newValue);
-        if (isNaN(newInt)) {
-            return
+    setIntProperty(property: string, newValue: string|number) {
+        let newInt: number;
+        if(typeof newValue == 'string') {
+            newInt = newValue === '' ? 0 : parseInt(newValue as string);
+            if (isNaN(newInt)) {
+                return
+            }
+        } else {
+            newInt = newValue as number
         }
         switch (property) {
             case 'nebulaType':
@@ -154,13 +165,36 @@ class Nebula extends ConfigurableItem {
             case 'subdivisionCount':
                 this.subdivisionCount = toRange(newInt, 0);
                 break;
+            case 'innerFade':
+                this.innerFade = newInt;
+                if(this.outerFade < this.innerFade) {
+                    this.outerFade = this.innerFade;
+                }
+                break;
+            case 'outerFade':
+                this.outerFade = newInt;
+                if(this.outerFade < this.innerFade) {
+                    this.innerFade = this.outerFade;
+                }
+                break;
+            case 'smooth':
+                this.smooth = newInt;
+                break;
+            case 'brightness':
+                this.brightness = newInt;
+                break;
         }
     }
 
-    setFloatProperty(property: string, newValue: string) {
-        let newFloat = newValue === '' ? 0 : parseFloat(newValue);
-        if (isNaN(newFloat)) {
-            return
+    setFloatProperty(property: string, newValue: string|number) {
+        let newFloat: number;
+        if(typeof newValue == 'string') {
+            newFloat = newValue === '' ? 0 : parseFloat(newValue as string);
+            if (isNaN(newFloat)) {
+                return
+            }
+        } else {
+            newFloat = newValue as number
         }
         switch (property) {
             case 'minRadiusPart':
@@ -227,31 +261,38 @@ class Nebula extends ConfigurableItem {
     private generateRandomNebulaeInCircle(radius: number, count: number): Array<NebulaBubble> {
         let newPoint = generateRandomPointInCircle(this.points[0], radius)
         let seedRadius = this.minSeedRadius + (count / this.nrOfSeeds) * (this.maxSeedRadius - this.minSeedRadius)
-        return this.subdivide(this.counter, newPoint, seedRadius)
+        return this.subdivide(this.fractalCount>0 ? this.fractalCount-1 : 0, newPoint, seedRadius,0)
     }
 
     private generateRandomNebulaeAlongPath(count: number, left: number, top: number, width: number, height: number, radius: number): Array<NebulaBubble> {
         let newPoint = generateRandomPointAlongPath(this.points, left, top, width, height, radius)
         let seedRadius = this.minSeedRadius + (count / this.nrOfSeeds) * (this.maxSeedRadius - this.minSeedRadius)
-        return this.subdivide(this.counter, newPoint, seedRadius)
+        return this.subdivide(this.fractalCount>0 ? this.fractalCount-1 : 0, newPoint, seedRadius,0)
     }
 
-    private subdivide(counter: number, center: Point, radius: number): Array<NebulaBubble> {
+    private subdivide(counter: number, center: Point, radius: number, randomCount: number): Array<NebulaBubble> {
         let newNebulae: Array<NebulaBubble> = []
-        let anglePerPart = (Math.PI * 2) / this.subdivisionCount + Math.random()
-        let newRadius = this.minRadiusPart + (this.maxRadiusPart - this.minRadiusPart) * Math.random();
+        let anglePerPart = (Math.PI * 2) / this.subdivisionCount
+        let newRadius = radius * (this.minRadiusPart + (this.maxRadiusPart - this.minRadiusPart) * Math.random());
         let angle = this.minAngleOffset + (this.maxAngleOffset - this.minAngleOffset) * Math.random();
         for (let i = 0; i < this.subdivisionCount; i++) {
             angle = angle + anglePerPart
-            let newX = Math.round(center.x + radius * Math.sin(angle));
-            let newY = Math.round(center.y + radius * Math.cos(angle));
-            if (counter === 0) {
+            let newX = Math.round(center.x + newRadius * Math.sin(angle));
+            let newY = Math.round(center.y + newRadius * Math.cos(angle));
+            if (counter <= 0) {
                 newNebulae.push(new NebulaBubble({x: newX, y: newY}, newRadius));
             } else {
-                newNebulae = [
-                    ...newNebulae,
-                    ...this.subdivide(counter - 1, {x: newX, y: newY}, newRadius)
-                ];
+                if(Math.random() < 0.9 || randomCount > 3) {
+                    newNebulae = [
+                        ...newNebulae,
+                        ...this.subdivide(counter - 1, {x: newX, y: newY}, newRadius,0)
+                    ];
+                } else {
+                    newNebulae = [
+                        ...newNebulae,
+                        ...this.subdivide(counter, {x: newX, y: newY}, radius,randomCount + 1)
+                    ];
+                }
             }
         }
         return newNebulae;
@@ -259,4 +300,4 @@ class Nebula extends ConfigurableItem {
 
 }
 
-export {Nebula, NebulaBubble};
+export {Nebula, NebulaBubble, NebulaType};

@@ -20,14 +20,15 @@ h2 {
 }
 
 button {
-  padding: 5px 15px;
-  font-size: small;
+    padding: 5px 15px;
+    font-size: small;
+    cursor: pointer;
 }
 
 .container {
     margin-left: auto;
     margin-right: auto;
-    width: 53em;
+    width: 51em;
 }
 
 .section {
@@ -41,8 +42,13 @@ button {
     font-size: small;
 }
 
+.pushLeft {
+    text-align: left!important;
+}
+
 .section td {
     text-align: right;
+    padding: 5px 1px;
 }
 
 .section button {
