@@ -74,6 +74,10 @@ class Nebula extends ConfigurableItem {
         copy.maxAngleOffset = this.maxAngleOffset;
         copy.fractalCount = this.fractalCount;
         copy.subdivisionCount = this.subdivisionCount;
+        copy.innerFade = this.innerFade;
+        copy.outerFade = this.outerFade;
+        copy.smooth = this.smooth;
+        copy.brightness = this.brightness;
         return copy;
     }
 

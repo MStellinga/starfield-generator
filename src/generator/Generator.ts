@@ -29,8 +29,8 @@ class RenderData {
         this.values = new Array(this.width * this.height);
     }
 
-    addValue(point: Point, value: number) {
-        let index = point.y * this.width + point.x;
+    addValue(x: number, y: number, value: number) {
+        let index = y * this.width + x;
         if (this.values[index] && !isNaN(this.values[index])) {
             this.values[index] += value;
         } else {
@@ -46,7 +46,11 @@ class RenderData {
         return true
     }
 
-    getValue(idx: number): number {
+    getValue(x: number, y: number) {
+        return this.getValueByIndex(y * this.width + x);
+    }
+
+    getValueByIndex(idx: number): number {
         let result = idx >= 0 && idx < this.values.length ? this.values[idx] : 0;
         if (isNaN(result)) {
             return 0.0;
@@ -69,8 +73,8 @@ class Generator {
         this.layers = []
     }
 
-    isValidPoint(point: Point) {
-        return point.x >= 0 && point.x < this.width && point.y >= 0 && point.y < this.height;
+    isValidPoint(x:number, y:number) {
+        return x >= 0 && x < this.width && y >= 0 && y < this.height;
     }
 
     drawStar(renderData: RenderData, star: Star, maxBrightness: number, blooming: number) {
@@ -89,8 +93,8 @@ class Generator {
                 let pt = {x: x, y: y}
                 let dist = distanceToPoint(center, pt);
                 let b = dist === 0 ? brightness : brightness / Math.pow(falloff, dist)
-                if (this.isValidPoint(pt)) {
-                    renderData.addValue(pt, b)
+                if (this.isValidPoint(pt.x, pt.y)) {
+                    renderData.addValue(pt.x, pt.y, b)
                 }
             }
         }
@@ -106,7 +110,7 @@ class Generator {
             for (let y = leftTop.y; y < leftTop.y + radius * 2; y++) {
                 let pt = {x: x, y: y}
                 let dist = distanceToPoint(center, pt);
-                if (dist <= radius && this.isValidPoint(pt)) {
+                if (dist <= radius && this.isValidPoint(pt.x,pt.y)) {
                     let value = 1.0;
                     if (dist < fadeInRadius && fadeInRadius > 0) {
                         value = dist / fadeInRadius;
@@ -117,7 +121,7 @@ class Generator {
                         console.log(radius)
                     }
 
-                    renderData.addValue(pt, value * brightness)
+                    renderData.addValue(pt.x, pt.y, value * brightness)
                 }
             }
         }
@@ -152,6 +156,37 @@ class Generator {
         bubbles.forEach((bubble) => {
             this.drawBubble(layer, bubble, nebula.innerFade, nebula.outerFade, nebula.brightness)
         });
+        this.smooth(index,nebula.smooth);
+    }
+
+    counter = 0;
+    smooth(index: number, value: number) {
+        let newLayer = new RenderData(this.width, this.height);
+        let oldLayer = this.layers[index];
+        newLayer.type = oldLayer.type;
+        newLayer.hue = oldLayer.hue;
+        for(let x=0; x<this.width; x++){
+            for(let y=0; y<this.width; y++){
+                let newVals = [
+                    {"val": oldLayer.getValue(x,y), "wt": this.isValidPoint(x,y)? 1.0 : 0},
+
+                    {"val": oldLayer.getValue(x-1,y), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
+                    {"val": oldLayer.getValue(x,y-1), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
+                    {"val": oldLayer.getValue(x+1,y), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
+                    {"val": oldLayer.getValue(x,y+1), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
+
+                    {"val": oldLayer.getValue(x-1,y-1), "wt":this.isValidPoint(x,y)? value/141.0 : 0},
+                    {"val": oldLayer.getValue(x-1,y+1), "wt":this.isValidPoint(x,y)? value/141.0 : 0},
+                    {"val": oldLayer.getValue(x+1,y-1), "wt":this.isValidPoint(x,y)? value/141.0 : 0},
+                    {"val": oldLayer.getValue(x+1,y+1), "wt":this.isValidPoint(x,y)? value/141.0 : 0}
+                ]
+                let newValue = 0.0;
+                let wt = 0.0;
+                newVals.forEach((item => { newValue += (item.val * item.wt);wt += item.wt; }));
+                newLayer.addValue(x, y, newValue/wt);
+            }
+        }
+        this.layers[index] = newLayer;
     }
 
     paint(context: CanvasRenderingContext2D | null) {
@@ -164,7 +199,7 @@ class Generator {
             let s = 0.0;
             let l = 0.0;
             this.layers.forEach(layer => {
-                let value = layer.getValue(i / 4);
+                let value = layer.getValueByIndex(i / 4);
                 if (layer.type === LayerType.SATURATION) {
                     h += layer.hue * value;
                     s += value;
