@@ -32,7 +32,7 @@ function generateRandomPointAlongPath(points: Array<Point>, left: number, top: n
         attempt++
     }
     if (attempt > 10) {
-        console.log(attempt)
+        console.log('Path failed ' + attempt)
     }
     // fallback
     return {x: left, y: top}
@@ -65,7 +65,6 @@ function toRange(value: number, low: number, high: number = -1) {
         return low;
     }
     if (high !== -1 && value > high) {
-        console.log(high)
         return high;
     }
     return Math.round(value)

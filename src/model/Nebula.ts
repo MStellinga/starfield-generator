@@ -32,14 +32,14 @@ class Nebula extends ConfigurableItem {
 
     radius = 50;
 
-    minSeedRadius = 100;
-    maxSeedRadius = 150;
+    minSeedRadius = 50;
+    maxSeedRadius = 125;
 
     hue: number = 200.0;
     nebulaType: NebulaType;
 
-    minRadiusPart: number = 0.3;
-    maxRadiusPart: number = 0.6;
+    minRadiusPart: number = 0.5;
+    maxRadiusPart: number = 0.7;
 
     minAngleOffset: number = -0.5;
     maxAngleOffset: number = 0.5;
@@ -50,9 +50,9 @@ class Nebula extends ConfigurableItem {
     innerFade: number = 0;
     outerFade: number = 50;
 
-    smooth: number = 10;
+    smooth: number = 50;
 
-    brightness: number = 20;
+    brightness: number = 10;
 
     constructor(id: number, points: Array<Point>) {
         super(id)
@@ -78,12 +78,14 @@ class Nebula extends ConfigurableItem {
         copy.outerFade = this.outerFade;
         copy.smooth = this.smooth;
         copy.brightness = this.brightness;
+        copy.needsGenerate = this.needsGenerate;
         return copy;
     }
 
     setPoint(index: number, point: Point) {
         if (index >= 0 && index < this.points.length) {
             this.points[index] = point;
+            this.needsGenerate = true;
         }
     }
 
@@ -92,11 +94,13 @@ class Nebula extends ConfigurableItem {
         let newPoint = {x: this.points[this.points.length - 1].x + 20, y: this.points[this.points.length - 1].y + 20}
         this.points.push(newPoint);
         this.counter++;
+        this.needsGenerate = true;
     }
 
     removePoint(index: number) {
         this.points.splice(index, 1)
         this.counter++;
+        this.needsGenerate = true;
     }
 
     getColor(): HSLColor {
@@ -152,42 +156,53 @@ class Nebula extends ConfigurableItem {
         switch (property) {
             case 'nebulaType':
                 this.nebulaType = toRange(newInt, 0, 1)
+                this.needsGenerate = true;
                 break;
             case 'radius':
                 this.radius = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'minSeedRadius':
                 this.minSeedRadius = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'maxSeedRadius':
                 this.maxSeedRadius = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'nrOfSeeds':
                 this.nrOfSeeds = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'fractalCount':
                 this.fractalCount = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'subdivisionCount':
                 this.subdivisionCount = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'innerFade':
                 this.innerFade = newInt;
                 if(this.outerFade < this.innerFade) {
                     this.outerFade = this.innerFade;
                 }
+                this.needsRender = true;
                 break;
             case 'outerFade':
                 this.outerFade = newInt;
                 if(this.outerFade < this.innerFade) {
                     this.innerFade = this.outerFade;
                 }
+                this.needsRender = true;
                 break;
             case 'smooth':
                 this.smooth = newInt;
+                this.needsRender = true;
                 break;
             case 'brightness':
                 this.brightness = newInt;
+                this.needsRender = true;
                 break;
         }
     }
@@ -205,15 +220,19 @@ class Nebula extends ConfigurableItem {
         switch (property) {
             case 'minRadiusPart':
                 this.minRadiusPart = newFloat;
+                this.needsGenerate = true;
                 break;
             case 'maxRadiusPart':
                 this.maxRadiusPart = newFloat;
+                this.needsGenerate = true;
                 break;
             case 'minAngleOffset':
                 this.minAngleOffset = newFloat;
+                this.needsGenerate = true;
                 break;
             case 'maxAngleOffset':
                 this.maxAngleOffset = newFloat;
+                this.needsGenerate = true;
                 break;
             case 'hue':
                 this.hue = newFloat;
@@ -254,6 +273,7 @@ class Nebula extends ConfigurableItem {
                 }
                 break;
         }
+        this.needsGenerate = false;
         return nebulae.slice(0, index);
     }
 

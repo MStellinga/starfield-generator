@@ -4,7 +4,7 @@ import {Canvas} from "./elements/canvas";
 import React from "react";
 import {Point} from "../model/Point";
 import {Generator} from "../generator/Generator";
-import {ConfigurableItem, ItemType} from "../model/ConfigurableItem";
+import {ConfigurableItem} from "../model/ConfigurableItem";
 import {ConfigurableItemUI} from "./settings/ConfigurableItemUI";
 import {CanvasWidget} from "./elements/canvas-widget";
 import {Starcluster, StarClusterType} from "../model/Starcluster";
@@ -92,13 +92,8 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                 return item.id === id
             })
             .forEach((item => {
-                if (item.getType() === ItemType.STARCLUSTER) {
-                    this.state.generator.renderStars(item.id, item as Starcluster);
-                    this.setState({shouldPaint: true});
-                } else {
-                    this.state.generator.renderNebula(item.id, item as Nebula);
-                    this.setState({shouldPaint: true});
-                }
+                this.state.generator.generateOrRender(item);
+                this.setState({shouldPaint: true});
             }))
     }
 

@@ -76,13 +76,17 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         this.props.updateSettingsCallback(newSettings);
     }
 
-    onRender() {
+    onRender(forceGenerate: boolean) {
+        if(forceGenerate) {
+            this.props.settings.needsGenerate = true;
+        }
         this.props.renderCallback()
     }
 
     onHueChange(color: ColorResult) {
         this.props.settings.setFloatProperty("hue", "" + color.hsl.h)
-        this.props.updateSettingsCallback(this.props.settings);
+        this.props.updateSettingsCallback();
+        this.props.renderCallback()
     }
 
     getIdAsLetter() {
@@ -149,7 +153,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
             </td>
             <td>
                 <button onClick={() => {
-                    this.onRender()
+                    this.onRender(true)
                 }}>Render
                 </button>
             </td>
@@ -224,23 +228,23 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                 this.onHueChange(color)
             }}/></td>
             <td colSpan={2}>Inner fade:</td>
-            <td colSpan={6}><Slider value={this.props.settings.innerFade} onChange={(newValue) => {
-                                        this.onChangeIntValue("innerFade", newValue as number)
-                                    }}/></td>
+            <td colSpan={6}><Slider value={this.props.settings.innerFade}
+                                onChange={(newValue) => { this.onChangeIntValue("innerFade", newValue as number) }}
+                                onAfterChange={()=>this.onRender(false)} /></td>
         </tr>
         <tr>
             <td>Brightness:</td>
-            <td colSpan={4}><Slider value={this.props.settings.brightness} onChange={(newValue) => {
-                this.onChangeIntValue("brightness", newValue as number)
-            }}/></td>
+            <td colSpan={4}><Slider value={this.props.settings.brightness}
+                                onChange={(newValue) => {this.onChangeIntValue("brightness", newValue as number)}}
+                                onAfterChange={()=>this.onRender(false)} /></td>
             <td>Smooth:</td>
-            <td colSpan={2}><Slider value={this.props.settings.smooth} onChange={(newValue) => {
-                this.onChangeIntValue("smooth", newValue as number)
-            }}/></td>
+            <td colSpan={2}><Slider value={this.props.settings.smooth}
+                                onChange={(newValue) => {this.onChangeIntValue("smooth", newValue as number)}}
+                                onAfterChange={()=>this.onRender(false)} /></td>
             <td colSpan={1}>Outer fade:</td>
-            <td colSpan={6}><Slider value={this.props.settings.outerFade} onChange={(newValue) => {
-                this.onChangeIntValue("outerFade", newValue as number)
-            }}/></td>
+            <td colSpan={6}><Slider value={this.props.settings.outerFade}
+                                onChange={(newValue) => {this.onChangeIntValue("outerFade", newValue as number)}}
+                                onAfterChange={()=>this.onRender(false)} /></td>
         </tr>
         </tbody>
     }

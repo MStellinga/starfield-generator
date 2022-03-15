@@ -40,12 +40,12 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
 
     onAddPoint() {
         this.props.settings.addPoint()
-        this.props.updateSettingsCallback(this.props.settings);
+        this.props.updateSettingsCallback();
     }
 
     onChangeValue(property: string, newValue: string|number) {
         this.props.settings.setProperty(property, newValue)
-        this.props.updateSettingsCallback(this.props.settings);
+        this.props.updateSettingsCallback();
     }
 
     deleteSelf() {
@@ -54,7 +54,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
 
     deletePoint(index: number) {
         this.props.settings.removePoint(index)
-        this.props.updateSettingsCallback(this.props.settings);
+        this.props.updateSettingsCallback();
     }
 
     onChangePointX(index: number, newValue: string) {
@@ -79,7 +79,10 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         this.props.updateSettingsCallback(newSettings);
     }
 
-    onRender() {
+    onRender(forceGenerate: boolean) {
+        if(forceGenerate) {
+            this.props.settings.needsGenerate = true;
+        }
         this.props.renderCallback()
     }
 
@@ -142,7 +145,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
             </td>
             <td>
                 <button onClick={() => {
-                    this.onRender()
+                    this.onRender(true)
                 }}>Render
                 </button>
             </td>
@@ -177,13 +180,13 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         }
         <tr>
             <td>Brightness:</td>
-            <td colSpan={5}><Slider value={this.props.settings.brightness} onChange={(newValue) => {
-                this.onChangeValue("brightness", newValue as number)
-            }}/></td>
+            <td colSpan={5}><Slider value={this.props.settings.brightness}
+                                onChange={(newValue) => {this.onChangeValue("brightness", newValue as number)}}
+                                onAfterChange={()=>this.onRender(false)} /></td>
             <td>Bloom:</td>
-            <td colSpan={5}><Slider value={this.props.settings.blooming} onChange={(newValue) => {
-                this.onChangeValue("blooming", newValue as number)
-            }}/></td>
+            <td colSpan={5}><Slider value={this.props.settings.blooming}
+                                onChange={(newValue) => { this.onChangeValue("blooming", newValue as number)}}
+                                onAfterChange={()=>this.onRender(false)} /></td>
         </tr>
         </tbody>
     }

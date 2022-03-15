@@ -10,6 +10,8 @@ abstract class ConfigurableItem {
 
     id: number;
     counter: number;
+    needsGenerate: boolean = true;
+    needsRender: boolean = true;
 
     protected constructor(id: number) {
         this.id = id;

@@ -53,6 +53,7 @@ class Starcluster extends ConfigurableItem {
         copy.brightness = this.brightness;
         copy.blooming = this.blooming;
         copy.nrOfStars = this.nrOfStars;
+        copy.needsGenerate = this.needsGenerate;
         return copy;
     }
 
@@ -115,21 +116,27 @@ class Starcluster extends ConfigurableItem {
                 if (this.clusterType === StarClusterType.RECTANGULAR && this.points.length < 2) {
                     this.addPoint()
                 }
+                this.needsGenerate = true;
                 break;
             case 'minRadius':
                 this.minRadius = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'maxRadius':
                 this.maxRadius = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'nrOfStars':
                 this.nrOfStars = toRange(newInt, 0);
+                this.needsGenerate = true;
                 break;
             case 'brightness':
                 this.brightness = newInt;
+                this.needsRender = true;
                 break;
             case 'blooming':
                 this.blooming = toRange(newInt, 0, 255);
+                this.needsRender = true;
                 break;
         }
     }
@@ -139,11 +146,13 @@ class Starcluster extends ConfigurableItem {
         let newPoint = {x: this.points[this.points.length - 1].x + 20, y: this.points[this.points.length - 1].y + 20}
         this.points.push(newPoint);
         this.counter++;
+        this.needsGenerate = true;
     }
 
     removePoint(index: number) {
         this.points.splice(index, 1)
         this.counter++;
+        this.needsGenerate = true;
     }
 
     generateStars(): Array<Star> {
@@ -185,6 +194,7 @@ class Starcluster extends ConfigurableItem {
                 }
                 break;
         }
+        this.needsGenerate = false;
         return stars;
     }
 
