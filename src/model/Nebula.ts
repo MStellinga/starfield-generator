@@ -3,6 +3,8 @@ import {Point} from "./Point";
 import {ConfigurableItem, ItemType} from "./ConfigurableItem";
 import {generateRandomPointAlongPath, generateRandomPointInCircle, toRange} from "../util/mathHelper";
 
+const BREAKOUT_CHANCE = 0.9
+
 enum NebulaType {
     // Seeds between minRadius and maxRadius around central point[0]
     CIRCULAR,
@@ -26,9 +28,9 @@ class Nebula extends ConfigurableItem {
 
     points: Array<Point>;
 
-    nrOfSeeds = 5;
+    nrOfSeeds = 15;
 
-    radius = 100;
+    radius = 50;
 
     minSeedRadius = 100;
     maxSeedRadius = 150;
@@ -36,17 +38,17 @@ class Nebula extends ConfigurableItem {
     hue: number = 200.0;
     nebulaType: NebulaType;
 
-    minRadiusPart: number = 0.5;
+    minRadiusPart: number = 0.3;
     maxRadiusPart: number = 0.6;
 
     minAngleOffset: number = -0.5;
     maxAngleOffset: number = 0.5;
 
-    fractalCount: number = 6;
+    fractalCount: number = 3;
     subdivisionCount: number = 5;
 
-    innerFade: number = 20;
-    outerFade: number = 90;
+    innerFade: number = 0;
+    outerFade: number = 50;
 
     smooth: number = 10;
 
@@ -216,38 +218,39 @@ class Nebula extends ConfigurableItem {
     }
 
     generateNebulae(): Array<NebulaBubble> {
-        let nebulae: Array<NebulaBubble> = [];
+        let expectedCount = Math.ceil(this.nrOfSeeds * Math.pow(this.subdivisionCount, this.fractalCount));
+        let nebulae: Array<NebulaBubble> = new Array(expectedCount);
+        let index = 0
         switch (this.nebulaType) {
             case NebulaType.CIRCULAR:
                 this.fixMinMax();
                 for (let i = 0; i < this.nrOfSeeds; i++) {
-                    nebulae = [
-                        ...nebulae,
-                        ...this.generateRandomNebulaeInCircle(this.radius, i)
-                    ];
+                    index = this.generateRandomNebulaeInCircle(nebulae, index, this.radius, i)
                 }
                 break;
             case NebulaType.PATH:
                 this.fixMinMax();
-                let minX = this.points[0].x;
-                let minY = this.points[0].y;
-                let maxX = this.points[0].x;
-                let maxY = this.points[0].y;
-                for (let i = 0; i < this.points.length; i++) {
-                    minX = Math.min(this.points[i].x, minX);
-                    minY = Math.min(this.points[i].y, minY);
-                    maxX = Math.max(this.points[i].x, maxX);
-                    maxY = Math.max(this.points[i].y, maxY);
-                }
+                let minX = Math.min(...this.points.map((pt) => {
+                    return pt.x
+                }));
+                let minY = Math.min(...this.points.map((pt) => {
+                    return pt.y
+                }));
+                let maxX = Math.max(...this.points.map((pt) => {
+                    return pt.x
+                }));
+                let maxY = Math.max(...this.points.map((pt) => {
+                    return pt.y
+                }));
                 for (let i = 0; i < this.nrOfSeeds; i++) {
-                    nebulae = [
-                        ...nebulae,
-                        ...this.generateRandomNebulaeAlongPath(i, minX - this.radius, minY - this.radius, maxX - minX + 2 * this.radius, maxY - minY + 2 * this.radius, this.radius)
-                    ];
+                    index = this.generateRandomNebulaeAlongPath(nebulae, index, i,
+                        minX - this.radius, minY - this.radius,
+                        maxX - minX + 2 * this.radius,
+                        maxY - minY + 2 * this.radius, this.radius)
                 }
                 break;
         }
-        return nebulae;
+        return nebulae.slice(0, index);
     }
 
     private fixMinMax() {
@@ -258,44 +261,40 @@ class Nebula extends ConfigurableItem {
     }
 
 
-    private generateRandomNebulaeInCircle(radius: number, count: number): Array<NebulaBubble> {
+    private generateRandomNebulaeInCircle(nebulae: Array<NebulaBubble>, index: number, radius: number, count: number): number {
         let newPoint = generateRandomPointInCircle(this.points[0], radius)
         let seedRadius = this.minSeedRadius + (count / this.nrOfSeeds) * (this.maxSeedRadius - this.minSeedRadius)
-        return this.subdivide(this.fractalCount>0 ? this.fractalCount-1 : 0, newPoint, seedRadius,0)
+        return this.subdivide(nebulae, index, this.fractalCount > 0 ? this.fractalCount - 1 : 0, newPoint, seedRadius, 0)
     }
 
-    private generateRandomNebulaeAlongPath(count: number, left: number, top: number, width: number, height: number, radius: number): Array<NebulaBubble> {
+    private generateRandomNebulaeAlongPath(nebulae: Array<NebulaBubble>, index: number, count: number, left: number, top: number, width: number, height: number, radius: number): number {
         let newPoint = generateRandomPointAlongPath(this.points, left, top, width, height, radius)
         let seedRadius = this.minSeedRadius + (count / this.nrOfSeeds) * (this.maxSeedRadius - this.minSeedRadius)
-        return this.subdivide(this.fractalCount>0 ? this.fractalCount-1 : 0, newPoint, seedRadius,0)
+        return this.subdivide(nebulae, index, this.fractalCount > 0 ? this.fractalCount - 1 : 0, newPoint, seedRadius, 0)
     }
 
-    private subdivide(counter: number, center: Point, radius: number, randomCount: number): Array<NebulaBubble> {
-        let newNebulae: Array<NebulaBubble> = []
+    private subdivide(nebulae: Array<NebulaBubble>, index: number, counter: number, center: Point, radius: number, randomCount: number): number {
         let anglePerPart = (Math.PI * 2) / this.subdivisionCount
         let newRadius = radius * (this.minRadiusPart + (this.maxRadiusPart - this.minRadiusPart) * Math.random());
         let angle = this.minAngleOffset + (this.maxAngleOffset - this.minAngleOffset) * Math.random();
         for (let i = 0; i < this.subdivisionCount; i++) {
             angle = angle + anglePerPart
-            let newX = Math.round(center.x + newRadius * Math.sin(angle));
-            let newY = Math.round(center.y + newRadius * Math.cos(angle));
+            let radius2 = Math.random() < BREAKOUT_CHANCE ? newRadius : newRadius * 2;
+            let newX = Math.round(center.x + radius2 * Math.sin(angle));
+            let newY = Math.round(center.y + radius2 * Math.cos(angle));
             if (counter <= 0) {
-                newNebulae.push(new NebulaBubble({x: newX, y: newY}, newRadius));
-            } else {
-                if(Math.random() < 0.9 || randomCount > 3) {
-                    newNebulae = [
-                        ...newNebulae,
-                        ...this.subdivide(counter - 1, {x: newX, y: newY}, newRadius,0)
-                    ];
-                } else {
-                    newNebulae = [
-                        ...newNebulae,
-                        ...this.subdivide(counter, {x: newX, y: newY}, radius,randomCount + 1)
-                    ];
+                let bubble = new NebulaBubble({x: newX, y: newY}, radius2);
+                if (nebulae.length >= index) {
+                    // should not happen
+                    nebulae.push(bubble)
                 }
+                nebulae[index] = bubble;
+                index++;
+            } else {
+                index = this.subdivide(nebulae, index, counter - 1, {x: newX, y: newY}, newRadius, 0)
             }
         }
-        return newNebulae;
+        return index;
     }
 
 }

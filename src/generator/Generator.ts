@@ -96,16 +96,28 @@ class Generator {
         }
     }
 
-    drawBubble(renderData: RenderData, nebula: NebulaBubble) {
+    drawBubble(renderData: RenderData, nebula: NebulaBubble, fadeIn: number, fadeOut: number, brightness: number) {
         let center = nebula.center;
         let radius = Math.round(nebula.radius);
+        let fadeInRadius = radius * fadeIn / 100.0;
+        let fadeOutRadius = radius * fadeOut / 100.0;
         let leftTop = {x: center.x - radius, y: center.y - radius}
         for (let x = leftTop.x; x < leftTop.x + radius * 2; x++) {
             for (let y = leftTop.y; y < leftTop.y + radius * 2; y++) {
                 let pt = {x: x, y: y}
                 let dist = distanceToPoint(center, pt);
-                if (dist < radius && this.isValidPoint(pt)) {
-                    renderData.addValue(pt, 100)
+                if (dist <= radius && this.isValidPoint(pt)) {
+                    let value = 1.0;
+                    if (dist < fadeInRadius && fadeInRadius > 0) {
+                        value = dist / fadeInRadius;
+                    } else if (dist > fadeOutRadius && fadeOutRadius > 0) {
+                        value = (radius - dist) / (radius - fadeOutRadius);
+                    }
+                    if (value > 1) {
+                        console.log(radius)
+                    }
+
+                    renderData.addValue(pt, value * brightness)
                 }
             }
         }
@@ -138,7 +150,7 @@ class Generator {
         layer.hue = nebula.hue;
         layer.type = LayerType.SATURATION;
         bubbles.forEach((bubble) => {
-            this.drawBubble(layer, bubble)
+            this.drawBubble(layer, bubble, nebula.innerFade, nebula.outerFade, nebula.brightness)
         });
     }
 
@@ -153,20 +165,21 @@ class Generator {
             let l = 0.0;
             this.layers.forEach(layer => {
                 let value = layer.getValue(i / 4);
-                if(layer.type === LayerType.SATURATION) {
+                if (layer.type === LayerType.SATURATION) {
                     h += layer.hue * value;
                     s += value;
-                    if(s>0) {
-                        l += 25;
-                    }
+                    l += s / 10;
                 } else {
                     l += value;
                 }
             });
-            if(s > 0) {
+            if (s > 0) {
                 h = h / s;
             }
-            let rgb = hslToRgb(h/360.0,s/100.0,l/100.0);
+            if (l > 100) {
+                l = 100;
+            }
+            let rgb = hslToRgb(h / 360.0, s / 100.0, l / 100.0);
             // if(s > 0) {
             //     console.log(`(${h},${s},${l}) -> (${rgb[0]},${rgb[1]},${rgb[2]})`)
             // }
