@@ -146,7 +146,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
             <td>
                 <button onClick={() => {
                     this.onRender(true)
-                }}>Render
+                }}>Generate
                 </button>
             </td>
         </tr>

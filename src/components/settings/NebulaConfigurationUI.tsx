@@ -154,7 +154,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
             <td>
                 <button onClick={() => {
                     this.onRender(true)
-                }}>Render
+                }}>Generate
                 </button>
             </td>
         </tr>
