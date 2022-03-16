@@ -2,6 +2,7 @@ import './canvas.css';
 import React, {CSSProperties, DragEvent, RefObject} from "react";
 import {Generator} from "../../generator/Generator";
 import {PointID} from "../generator-ui";
+import {Loader} from "./loader";
 
 enum Mode {
     VIEW,
@@ -17,6 +18,7 @@ type PictureProps = {
     generator: Generator;
     width: number;
     height: number;
+    loading: boolean;
 }
 
 type PictureState = {
@@ -86,6 +88,7 @@ class Canvas extends React.Component<PictureProps, PictureState> {
 
     render() {
         return <div className="picture" style={this.createStyle(false)}>
+            <Loader visible={this.props.loading} showIcon={true}/>
             <div className="pictureEditButtons">
                 {((this.state.mode !== Mode.ADD && <button onClick={() => {
                     this.setState({mode: Mode.ADD})

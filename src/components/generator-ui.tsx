@@ -1,5 +1,4 @@
 import './style.css';
-import Progress from './elements/progress';
 import {Canvas} from "./elements/canvas";
 import React from "react";
 import {Point} from "../model/Point";
@@ -9,6 +8,7 @@ import {ConfigurableItemUI} from "./settings/ConfigurableItemUI";
 import {CanvasWidget} from "./elements/canvas-widget";
 import {Starcluster, StarClusterType} from "../model/Starcluster";
 import {Nebula, NebulaType} from "../model/Nebula";
+import {Loader} from "./elements/loader";
 
 type GeneratorUIState = {
     progress: number,
@@ -17,7 +17,8 @@ type GeneratorUIState = {
     height: number,
     renderItems: Array<ConfigurableItem>,
     generator: Generator,
-    idCounter: number
+    idCounter: number,
+    rendering: boolean
 };
 
 type PointID = {
@@ -34,7 +35,8 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         height: 480,
         renderItems: this.createInitialItems(),
         generator: new Generator(720, 480),
-        idCounter: 2
+        idCounter: 2,
+        rendering: false
     }
 
     createInitialItems() {
@@ -86,15 +88,26 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         }
     }
 
-    onRender(id: number) {
+    performRender(id: number) {
         this.state.renderItems
             .filter((item) => {
                 return item.id === id
             })
             .forEach((item => {
                 this.state.generator.generateOrRender(item);
-                this.setState({shouldPaint: true});
+                this.setState({shouldPaint: true, rendering: false});
             }))
+    }
+
+    onRender(id: number) {
+        this.setState(
+            {rendering: true},
+            () => {
+                setTimeout(() => {
+                    this.performRender(id);
+                }, 10)
+            }
+        );
     }
 
     onRemoveSettings(id: number) {
@@ -127,6 +140,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         return (
             <div>
                 <div className="container">
+                    <Loader visible={this.state.rendering} showIcon={false}/>
                     <div className="section">
                         <table>
                             {this.state.renderItems.map(item => {
@@ -145,15 +159,12 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                                 />
                             })}
                         </table>
-
-
                     </div>
-
-                    <Progress progress={this.state.progress}/>
                 </div>
                 <Canvas setValueCallback={(id: number, index: number, point: Point) => {
                     this.onUpdateCanvasItem(id, index, point)
                 }}
+                        loading={this.state.rendering}
                         addCallback={(point: Point) => {
                             this.onAddCanvasItem(point)
                         }}
