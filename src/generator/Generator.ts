@@ -13,31 +13,25 @@ class RenderData {
 
     width: number;
     height: number;
-    hue: number;
-    values: Array<number>
-    type: LayerType
+    hue: number = 0;
+    values: Array<number> = [];
+    extraValues: Array<number> = [];
+    type: LayerType = LayerType.LIGHT
 
-    nebula: Nebula | null;
-    bubbles: Array<NebulaBubble>;
+    nebula: Nebula | null = null;
+    bubbles: Array<NebulaBubble> = [];
 
-    cluster: Starcluster | null;
-    stars: Array<Star>;
-    hdr = 0.0;
+    cluster: Starcluster | null = null;
+    stars: Array<Star> = [];
 
     constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
-        this.type = LayerType.LIGHT;
-        this.hue = 0;
-        this.values = [];
-        this.bubbles = []
-        this.stars = [];
-        this.nebula = null;
-        this.cluster = null;
     }
 
     clear() {
         this.values = new Array(this.width * this.height);
+        this.extraValues = new Array(this.width * this.height);
     }
 
     addValue(x: number, y: number, value: number) {
@@ -46,6 +40,15 @@ class RenderData {
             this.values[index] += value;
         } else {
             this.values[index] = value;
+        }
+    }
+
+    addExtraValue(x: number, y: number, value: number) {
+        let index = y * this.width + x;
+        if (this.extraValues[index] && !isNaN(this.extraValues[index])) {
+            this.extraValues[index] += value;
+        } else {
+            this.extraValues[index] = value;
         }
     }
 
@@ -69,14 +72,25 @@ class RenderData {
             return result;
         }
     }
+
+    getExtraValueByIndex(idx: number): number {
+        let result = idx >= 0 && idx < this.values.length ? this.values[idx] : 0;
+        if (isNaN(result)) {
+            return 0.0;
+        } else {
+            return result;
+        }
+    }
 }
 
 class Generator {
 
+    gasBlooming: number = 60;
     width: number;
     height: number;
 
     layers: Array<RenderData>
+
 
     constructor(width: number, height: number) {
         this.width = width;
@@ -89,13 +103,15 @@ class Generator {
     }
 
     drawStar(renderData: RenderData, star: Star, maxBrightness: number, blooming: number) {
-        let falloff = 3.6 - (blooming / 40.0)
+        let falloff1 = 3.6 - (blooming / 40.0)
+        let falloff2 = 1.2;
+        let falloffMin = Math.min(falloff1, falloff2);
         let brightness = star.brightness * maxBrightness * 10;
-        let adjustedBrightness = brightness / 2.0;
+        let adjustedBrightness = brightness;
         let radius = 0
         while (adjustedBrightness > 0.5 && radius < this.width) {
             radius++;
-            adjustedBrightness = adjustedBrightness / falloff;
+            adjustedBrightness = adjustedBrightness / falloffMin;
         }
         let center = star.center
         let leftTop = {x: center.x - radius, y: center.y - radius}
@@ -103,9 +119,11 @@ class Generator {
             for (let y = leftTop.y; y < leftTop.y + radius * 2; y++) {
                 let pt = {x: x, y: y}
                 let dist = distanceToPoint(center, pt);
-                let b = dist === 0 ? brightness : brightness / Math.pow(falloff, dist)
+                let b1 = dist === 0 ? brightness : brightness / Math.pow(falloff1, dist)
+                let b2 = dist === 0 ? brightness * 2 : brightness * 2 / Math.pow(falloff2, dist)
                 if (this.isValidPoint(pt.x, pt.y)) {
-                    renderData.addValue(pt.x, pt.y, b)
+                    renderData.addValue(pt.x, pt.y, b1)
+                    renderData.addExtraValue(pt.x, pt.y, b2)
                 }
             }
         }
@@ -241,15 +259,26 @@ class Generator {
                     {"val": oldLayer.getValue(x-1,y-1), "wt":this.isValidPoint(x,y)? value/141.0 : 0},
                     {"val": oldLayer.getValue(x-1,y+1), "wt":this.isValidPoint(x,y)? value/141.0 : 0},
                     {"val": oldLayer.getValue(x+1,y-1), "wt":this.isValidPoint(x,y)? value/141.0 : 0},
-                    {"val": oldLayer.getValue(x+1,y+1), "wt":this.isValidPoint(x,y)? value/141.0 : 0}
+                    {"val": oldLayer.getValue(x + 1, y + 1), "wt": this.isValidPoint(x, y) ? value / 141.0 : 0}
                 ]
                 let newValue = 0.0;
                 let wt = 0.0;
-                newVals.forEach((item => { newValue += (item.val * item.wt);wt += item.wt; }));
-                newLayer.addValue(x, y, newValue/wt);
+                newVals.forEach((item => {
+                    newValue += (item.val * item.wt);
+                    wt += item.wt;
+                }));
+                newLayer.addValue(x, y, newValue / wt);
             }
         }
         this.layers[index] = newLayer;
+    }
+
+    setSize(newWidth: number, newHeight: number) {
+        this.width = newWidth;
+        this.height = newHeight;
+        this.layers.forEach(layer => {
+            layer.clear()
+        });
     }
 
     paint(context: CanvasRenderingContext2D | null) {
@@ -261,14 +290,21 @@ class Generator {
             let h = 0.0;
             let s = 0.0;
             let l = 0.0;
-            this.layers.forEach(layer => {
+            let l2 = 0.0;
+            this.layers.filter((layer) => {
+                return layer.type === LayerType.LIGHT
+            }).forEach(layer => {
+                l += layer.getValueByIndex(i / 4);
+                l2 += layer.getExtraValueByIndex(i / 4);
+            })
+            this.layers.filter((layer) => {
+                return layer.type === LayerType.SATURATION
+            }).forEach(layer => {
                 let value = layer.getValueByIndex(i / 4);
-                if (layer.type === LayerType.SATURATION) {
-                    h += layer.hue;
-                    s += value;
-                    l += s / 10;
-                } else {
-                    l += value;
+                h += layer.hue;
+                s += value;
+                if (s > 0) {
+                    l += this.gasBlooming / 50 * Math.sqrt(l2) + s / 20;
                 }
             });
             if (l > 100) {
