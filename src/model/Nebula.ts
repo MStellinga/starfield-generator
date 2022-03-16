@@ -292,7 +292,12 @@ class Nebula extends ConfigurableItem {
     }
 
     private generateRandomNebulaeAlongPath(nebulae: Array<NebulaBubble>, index: number, count: number, left: number, top: number, width: number, height: number, radius: number): number {
-        let newPoint = generateRandomPointAlongPath(this.points, left, top, width, height, radius)
+        let newPoint;
+        if (this.points.length < 2) {
+            newPoint = generateRandomPointInCircle(this.points[0], radius)
+        } else {
+            newPoint = generateRandomPointAlongPath(this.points, left, top, width, height, radius)
+        }
         let seedRadius = this.minSeedRadius + (count / this.nrOfSeeds) * (this.maxSeedRadius - this.minSeedRadius)
         return this.subdivide(nebulae, index, this.fractalCount > 0 ? this.fractalCount - 1 : 0, newPoint, seedRadius, 0)
     }

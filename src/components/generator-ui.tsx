@@ -179,6 +179,13 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         this.setState({shouldPaint: false})
     }
 
+    onHelp() {
+        let newWindow = window.open('/help.html', '_blank');
+        if (newWindow) {
+            newWindow.focus();
+        }
+    }
+
     render() {
         return (
             <div>
@@ -210,7 +217,10 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                             }}>Render all
                             </button>
                             <br/>
-                            <button className="highlight">Help</button>
+                            <button className="highlight" onClick={() => {
+                                this.onHelp()
+                            }}>Help
+                            </button>
                         </div>
                         <table>
                             <tbody>

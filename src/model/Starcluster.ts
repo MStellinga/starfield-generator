@@ -220,7 +220,12 @@ class Starcluster extends ConfigurableItem {
 
     private generateRandomStarAlongPath(left: number, top: number, width: number, height: number, radius: number) {
         let brightness = Math.random()
-        let newPoint = generateRandomPointAlongPath(this.points, left, top, width, height, radius)
+        let newPoint;
+        if (this.points.length < 2) {
+            newPoint = generateRandomPointInCircle(this.points[0], radius)
+        } else {
+            newPoint = generateRandomPointAlongPath(this.points, left, top, width, height, radius)
+        }
         return new Star(newPoint, brightness)
     }
 
