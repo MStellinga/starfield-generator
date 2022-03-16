@@ -31,14 +31,13 @@ enum StarClusterType {
 class Starcluster extends ConfigurableItem {
 
     points: Array<Point>;
-    maxRadius: number = 50;
-    minRadius: number = 100;
+    minRadius: string = "50";
+    maxRadius: string = "100";
+    nrOfStars: string = "200";
     brightness: number = 100;
     blooming: number = 25; // 0 - 100
 
     clusterType: StarClusterType = StarClusterType.CIRCULAR;
-
-    nrOfStars: number = 200;
 
     constructor(id: number, points: Array<Point>) {
         super(id)
@@ -100,9 +99,26 @@ class Starcluster extends ConfigurableItem {
         }
     }
 
-    setProperty(property: string, newValue: string|number) {
+    setProperty(property: string, newValue: string) {
+        switch (property) {
+            case 'minRadius':
+                this.minRadius = newValue;
+                this.needsGenerate = true;
+                break;
+            case 'maxRadius':
+                this.maxRadius = newValue;
+                this.needsGenerate = true;
+                break;
+            case 'nrOfStars':
+                this.nrOfStars = newValue;
+                this.needsGenerate = true;
+                break;
+        }
+    }
+
+    setIntProperty(property: string, newValue: string | number) {
         let newInt: number;
-        if(typeof newValue == 'string') {
+        if (typeof newValue == 'string') {
             newInt = newValue === '' ? 0 : parseInt(newValue as string);
             if (isNaN(newInt)) {
                 return
@@ -116,18 +132,6 @@ class Starcluster extends ConfigurableItem {
                 if (this.clusterType === StarClusterType.RECTANGULAR && this.points.length < 2) {
                     this.addPoint()
                 }
-                this.needsGenerate = true;
-                break;
-            case 'minRadius':
-                this.minRadius = toRange(newInt, 0);
-                this.needsGenerate = true;
-                break;
-            case 'maxRadius':
-                this.maxRadius = toRange(newInt, 0);
-                this.needsGenerate = true;
-                break;
-            case 'nrOfStars':
-                this.nrOfStars = toRange(newInt, 0);
                 this.needsGenerate = true;
                 break;
             case 'brightness':
@@ -155,14 +159,31 @@ class Starcluster extends ConfigurableItem {
         this.needsGenerate = true;
     }
 
+    toInt(val: string, defaultVal: number, requirePositive: boolean = true) {
+        let result = parseInt(val);
+        result = isNaN(result) ? defaultVal : result
+        return result < 0 && requirePositive ? 0 : result;
+    }
+
     generateStars(): Array<Star> {
+        let nrOfStars = this.toInt(this.nrOfStars, 200);
+        let minRadius = this.toInt(this.minRadius, 50);
+        let maxRadius = this.toInt(this.maxRadius, 100);
+        if (maxRadius < minRadius) {
+            let tmp = maxRadius;
+            maxRadius = minRadius;
+            minRadius = tmp;
+        }
+        this.nrOfStars = "" + nrOfStars;
+        this.minRadius = "" + minRadius;
+        this.maxRadius = "" + maxRadius;
+
         let stars: Array<Star> = [];
         switch (this.clusterType) {
             case StarClusterType.CIRCULAR:
-                this.fixMinMax();
-                for (let i = 0; i < this.nrOfStars; i++) {
+                for (let i = 0; i < nrOfStars; i++) {
                     // Increase the allowed radius linearly, which will make more stars appear in the center
-                    let radius = this.minRadius + (i / this.nrOfStars) * (this.maxRadius - this.minRadius)
+                    let radius = minRadius + (i / nrOfStars) * (maxRadius - minRadius)
                     stars.push(this.generateRandomStarInCircle(radius))
                 }
                 break;
@@ -171,12 +192,11 @@ class Starcluster extends ConfigurableItem {
                 let yTop = Math.min(this.points[0].y, this.points[1].y)
                 let width = Math.abs(this.points[1].x - this.points[0].x);
                 let height = Math.abs(this.points[1].y - this.points[0].y);
-                for (let i = 0; i < this.nrOfStars; i++) {
+                for (let i = 0; i < nrOfStars; i++) {
                     stars.push(Starcluster.generateRandomStarInSquare(xLeft, yTop, width, height))
                 }
                 break;
             case StarClusterType.PATH:
-                this.fixMinMax();
                 let minX = this.points[0].x;
                 let minY = this.points[0].y;
                 let maxX = this.points[0].x;
@@ -187,9 +207,9 @@ class Starcluster extends ConfigurableItem {
                     maxX = Math.max(this.points[i].x, maxX);
                     maxY = Math.max(this.points[i].y, maxY);
                 }
-                for (let i = 0; i < this.nrOfStars; i++) {
+                for (let i = 0; i < nrOfStars; i++) {
                     // Increase the allowed radius linearly, which will make more stars appear in the center
-                    let radius = this.minRadius + (i / this.nrOfStars) * (this.maxRadius - this.minRadius)
+                    let radius = minRadius + (i / nrOfStars) * (maxRadius - minRadius)
                     stars.push(this.generateRandomStarAlongPath(minX - radius, minY - radius, maxX - minX + 2 * radius, maxY - minY + 2 * radius, radius))
                 }
                 break;
@@ -197,14 +217,6 @@ class Starcluster extends ConfigurableItem {
         this.needsGenerate = false;
         return stars;
     }
-
-    private fixMinMax() {
-        let minRadius = Math.min(this.minRadius, this.maxRadius)
-        let maxRadius = Math.max(this.minRadius, this.maxRadius)
-        this.minRadius = minRadius;
-        this.maxRadius = maxRadius;
-    }
-
 
     private generateRandomStarInCircle(radius: number) {
         let newPoint = generateRandomPointInCircle(this.points[0], radius)

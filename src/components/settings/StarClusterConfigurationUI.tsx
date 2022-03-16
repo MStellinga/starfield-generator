@@ -43,8 +43,13 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         this.props.updateSettingsCallback();
     }
 
-    onChangeValue(property: string, newValue: string|number) {
+    onChangeValue(property: string, newValue: string) {
         this.props.settings.setProperty(property, newValue)
+        this.props.updateSettingsCallback();
+    }
+
+    onChangeIntValue(property: string, newValue: string | number) {
+        this.props.settings.setIntProperty(property, newValue)
         this.props.updateSettingsCallback();
     }
 
@@ -105,7 +110,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
             </td>
             <td>
                 <select onChange={(event) => {
-                    this.onChangeValue("clusterType", event.currentTarget.value)
+                    this.onChangeIntValue("clusterType", event.currentTarget.value)
                 }} defaultValue={this.props.settings.clusterType}>
                     <option value="0">Circle</option>
                     <option value="1">Rect</option>
@@ -181,12 +186,16 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         <tr>
             <td>Brightness:</td>
             <td colSpan={5}><Slider value={this.props.settings.brightness}
-                                onChange={(newValue) => {this.onChangeValue("brightness", newValue as number)}}
-                                onAfterChange={()=>this.onRender(false)} /></td>
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("brightness", newValue as number)
+                                    }}
+                                    onAfterChange={() => this.onRender(false)} /></td>
             <td>Bloom:</td>
             <td colSpan={5}><Slider value={this.props.settings.blooming}
-                                onChange={(newValue) => { this.onChangeValue("blooming", newValue as number)}}
-                                onAfterChange={()=>this.onRender(false)} /></td>
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("blooming", newValue as number)
+                                    }}
+                                    onAfterChange={() => this.onRender(false)} /></td>
         </tr>
         </tbody>
     }

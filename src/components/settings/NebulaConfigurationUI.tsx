@@ -30,12 +30,17 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         }
     }
 
-    onChangeIntValue(property: string, newValue: string|number) {
+    onChangeValue(property: string, newValue: string) {
+        this.props.settings.setProperty(property, newValue)
+        this.props.updateSettingsCallback(this.props.settings);
+    }
+
+    onChangeIntValue(property: string, newValue: string | number) {
         this.props.settings.setIntProperty(property, newValue)
         this.props.updateSettingsCallback(this.props.settings);
     }
 
-    onChangeFloatValue(property: string, newValue: string|number) {
+    onChangeFloatValue(property: string, newValue: string | number) {
         this.props.settings.setFloatProperty(property, newValue)
         this.props.updateSettingsCallback(this.props.settings);
     }
@@ -123,23 +128,23 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
             <td colSpan={3}>Gen radius:</td>
             <td><input className="numberField" value={this.props.settings.radius}
                        onChange={(event) => {
-                           this.onChangeIntValue("radius", event.currentTarget.value)
+                           this.onChangeValue("radius", event.currentTarget.value)
                        }}/></td>
 
             <td># Seeds</td>
             <td><input className="numberField" value={this.props.settings.nrOfSeeds} onChange={(event) => {
-                this.onChangeIntValue("nrOfSeeds", event.currentTarget.value)
+                this.onChangeValue("nrOfSeeds", event.currentTarget.value)
             }}/></td>
 
             <td>Seed radius:</td>
             <td><input className="numberField" value={this.props.settings.minSeedRadius}
                        onChange={(event) => {
-                           this.onChangeIntValue("minSeedRadius", event.currentTarget.value)
+                           this.onChangeValue("minSeedRadius", event.currentTarget.value)
                        }}/></td>
             <td>-</td>
             <td><input className="numberField" value={this.props.settings.maxSeedRadius}
                        onChange={(event) => {
-                           this.onChangeIntValue("maxSeedRadius", event.currentTarget.value)
+                           this.onChangeValue("maxSeedRadius", event.currentTarget.value)
                        }}/></td>
             <td>
                 <button
@@ -163,35 +168,35 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
             <td># Fractals</td>
             <td><input className="numberField" value={this.props.settings.fractalCount}
                        onChange={(event) => {
-                           this.onChangeIntValue("fractalCount", event.currentTarget.value)
+                           this.onChangeValue("fractalCount", event.currentTarget.value)
                        }}/></td>
 
             <td>Shrink/step:</td>
             <td><input className="numberField" value={this.props.settings.minRadiusPart}
                        onChange={(event) => {
-                           this.onChangeFloatValue("minRadiusPart", event.currentTarget.value)
+                           this.onChangeValue("minRadiusPart", event.currentTarget.value)
                        }}/></td>
             <td>-</td>
             <td><input className="numberField" value={this.props.settings.maxRadiusPart}
                        onChange={(event) => {
-                           this.onChangeFloatValue("maxRadiusPart", event.currentTarget.value)
+                           this.onChangeValue("maxRadiusPart", event.currentTarget.value)
                        }}/></td>
 
             <td>Divisions/step:</td>
             <td><input className="numberField" value={this.props.settings.subdivisionCount}
                        onChange={(event) => {
-                           this.onChangeIntValue("subdivisionCount", event.currentTarget.value)
+                           this.onChangeValue("subdivisionCount", event.currentTarget.value)
                        }}/></td>
 
             <td>Angle shift/step:</td>
             <td><input className="numberField" value={this.props.settings.minAngleOffset}
                        onChange={(event) => {
-                           this.onChangeFloatValue("minAngleOffset", event.currentTarget.value)
+                           this.onChangeValue("minAngleOffset", event.currentTarget.value)
                        }}/></td>
             <td>-</td>
             <td><input className="numberField" value={this.props.settings.maxAngleOffset}
                        onChange={(event) => {
-                           this.onChangeFloatValue("maxAngleOffset", event.currentTarget.value)
+                           this.onChangeValue("maxAngleOffset", event.currentTarget.value)
                        }}/></td>
         </tr>
         {this.state.expanded && this.props.settings.getPointsToRender().map((pt, index) => {

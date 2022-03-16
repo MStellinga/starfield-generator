@@ -47,14 +47,14 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         cluster1.clusterType = StarClusterType.RECTANGULAR;
         cluster1.brightness = 10;
         cluster1.blooming = 50;
-        cluster1.nrOfStars = 800;
+        cluster1.nrOfStars = "800";
         let cluster2 = new Starcluster(1, [{x: 360, y: 240}]);
         cluster2.clusterType = StarClusterType.CIRCULAR;
-        cluster2.minRadius = 200;
-        cluster2.maxRadius = 300;
+        cluster2.minRadius = "200";
+        cluster2.maxRadius = "300";
         cluster2.brightness = 40;
         cluster2.blooming = 70;
-        cluster2.nrOfStars = 100;
+        cluster2.nrOfStars = "100";
         let nebula1 = new Nebula(2, [{x: 105, y: 150}, {x: 400, y: 160}, {x: 620, y: 265}])
         nebula1.nebulaType = NebulaType.PATH
         return [cluster1, cluster2, nebula1];
@@ -171,7 +171,8 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     }
 
     onUpdateGasBlooming(newValue: number) {
-        this.state.generator.gasBlooming = newValue;
+        let generator = this.state.generator;
+        generator.gasBlooming = newValue;
         this.setState({gasBlooming: newValue, shouldPaint: true})
     }
 
