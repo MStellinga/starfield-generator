@@ -188,14 +188,12 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
             <td colSpan={5}><Slider value={this.props.settings.brightness}
                                     onChange={(newValue) => {
                                         this.onChangeIntValue("brightness", newValue as number)
-                                    }}
-                                    onAfterChange={() => this.onRender(false)} /></td>
+                                    }}/></td>
             <td>Bloom:</td>
             <td colSpan={5}><Slider value={this.props.settings.blooming}
                                     onChange={(newValue) => {
                                         this.onChangeIntValue("blooming", newValue as number)
-                                    }}
-                                    onAfterChange={() => this.onRender(false)} /></td>
+                                    }}/></td>
         </tr>
         </tbody>
     }

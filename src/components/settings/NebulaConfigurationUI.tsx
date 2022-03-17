@@ -256,8 +256,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                             prop: "hue1Fraction",
                                             val: vals[0]
                                         }, {prop: "hue2Fraction", val: vals[1]}]);
-                                    }}
-                                    onAfterChange={() => this.onRender(false)}/></td>
+                                    }}/></td>
         </tr>
         <tr>
             <td>Hue 2:</td>
@@ -273,22 +272,19 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                             prop: "hollowEmpty",
                                             val: vals[0]
                                         }, {prop: "hollowFull", val: vals[1]}]);
-                                    }}
-                                    onAfterChange={() => this.onRender(false)}/></td>
+                                    }}/></td>
         </tr>
         <tr>
             <td>Brightness:</td>
             <td colSpan={4}><Slider value={this.props.settings.brightness}
                                     onChange={(newValue) => {
                                         this.onChangeIntValue("brightness", newValue as number)
-                                    }}
-                                    onAfterChange={() => this.onRender(false)}/></td>
+                                    }}/></td>
             <td>Smooth:</td>
             <td colSpan={2}><Slider value={this.props.settings.smooth}
                                     onChange={(newValue) => {
                                         this.onChangeIntValue("smooth", newValue as number)
-                                    }}
-                                    onAfterChange={() => this.onRender(false)}/></td>
+                                    }}/></td>
             <td colSpan={1}>Fade:</td>
             <td colSpan={6}><Slider range={true} count={1}
                                     value={[this.props.settings.innerFade, this.props.settings.outerFade]}
@@ -298,8 +294,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                             prop: "outerFade",
                                             val: vals[1]
                                         }]);
-                                    }}
-                                    onAfterChange={() => this.onRender(false)}/></td>
+                                    }}/></td>
         </tr>
         </tbody>
     }

@@ -173,7 +173,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     onUpdateGasBlooming(newValue: number) {
         let generator = this.state.generator;
         generator.gasBlooming = newValue;
-        this.setState({gasBlooming: newValue, shouldPaint: true})
+        this.setState({gasBlooming: newValue})
     }
 
     onDonePainting() {
