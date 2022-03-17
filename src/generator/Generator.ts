@@ -89,6 +89,12 @@ class RenderData {
             return result;
         }
     }
+
+    setExtraValueByIndex(idx: number, value: number) {
+        if (idx >= 0 && idx < this.extraValues.length) {
+            this.extraValues[idx] = value;
+        }
+    }
 }
 
 class Generator {
@@ -239,17 +245,26 @@ class Generator {
 
     renderNebula(index: number, clear: boolean) {
         let layer = this.layers[index];
-        if(layer.nebula === null) {
+        if (layer.nebula === null) {
             return;
         }
-        if(clear){
+        if (clear) {
             layer.clear();
         }
         let nebula: Nebula = layer.nebula;
         layer.bubbles.forEach((bubble) => {
             this.drawBubble(layer, bubble, nebula)
         });
-        //this.smooth(index,nebula.smooth);
+        this.postProcessHue(index);
+        this.smooth(index, nebula.smooth);
+    }
+
+    postProcessHue(index: number) {
+        let layer = this.layers[index];
+        for (let i = 0; i < layer.extraValues.length; i++) {
+            let h = layer.getExtraValueByIndex(i) / layer.getValueByIndex(i);
+            layer.setExtraValueByIndex(i, h);
+        }
     }
 
     smooth(index: number, value: number) {
@@ -259,7 +274,7 @@ class Generator {
         newLayer.bubbles = oldLayer.bubbles;
         newLayer.nebula = oldLayer.nebula;
         newLayer.extraValues = oldLayer.extraValues;
-        for(let x=0; x<this.width; x++){
+        for (let x = 0; x < this.width; x++) {
             for(let y=0; y<this.width; y++){
                 let newVals = [
                     {"val": oldLayer.getValue(x,y), "wt": this.isValidPoint(x,y)? 1.0 : 0},
@@ -300,36 +315,52 @@ class Generator {
         }
         let imageData = context.createImageData(this.width, this.height);
         for (let i = 0; i < imageData.data.length; i += 4) {
-            let h = 0.0;
-            let s = 0.0;
-            let l = 0.0;
+            // let h = 0.0;
+            // let s = 0.0;
+            let l1 = 0.0;
             let l2 = 0.0;
+            let r = 0;
+            let g = 0;
+            let b = 0;
+            let colorCount = 0;
             this.layers.filter((layer) => {
-                return layer.type === LayerType.LIGHT
+                return layer.type === LayerType.LIGHT && layer.cluster?.active
             }).forEach(layer => {
-                l += layer.getValueByIndex(i / 4);
+                l1 += layer.getValueByIndex(i / 4);
                 l2 += layer.getExtraValueByIndex(i / 4);
             })
             this.layers.filter((layer) => {
-                return layer.type === LayerType.SATURATION
+                return layer.type === LayerType.SATURATION && layer.nebula?.active
             }).forEach(layer => {
-                let value = layer.getValueByIndex(i / 4);
-                h = layer.getExtraValueByIndex(i / 4) / value;
-                s += value;
+                let s = layer.getValueByIndex(i / 4);
+                let h = layer.getExtraValueByIndex(i / 4);
+                let l = l1;
                 if (s > 0) {
                     l += this.gasBlooming / 200 * Math.sqrt(l2) + s / 20;
                 }
+                if (s > 100) {
+                    s = 100;
+                }
+                if (l > 100) {
+                    l = 100;
+                }
+                let rgb = hslToRgb(h / 360.0, s / 100.0, l / 100.0);
+                r += rgb[0];
+                g += rgb[1];
+                b += rgb[2];
+                colorCount++
             });
-            if (l > 100) {
-                l = 100;
-            }
-            let rgb = hslToRgb(h / 360.0, s / 100.0, l / 100.0);
+            // h = s > 0 ? h / s : 0;
+            // if (l > 100) {
+            //     l = 100;
+            // }
+
             // if(s > 0) {
             //     console.log(`(${h},${s},${l}) -> (${rgb[0]},${rgb[1]},${rgb[2]})`)
             // }
-            imageData.data[i] = rgb[0];
-            imageData.data[i + 1] = rgb[1];
-            imageData.data[i + 2] = rgb[2];
+            imageData.data[i] = r / colorCount;
+            imageData.data[i + 1] = g / colorCount;
+            imageData.data[i + 2] = b / colorCount;
             imageData.data[i + 3] = 255;
         }
         context.putImageData(imageData, 0, 0);

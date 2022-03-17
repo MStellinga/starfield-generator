@@ -117,12 +117,12 @@ class Nebula extends ConfigurableItem {
     hue1Fraction: number = 55;
     hue2Fraction: number = 100;
 
-    hollowEmpty: number = 50;
-    hollowFull: number = 60;
+    hollowEmpty: number = 0;
+    hollowFull: number = 30;
 
     smooth: number = 50;
 
-    brightness: number = 10;
+    brightness: number = 20;
 
     generatedMinX = -1;
     generatedMaxX = -1;

@@ -1,5 +1,4 @@
 import {Point} from "./Point";
-import {RGBColor} from "react-color";
 
 enum ItemType {
     STARCLUSTER,
@@ -11,6 +10,7 @@ abstract class ConfigurableItem {
     id: number;
     counter: number;
     needsGenerate: boolean = true;
+    active: boolean = true;
 
     protected constructor(id: number) {
         this.id = id;

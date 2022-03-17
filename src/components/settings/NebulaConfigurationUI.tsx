@@ -95,6 +95,12 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         this.props.renderCallback()
     }
 
+    onActiveChange(newValue: boolean) {
+        this.props.settings.active = newValue;
+        this.props.updateSettingsCallback(this.props.settings);
+    }
+
+
     onHue1Change(color: ColorResult) {
         this.props.settings.setFloatProperty("hue1", "" + color.hsl.h)
         this.props.updateSettingsCallback();
@@ -123,6 +129,10 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         return <tbody>
         <tr className="topSectionRow">
             <td>
+                <input type="checkbox" checked={this.props.settings.active}
+                       onChange={(event) => {
+                           this.onActiveChange(event.currentTarget.checked)
+                       }}/>
                 {this.getIdAsLetter()}
                 <select onChange={(event) => {
                     this.onSwitchType(event)

@@ -53,6 +53,11 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         this.props.updateSettingsCallback();
     }
 
+    onActiveChange(newValue: boolean) {
+        this.props.settings.active = newValue;
+        this.props.updateSettingsCallback(this.props.settings);
+    }
+
     deleteSelf() {
         this.props.removeSettingsCallback();
     }
@@ -100,6 +105,10 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
         return <tbody>
         <tr className="topSectionRow">
             <td>
+                <input type="checkbox" checked={this.props.settings.active}
+                       onChange={(event) => {
+                           this.onActiveChange(event.currentTarget.checked)
+                       }}/>
                 {this.getIdAsLetter()}
                 <select onChange={(event) => {
                     this.onSwitchType(event)

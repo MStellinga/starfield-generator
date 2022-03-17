@@ -37,9 +37,9 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         height: "480",
         renderItems: this.createInitialItems(),
         generator: new Generator(720, 480),
-        idCounter: 3,
+        idCounter: 4,
         rendering: false,
-        gasBlooming: 60
+        gasBlooming: 40
     }
 
     createInitialItems() {
@@ -57,7 +57,14 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         cluster2.nrOfStars = "100";
         let nebula1 = new Nebula(2, [{x: 105, y: 150}, {x: 400, y: 160}, {x: 620, y: 265}])
         nebula1.nebulaType = NebulaType.PATH
-        return [cluster1, cluster2, nebula1];
+        nebula1.hollowFull = 0;
+        nebula1.hue1 = 220;
+        nebula1.hue2 = 220;
+        let nebula2 = new Nebula(3, [{x: 155, y: 250}])
+        nebula2.nebulaType = NebulaType.CIRCULAR
+        nebula2.hue1 = 0;
+        nebula2.hue2 = 20;
+        return [cluster1, cluster2, nebula1, nebula2];
     }
 
     setWidth(newValueAsString: string) {
@@ -156,7 +163,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
             newRenderItems[i].id = i;
         }
         this.state.generator.clearAllLayers();
-        this.setState({renderItems: newRenderItems})
+        this.setState({renderItems: newRenderItems, idCounter: newRenderItems.length})
     }
 
     onAddCanvasItem(point: Point) {
@@ -226,7 +233,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                         <table>
                             <tbody>
                             <tr>
-                                <td>Gas fog effect:</td>
+                                <td>Extra gas bloom:</td>
                                 <td colSpan={3}><Slider value={this.state.gasBlooming} onChange={(val) => {
                                     this.onUpdateGasBlooming(val as number)
                                 }}/></td>
