@@ -40,6 +40,13 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         this.props.updateSettingsCallback(this.props.settings);
     }
 
+    onChangeIntValues(properties: Array<any>) {
+        properties.forEach((prop) => {
+            this.props.settings.setIntProperty(prop.prop, prop.val);
+        })
+        this.props.updateSettingsCallback(this.props.settings);
+    }
+
     onChangeFloatValue(property: string, newValue: string | number) {
         this.props.settings.setFloatProperty(property, newValue)
         this.props.updateSettingsCallback(this.props.settings);
@@ -82,15 +89,23 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
     }
 
     onRender(forceGenerate: boolean) {
-        if(forceGenerate) {
+        if (forceGenerate) {
             this.props.settings.needsGenerate = true;
         }
         this.props.renderCallback()
     }
 
-    onHueChange(color: ColorResult) {
-        this.props.settings.setFloatProperty("hue", "" + color.hsl.h)
+    onHue1Change(color: ColorResult) {
+        this.props.settings.setFloatProperty("hue1", "" + color.hsl.h)
         this.props.updateSettingsCallback();
+    }
+
+    onHue2Change(color: ColorResult) {
+        this.props.settings.setFloatProperty("hue2", "" + color.hsl.h)
+        this.props.updateSettingsCallback();
+    }
+
+    onHueChanged() {
         this.props.renderCallback()
     }
 
@@ -218,8 +233,8 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         })}
         {this.state.expanded && this.props.settings.canAddPoints() &&
             (<tr>
-                <td colSpan={6} />
-                <td  className="pushLeft">
+                <td colSpan={6}/>
+                <td className="pushLeft">
                     <button onClick={() => {
                         this.onAddPoint()
                     }}>+
@@ -228,28 +243,63 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
             </tr>)
         }
         <tr>
-            <td>Hue:</td>
-            <td colSpan={6}><HuePicker color={this.props.settings.getColor()} onChange={color => {
-                this.onHueChange(color)
+            <td>Hue 1:</td>
+            <td colSpan={6}><HuePicker color={this.props.settings.getHue1()} onChange={color => {
+                this.onHue1Change(color)
             }}/></td>
-            <td colSpan={2}>Inner fade:</td>
-            <td colSpan={6}><Slider value={this.props.settings.innerFade}
-                                onChange={(newValue) => { this.onChangeIntValue("innerFade", newValue as number) }}
-                                onAfterChange={()=>this.onRender(false)} /></td>
+            <td colSpan={2}>Hue points:</td>
+            <td colSpan={6}><Slider range={true} count={1}
+                                    value={[this.props.settings.hue1Fraction, this.props.settings.hue2Fraction]}
+                                    onChange={(newValue) => {
+                                        let vals = newValue as Array<number>;
+                                        this.onChangeIntValues([{
+                                            prop: "hue1Fraction",
+                                            val: vals[0]
+                                        }, {prop: "hue2Fraction", val: vals[1]}]);
+                                    }}
+                                    onAfterChange={() => this.onRender(false)}/></td>
+        </tr>
+        <tr>
+            <td>Hue 2:</td>
+            <td colSpan={6}><HuePicker color={this.props.settings.getHue2()} onChange={color => {
+                this.onHue2Change(color)
+            }}/></td>
+            <td colSpan={2}>Hollow center:</td>
+            <td colSpan={6}><Slider range={true} count={1}
+                                    value={[this.props.settings.hollowEmpty, this.props.settings.hollowFull]}
+                                    onChange={(newValue) => {
+                                        let vals = newValue as Array<number>;
+                                        this.onChangeIntValues([{
+                                            prop: "hollowEmpty",
+                                            val: vals[0]
+                                        }, {prop: "hollowFull", val: vals[1]}]);
+                                    }}
+                                    onAfterChange={() => this.onRender(false)}/></td>
         </tr>
         <tr>
             <td>Brightness:</td>
             <td colSpan={4}><Slider value={this.props.settings.brightness}
-                                onChange={(newValue) => {this.onChangeIntValue("brightness", newValue as number)}}
-                                onAfterChange={()=>this.onRender(false)} /></td>
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("brightness", newValue as number)
+                                    }}
+                                    onAfterChange={() => this.onRender(false)}/></td>
             <td>Smooth:</td>
             <td colSpan={2}><Slider value={this.props.settings.smooth}
-                                onChange={(newValue) => {this.onChangeIntValue("smooth", newValue as number)}}
-                                onAfterChange={()=>this.onRender(false)} /></td>
-            <td colSpan={1}>Outer fade:</td>
-            <td colSpan={6}><Slider value={this.props.settings.outerFade}
-                                onChange={(newValue) => {this.onChangeIntValue("outerFade", newValue as number)}}
-                                onAfterChange={()=>this.onRender(false)} /></td>
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("smooth", newValue as number)
+                                    }}
+                                    onAfterChange={() => this.onRender(false)}/></td>
+            <td colSpan={1}>Fade:</td>
+            <td colSpan={6}><Slider range={true} count={1}
+                                    value={[this.props.settings.innerFade, this.props.settings.outerFade]}
+                                    onChange={(newValue) => {
+                                        let vals = newValue as Array<number>;
+                                        this.onChangeIntValues([{prop: "innerFade", val: vals[0]}, {
+                                            prop: "outerFade",
+                                            val: vals[1]
+                                        }]);
+                                    }}
+                                    onAfterChange={() => this.onRender(false)}/></td>
         </tr>
         </tbody>
     }

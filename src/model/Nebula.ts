@@ -1,7 +1,13 @@
 import {HSLColor} from "react-color";
 import {Point} from "./Point";
 import {ConfigurableItem, ItemType} from "./ConfigurableItem";
-import {generateRandomPointAlongPath, generateRandomPointInCircle, toRange} from "../util/mathHelper";
+import {
+    distanceToLine,
+    distanceToPoint,
+    generateRandomPointAlongPath,
+    generateRandomPointInCircle,
+    toRange
+} from "../util/mathHelper";
 
 const BREAKOUT_CHANCE = 0.9
 
@@ -92,7 +98,8 @@ class Nebula extends ConfigurableItem {
     minSeedRadius = "50";
     maxSeedRadius = "125";
 
-    hue: number = 200.0;
+    hue1: number = 200.0;
+    hue2: number = 200.0;
     nebulaType: NebulaType;
 
     minRadiusPart: string = "0.5";
@@ -107,9 +114,21 @@ class Nebula extends ConfigurableItem {
     innerFade: number = 0;
     outerFade: number = 50;
 
+    hue1Fraction: number = 55;
+    hue2Fraction: number = 100;
+
+    hollowEmpty: number = 50;
+    hollowFull: number = 60;
+
     smooth: number = 50;
 
     brightness: number = 10;
+
+    generatedMinX = -1;
+    generatedMaxX = -1;
+    generatedMinY = -1;
+    generatedMaxY = -1;
+    generatedRadius = 0;
 
     constructor(id: number, points: Array<Point>) {
         super(id)
@@ -123,7 +142,10 @@ class Nebula extends ConfigurableItem {
         copy.radius = this.radius;
         copy.minSeedRadius = this.minSeedRadius;
         copy.maxSeedRadius = this.maxSeedRadius;
-        copy.hue = this.hue;
+        copy.hue1 = this.hue1;
+        copy.hue2 = this.hue2;
+        copy.hue1Fraction = this.hue1Fraction;
+        copy.hue2Fraction = this.hue2Fraction;
         copy.nebulaType = this.nebulaType;
         copy.minRadiusPart = this.minRadiusPart;
         copy.maxRadiusPart = this.maxRadiusPart;
@@ -136,6 +158,8 @@ class Nebula extends ConfigurableItem {
         copy.smooth = this.smooth;
         copy.brightness = this.brightness;
         copy.needsGenerate = this.needsGenerate;
+        copy.hollowEmpty = this.hollowEmpty;
+        copy.hollowFull = this.hollowFull;
         return copy;
     }
 
@@ -160,9 +184,17 @@ class Nebula extends ConfigurableItem {
         this.needsGenerate = true;
     }
 
-    getColor(): HSLColor {
+    getHue1(): HSLColor {
         return {
-            h: this.hue,
+            h: this.hue1,
+            l: 50.0,
+            s: 100.0,
+        }
+    }
+
+    getHue2(): HSLColor {
+        return {
+            h: this.hue2,
             l: 50.0,
             s: 100.0,
         }
@@ -265,22 +297,34 @@ class Nebula extends ConfigurableItem {
                 if(this.outerFade < this.innerFade) {
                     this.outerFade = this.innerFade;
                 }
-                this.needsRender = true;
                 break;
             case 'outerFade':
                 this.outerFade = newInt;
-                if(this.outerFade < this.innerFade) {
+                if (this.outerFade < this.innerFade) {
                     this.innerFade = this.outerFade;
                 }
-                this.needsRender = true;
                 break;
             case 'smooth':
                 this.smooth = newInt;
-                this.needsRender = true;
                 break;
             case 'brightness':
                 this.brightness = newInt;
-                this.needsRender = true;
+                break;
+            case 'hue1Fraction':
+                this.hue1Fraction = newInt;
+                this.needsGenerate = true;
+                break;
+            case 'hue2Fraction':
+                this.hue2Fraction = newInt;
+                this.needsGenerate = true;
+                break;
+            case 'hollowEmpty':
+                this.hollowEmpty = newInt;
+                this.needsGenerate = true;
+                break;
+            case 'hollowFull':
+                this.hollowFull = newInt;
+                this.needsGenerate = true;
                 break;
         }
     }
@@ -296,15 +340,66 @@ class Nebula extends ConfigurableItem {
             newFloat = newValue as number
         }
         switch (property) {
-            case 'hue':
-                this.hue = newFloat;
+            case 'hue1':
+                this.hue1 = newFloat;
+                break;
+            case 'hue2':
+                this.hue2 = newFloat;
                 break;
         }
     }
 
+    getDistanceToPoints(pt: Point) {
+        switch (this.nebulaType) {
+            case NebulaType.CIRCULAR:
+                return distanceToPoint(pt, this.points[0]);
+            case NebulaType.PATH:
+                let minDistance = distanceToPoint(pt, this.points[0]);
+                if (this.points.length < 2) {
+                    return minDistance;
+                }
+                for (let i = 1; i < this.points.length; i++) {
+                    minDistance = Math.min(minDistance, distanceToLine(pt, this.points[i - 1], this.points[i]));
+                }
+                return minDistance;
+        }
+        return 0;
+    }
+
+    getAngleToCenter(pt: Point) {
+        let x = pt.x - this.points[0].x;
+        let y = pt.y - this.points[0].y;
+        return Math.atan2(y, x);
+    }
+
+    calcHue(distance: number, hue1Radius: number, hue2Radius: number) {
+        let result;
+        if (this.hue1 === this.hue2) {
+            result = this.hue1;
+        } else if (distance < hue1Radius) {
+            result = this.hue1;
+        } else if (distance > hue2Radius) {
+            result = this.hue2;
+        } else if (this.hue2 - this.hue1 < 180) {
+            let range = hue2Radius - hue1Radius;
+            result = this.hue2 * (distance - hue1Radius) / range + this.hue1 * (hue1Radius + range - distance) / range
+        } else {
+            // Gradient the other way
+            let h1 = this.hue1 > 180 ? this.hue1 - 180 : this.hue1 + 180;
+            let h2 = this.hue2 > 180 ? this.hue2 - 180 : this.hue2 + 180;
+            let range = hue2Radius - hue1Radius;
+            let res = h1 * (distance - hue1Radius) / range + h2 * (hue1Radius + range - distance) / range
+            result = res < 180 ? res + 180 : res - 180;
+        }
+        return result;
+    }
 
     generateNebulae(): Array<NebulaBubble> {
         let settings = new Settings(this)
+        this.generatedMinX = this.points[0].x;
+        this.generatedMaxX = this.points[0].x;
+        this.generatedMinY = this.points[0].y;
+        this.generatedMaxY = this.points[0].y;
 
         let expectedCount = Math.ceil(settings.nrOfSeeds * Math.pow(settings.subdivisionCount, settings.fractalCount));
         let nebulae: Array<NebulaBubble> = new Array(expectedCount);
@@ -338,6 +433,7 @@ class Nebula extends ConfigurableItem {
                 }
                 break;
         }
+        this.calcGeneratedRadius();
         this.needsGenerate = false;
         return nebulae.slice(0, index);
     }
@@ -376,12 +472,22 @@ class Nebula extends ConfigurableItem {
                     nebulae.push(bubble)
                 }
                 nebulae[index] = bubble;
+                this.generatedMinX = Math.min(this.generatedMinX, newX - radius2);
+                this.generatedMaxX = Math.min(this.generatedMaxX, newX + radius2);
+                this.generatedMinY = Math.min(this.generatedMinY, newY - radius2);
+                this.generatedMaxY = Math.min(this.generatedMaxY, newY + radius2);
                 index++;
             } else {
                 index = this.subdivide(settings, nebulae, index, counter - 1, {x: newX, y: newY}, newRadius, 0)
             }
         }
         return index;
+    }
+
+    private calcGeneratedRadius() {
+        let rad1 = distanceToPoint({x: this.generatedMinX, y: this.generatedMinY}, this.points[0])
+        let rad2 = distanceToPoint({x: this.generatedMinX, y: this.generatedMinY}, this.points[0])
+        this.generatedRadius = (Math.max(rad1, rad2) + parseInt(this.radius)) / 2.0
     }
 
 }

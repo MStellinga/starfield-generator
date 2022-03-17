@@ -46,14 +46,14 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         let cluster1 = new Starcluster(0, [{x: 0, y: 0}, {x: 712, y: 480}])
         cluster1.clusterType = StarClusterType.RECTANGULAR;
         cluster1.brightness = 10;
-        cluster1.blooming = 50;
+        cluster1.blooming = 30;
         cluster1.nrOfStars = "800";
         let cluster2 = new Starcluster(1, [{x: 360, y: 240}]);
         cluster2.clusterType = StarClusterType.CIRCULAR;
         cluster2.minRadius = "200";
         cluster2.maxRadius = "300";
         cluster2.brightness = 40;
-        cluster2.blooming = 70;
+        cluster2.blooming = 50;
         cluster2.nrOfStars = "100";
         let nebula1 = new Nebula(2, [{x: 105, y: 150}, {x: 400, y: 160}, {x: 620, y: 265}])
         nebula1.nebulaType = NebulaType.PATH

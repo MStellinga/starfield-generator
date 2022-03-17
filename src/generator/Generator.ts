@@ -13,7 +13,6 @@ class RenderData {
 
     width: number;
     height: number;
-    hue: number = 0;
     values: Array<number> = [];
     extraValues: Array<number> = [];
     type: LayerType = LayerType.LIGHT
@@ -52,6 +51,15 @@ class RenderData {
         }
     }
 
+    addExtraValueWithBrightness(x: number, y: number, value: number, weight: number) {
+        let index = y * this.width + x;
+        if (this.extraValues[index] && !isNaN(this.extraValues[index])) {
+            this.extraValues[index] += value * weight;
+        } else {
+            this.extraValues[index] = value * weight;
+        }
+    }
+
     isEmpty() {
         for (let i = 0; i < this.values.length; i++) {
             if (this.values[i] && !isNaN(this.values[i]))
@@ -74,7 +82,7 @@ class RenderData {
     }
 
     getExtraValueByIndex(idx: number): number {
-        let result = idx >= 0 && idx < this.values.length ? this.values[idx] : 0;
+        let result = idx >= 0 && idx < this.extraValues.length ? this.extraValues[idx] : 0;
         if (isNaN(result)) {
             return 0.0;
         } else {
@@ -109,7 +117,7 @@ class Generator {
         let brightness = star.brightness * maxBrightness * 10;
         let adjustedBrightness = brightness;
         let radius = 0
-        while (adjustedBrightness > 0.5 && radius < this.width) {
+        while (adjustedBrightness > 0.1 && radius < this.width) {
             radius++;
             adjustedBrightness = adjustedBrightness / falloffMin;
         }
@@ -129,25 +137,35 @@ class Generator {
         }
     }
 
-    drawBubble(renderData: RenderData, nebula: NebulaBubble, fadeIn: number, fadeOut: number, brightness: number) {
-        let center = nebula.center;
-        let radius = Math.round(nebula.radius);
-        let fadeInRadius = radius * fadeIn / 100.0;
-        let fadeOutRadius = radius * fadeOut / 100.0;
+    drawBubble(renderData: RenderData, bubble: NebulaBubble, nebula: Nebula) {
+        let center = bubble.center;
+        let radius = Math.round(bubble.radius);
+        let fadeInRadius = radius * nebula.innerFade / 100.0;
+        let fadeOutRadius = radius * nebula.outerFade / 100.0;
+        let hollowEmptyRadius = nebula.generatedRadius * nebula.hollowEmpty / 100.0;
+        let hollowFullRadius = nebula.generatedRadius * nebula.hollowFull / 100.0;
+        let hue1Radius = nebula.generatedRadius * nebula.hue1Fraction / 100.0;
+        let hue2Radius = nebula.generatedRadius * nebula.hue2Fraction / 100.0;
         let leftTop = {x: center.x - radius, y: center.y - radius}
         for (let x = leftTop.x; x < leftTop.x + radius * 2; x++) {
             for (let y = leftTop.y; y < leftTop.y + radius * 2; y++) {
                 let pt = {x: x, y: y}
                 let dist = distanceToPoint(center, pt);
-                if (dist <= radius && this.isValidPoint(pt.x,pt.y)) {
+                let totalDist = nebula.getDistanceToPoints(pt);
+                if (dist <= radius && this.isValidPoint(pt.x, pt.y)) {
                     let value = 1.0;
                     if (dist < fadeInRadius && fadeInRadius > 0) {
                         value = dist / fadeInRadius;
                     } else if (dist > fadeOutRadius && fadeOutRadius > 0) {
                         value = (radius - dist) / (radius - fadeOutRadius);
                     }
-
-                    renderData.addValue(pt.x, pt.y, value * brightness)
+                    if (totalDist < hollowEmptyRadius) {
+                        value = 0;
+                    } else if (totalDist < hollowFullRadius) {
+                        value = value * (totalDist - hollowEmptyRadius) / (hollowFullRadius - hollowEmptyRadius);
+                    }
+                    renderData.addValue(pt.x, pt.y, value * nebula.brightness);
+                    renderData.addExtraValueWithBrightness(pt.x, pt.y, nebula.calcHue(totalDist, hue1Radius, hue2Radius), value * nebula.brightness);
                 }
             }
         }
@@ -168,23 +186,21 @@ class Generator {
     generateOrRender(item: ConfigurableItem){
         if (item.getType() === ItemType.STARCLUSTER) {
             let cluster = item as Starcluster;
-            if(cluster.needsGenerate) {
+            if (cluster.needsGenerate) {
                 // console.log("Generating stars");
                 this.generateAndRenderStars(item.id, cluster);
-            } else if(cluster.needsRender){
+            } else {
                 // console.log("Rendering stars");
                 this.renderStars(item.id, true);
             }
         } else {
             let nebula = item as Nebula;
-            if(nebula.needsGenerate) {
+            if (nebula.needsGenerate) {
                 // console.log("Generating nebulae");
                 this.generateAndRenderNebula(item.id, item as Nebula);
-            } else if(nebula.needsRender){
+            } else {
                 // console.log("Rendering nebulae");
                 this.renderNebula(item.id, true)
-            } else {
-                this.layers[item.id].hue = nebula.hue;
             }
         }
     }
@@ -210,13 +226,11 @@ class Generator {
         layer.stars.forEach((star) => {
             this.drawStar(layer, star, cluster.brightness, cluster.blooming)
         });
-        cluster.needsRender = false;
     }
 
     generateAndRenderNebula(index: number, nebula: Nebula) {
         let bubbles = nebula.generateNebulae();
         let layer = this.createLayerData(index);
-        layer.hue = nebula.hue;
         layer.type = LayerType.SATURATION;
         layer.nebula = nebula;
         layer.bubbles = bubbles;
@@ -233,19 +247,18 @@ class Generator {
         }
         let nebula: Nebula = layer.nebula;
         layer.bubbles.forEach((bubble) => {
-            this.drawBubble(layer, bubble, nebula.innerFade, nebula.outerFade, nebula.brightness)
+            this.drawBubble(layer, bubble, nebula)
         });
-        this.smooth(index,nebula.smooth);
-        nebula.needsRender = false;
+        //this.smooth(index,nebula.smooth);
     }
 
     smooth(index: number, value: number) {
         let newLayer = new RenderData(this.width, this.height);
         let oldLayer = this.layers[index];
         newLayer.type = oldLayer.type;
-        newLayer.hue = oldLayer.hue;
         newLayer.bubbles = oldLayer.bubbles;
         newLayer.nebula = oldLayer.nebula;
+        newLayer.extraValues = oldLayer.extraValues;
         for(let x=0; x<this.width; x++){
             for(let y=0; y<this.width; y++){
                 let newVals = [
@@ -301,10 +314,10 @@ class Generator {
                 return layer.type === LayerType.SATURATION
             }).forEach(layer => {
                 let value = layer.getValueByIndex(i / 4);
-                h += layer.hue;
+                h = layer.getExtraValueByIndex(i / 4) / value;
                 s += value;
                 if (s > 0) {
-                    l += this.gasBlooming / 50 * Math.sqrt(l2) + s / 20;
+                    l += this.gasBlooming / 200 * Math.sqrt(l2) + s / 20;
                 }
             });
             if (l > 100) {

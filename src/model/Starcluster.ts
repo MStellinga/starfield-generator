@@ -136,11 +136,9 @@ class Starcluster extends ConfigurableItem {
                 break;
             case 'brightness':
                 this.brightness = newInt;
-                this.needsRender = true;
                 break;
             case 'blooming':
                 this.blooming = toRange(newInt, 0, 255);
-                this.needsRender = true;
                 break;
         }
     }
