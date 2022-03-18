@@ -224,7 +224,6 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                                 this.onRenderAll()
                             }}>Render all
                             </button>
-                            <br/>
                             <button className="highlight" onClick={() => {
                                 this.onHelp()
                             }}>Help
@@ -234,11 +233,10 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                             <tbody>
                             <tr>
                                 <td>Extra gas bloom:</td>
-                                <td colSpan={3}><Slider value={this.state.gasBlooming} onChange={(val) => {
-                                    this.onUpdateGasBlooming(val as number)
-                                }}/></td>
-                            </tr>
-                            <tr>
+                                <td className="min-width-slider"><Slider value={this.state.gasBlooming}
+                                                                         onChange={(val) => {
+                                                                             this.onUpdateGasBlooming(val as number)
+                                                                         }}/></td>
                                 <td>Image width:</td>
                                 <td><input className="numberField" value={this.state.width} onChange={(event) => {
                                     this.setWidth(event.currentTarget.value);

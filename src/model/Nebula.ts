@@ -374,7 +374,7 @@ class Nebula extends ConfigurableItem {
 
     calcHue(distance: number, hue1Radius: number, hue2Radius: number) {
         let result;
-        if (this.hue1 === this.hue2) {
+        if (Math.abs(this.hue1 - this.hue2) < 5) {
             result = this.hue1;
         } else if (distance < hue1Radius) {
             result = this.hue1;

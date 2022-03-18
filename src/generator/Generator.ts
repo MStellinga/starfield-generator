@@ -256,7 +256,9 @@ class Generator {
             this.drawBubble(layer, bubble, nebula)
         });
         this.postProcessHue(index);
-        this.smooth(index, nebula.smooth);
+        if (nebula.smooth > 1) {
+            this.smooth(index, nebula.smooth);
+        }
     }
 
     postProcessHue(index: number) {
@@ -333,31 +335,26 @@ class Generator {
                 return layer.type === LayerType.SATURATION && layer.nebula?.active
             }).forEach(layer => {
                 let s = layer.getValueByIndex(i / 4);
-                let h = layer.getExtraValueByIndex(i / 4);
-                let l = l1;
-                if (s > 0) {
-                    l += this.gasBlooming / 200 * Math.sqrt(l2) + s / 20;
+                if (s > 0 || l1 > 0) {
+                    let h = layer.getExtraValueByIndex(i / 4);
+                    let l = l1;
+                    if (s > 0) {
+                        l += this.gasBlooming / 200 * Math.sqrt(l2) + s / 20;
+                    }
+                    if (s > 100) {
+                        s = 100;
+                    }
+                    if (l > 100) {
+                        l = 100;
+                    }
+                    let rgb = hslToRgb(h / 360.0, s / 100.0, l / 100.0);
+                    r += rgb[0];
+                    g += rgb[1];
+                    b += rgb[2];
+                    colorCount++
                 }
-                if (s > 100) {
-                    s = 100;
-                }
-                if (l > 100) {
-                    l = 100;
-                }
-                let rgb = hslToRgb(h / 360.0, s / 100.0, l / 100.0);
-                r += rgb[0];
-                g += rgb[1];
-                b += rgb[2];
-                colorCount++
             });
-            // h = s > 0 ? h / s : 0;
-            // if (l > 100) {
-            //     l = 100;
-            // }
 
-            // if(s > 0) {
-            //     console.log(`(${h},${s},${l}) -> (${rgb[0]},${rgb[1]},${rgb[2]})`)
-            // }
             imageData.data[i] = r / colorCount;
             imageData.data[i + 1] = g / colorCount;
             imageData.data[i + 2] = b / colorCount;

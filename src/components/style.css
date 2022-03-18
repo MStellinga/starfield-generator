@@ -76,3 +76,7 @@ button {
 Slider {
     -moz-user-select: none; /* Firefox */
 }
+
+.min-width-slider {
+    min-width: 5em;
+}
