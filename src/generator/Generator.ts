@@ -1,21 +1,43 @@
 import {Star, Starcluster} from "../model/Starcluster";
 import {distanceToPoint} from "../util/mathHelper";
 import {Nebula, NebulaBubble} from "../model/Nebula";
-import {hslToRgb} from "../util/colorUtil";
 import {ConfigurableItem, ItemType} from "../model/ConfigurableItem";
+
+class RenderData {
+    width: number = 0;
+    height: number = 0;
+    gasBlooming: number = 0;
+    layers: Array<RenderLayer> = [];
+
+    constructor(width: number, height: number, gasBlooming: number, layers: Array<RenderLayer>) {
+        this.width = width;
+        this.height = height;
+        this.gasBlooming = gasBlooming;
+        this.layers = layers;
+    }
+
+    static copyFromAny(other: any) {
+        let newLayers: Array<RenderLayer> = [];
+        for (let i = 0; i < other.layers.length; i++) {
+            newLayers.push(RenderLayer.copyFromAny(other.layers[i]))
+        }
+        return new RenderData(other.width, other.height, other.gasBlooming, newLayers);
+    }
+}
 
 enum LayerType {
     SATURATION,
     LIGHT
 }
 
-class RenderData {
+class RenderLayer {
 
     width: number;
     height: number;
+    active: boolean = true;
     values: Array<number> = [];
     extraValues: Array<number> = [];
-    type: LayerType = LayerType.LIGHT
+    layerType: LayerType = LayerType.LIGHT
 
     nebula: Nebula | null = null;
     bubbles: Array<NebulaBubble> = [];
@@ -26,6 +48,15 @@ class RenderData {
     constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
+    }
+
+    static copyFromAny(other: any) {
+        let result = new RenderLayer(other.width, other.height);
+        result.active = other.active;
+        result.values = other.values;
+        result.extraValues = other.extraValues;
+        result.layerType = other.layerType == 1 ? LayerType.LIGHT : LayerType.SATURATION;
+        return result;
     }
 
     clear() {
@@ -103,20 +134,19 @@ class Generator {
     width: number;
     height: number;
 
-    layers: Array<RenderData>
+    layers: Array<RenderLayer>
 
-
-    constructor(width: number, height: number) {
-        this.width = width;
-        this.height = height;
+    constructor() {
+        this.width = 0;
+        this.height = 0;
         this.layers = []
     }
 
-    isValidPoint(x:number, y:number) {
+    isValidPoint(x: number, y: number) {
         return x >= 0 && x < this.width && y >= 0 && y < this.height;
     }
 
-    drawStar(renderData: RenderData, star: Star, maxBrightness: number, blooming: number) {
+    drawStar(renderData: RenderLayer, star: Star, maxBrightness: number, blooming: number) {
         let falloff1 = 3.6 - (blooming / 40.0)
         let falloff2 = 1.2;
         let falloffMin = Math.min(falloff1, falloff2);
@@ -143,7 +173,7 @@ class Generator {
         }
     }
 
-    drawBubble(renderData: RenderData, bubble: NebulaBubble, nebula: Nebula) {
+    drawBubble(renderData: RenderLayer, bubble: NebulaBubble, nebula: Nebula) {
         let center = bubble.center;
         let radius = Math.round(bubble.radius);
         let fadeInRadius = radius * nebula.innerFade / 100.0;
@@ -181,15 +211,15 @@ class Generator {
         this.layers = [];
     }
 
-    createLayerData(index: number): RenderData {
+    createLayerData(index: number): RenderLayer {
         while (this.layers.length <= index) {
-            this.layers.push(new RenderData(this.width, this.height));
+            this.layers.push(new RenderLayer(this.width, this.height));
         }
         this.layers[index].clear();
         return this.layers[index]
     }
 
-    generateOrRender(item: ConfigurableItem){
+    generateOrRender(item: ConfigurableItem) {
         if (item.getType() === ItemType.STARCLUSTER) {
             let cluster = item as Starcluster;
             if (cluster.needsGenerate) {
@@ -211,10 +241,14 @@ class Generator {
         }
     }
 
+    getData() {
+        return new RenderData(this.width, this.height, this.gasBlooming, this.layers);
+    }
+
     generateAndRenderStars(index: number, cluster: Starcluster) {
         let stars = cluster.generateStars();
         let layer = this.createLayerData(index);
-        layer.type = LayerType.LIGHT;
+        layer.layerType = LayerType.LIGHT;
         layer.cluster = cluster;
         layer.stars = stars;
         this.renderStars(index, false);
@@ -237,7 +271,7 @@ class Generator {
     generateAndRenderNebula(index: number, nebula: Nebula) {
         let bubbles = nebula.generateNebulae();
         let layer = this.createLayerData(index);
-        layer.type = LayerType.SATURATION;
+        layer.layerType = LayerType.SATURATION;
         layer.nebula = nebula;
         layer.bubbles = bubbles;
         this.renderNebula(index, false);
@@ -270,19 +304,20 @@ class Generator {
     }
 
     smooth(index: number, value: number) {
-        let newLayer = new RenderData(this.width, this.height);
+        let newLayer = new RenderLayer(this.width, this.height);
         let oldLayer = this.layers[index];
-        newLayer.type = oldLayer.type;
+        newLayer.active = oldLayer.active;
+        newLayer.layerType = oldLayer.layerType;
         newLayer.bubbles = oldLayer.bubbles;
         newLayer.nebula = oldLayer.nebula;
         newLayer.extraValues = oldLayer.extraValues;
         for (let x = 0; x < this.width; x++) {
-            for(let y=0; y<this.width; y++){
+            for (let y = 0; y < this.width; y++) {
                 let newVals = [
-                    {"val": oldLayer.getValue(x,y), "wt": this.isValidPoint(x,y)? 1.0 : 0},
+                    {"val": oldLayer.getValue(x, y), "wt": this.isValidPoint(x, y) ? 1.0 : 0},
 
-                    {"val": oldLayer.getValue(x-1,y), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
-                    {"val": oldLayer.getValue(x,y-1), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
+                    {"val": oldLayer.getValue(x - 1, y), "wt": this.isValidPoint(x, y) ? value / 100.0 : 0},
+                    {"val": oldLayer.getValue(x, y - 1), "wt": this.isValidPoint(x, y) ? value / 100.0 : 0},
                     {"val": oldLayer.getValue(x+1,y), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
                     {"val": oldLayer.getValue(x,y+1), "wt":this.isValidPoint(x,y)? value/100.0 : 0},
 
@@ -303,65 +338,24 @@ class Generator {
         this.layers[index] = newLayer;
     }
 
-    setSize(newWidth: number, newHeight: number) {
+    setWidth(newWidth: number) {
         this.width = newWidth;
+        this.layers.forEach(layer => {
+            layer.clear()
+        });
+    }
+
+    setHeight(newHeight: number) {
         this.height = newHeight;
         this.layers.forEach(layer => {
             layer.clear()
         });
     }
 
-    paint(context: CanvasRenderingContext2D | null) {
-        if (context === null) {
-            return;
-        }
-        let imageData = context.createImageData(this.width, this.height);
-        for (let i = 0; i < imageData.data.length; i += 4) {
-            // let h = 0.0;
-            // let s = 0.0;
-            let l1 = 0.0;
-            let l2 = 0.0;
-            let r = 0;
-            let g = 0;
-            let b = 0;
-            let colorCount = 0;
-            this.layers.filter((layer) => {
-                return layer.type === LayerType.LIGHT && layer.cluster?.active
-            }).forEach(layer => {
-                l1 += layer.getValueByIndex(i / 4);
-                l2 += layer.getExtraValueByIndex(i / 4);
-            })
-            this.layers.filter((layer) => {
-                return layer.type === LayerType.SATURATION && layer.nebula?.active
-            }).forEach(layer => {
-                let s = layer.getValueByIndex(i / 4);
-                if (s > 0 || l1 > 0) {
-                    let h = layer.getExtraValueByIndex(i / 4);
-                    let l = l1;
-                    if (s > 0) {
-                        l += this.gasBlooming / 200 * Math.sqrt(l2) + s / 20;
-                    }
-                    if (s > 100) {
-                        s = 100;
-                    }
-                    if (l > 100) {
-                        l = 100;
-                    }
-                    let rgb = hslToRgb(h / 360.0, s / 100.0, l / 100.0);
-                    r += rgb[0];
-                    g += rgb[1];
-                    b += rgb[2];
-                    colorCount++
-                }
-            });
-
-            imageData.data[i] = r / colorCount;
-            imageData.data[i + 1] = g / colorCount;
-            imageData.data[i + 2] = b / colorCount;
-            imageData.data[i + 3] = 255;
-        }
-        context.putImageData(imageData, 0, 0);
+    setGasBlooming(gasBlooming: number) {
+        this.gasBlooming = gasBlooming;
     }
+
 }
 
-export {Generator}
+export {Generator, RenderData, RenderLayer, LayerType}

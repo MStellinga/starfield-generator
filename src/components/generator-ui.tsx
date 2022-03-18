@@ -2,7 +2,6 @@ import './style.css';
 import {Canvas} from "./elements/canvas";
 import React from "react";
 import {Point} from "../model/Point";
-import {Generator} from "../generator/Generator";
 import {ConfigurableItem} from "../model/ConfigurableItem";
 import {ConfigurableItemUI} from "./settings/ConfigurableItemUI";
 import {CanvasWidget} from "./elements/canvas-widget";
@@ -10,6 +9,8 @@ import {Starcluster, StarClusterType} from "../model/Starcluster";
 import {Nebula, NebulaType} from "../model/Nebula";
 import {Loader} from "./elements/loader";
 import Slider from "rc-slider";
+import {Renderer} from "../generator/Renderer";
+import {RenderData} from "../generator/Generator";
 
 type GeneratorUIState = {
     progress: number,
@@ -17,7 +18,7 @@ type GeneratorUIState = {
     width: string,
     height: string,
     renderItems: Array<ConfigurableItem>,
-    generator: Generator,
+    renderer: Renderer,
     idCounter: number,
     rendering: boolean,
     gasBlooming: number;
@@ -28,6 +29,8 @@ type PointID = {
     index: number;
 }
 
+const generator = new Worker(new URL('../generator/generator-worker', import.meta.url));
+
 class GeneratorUI extends React.Component<{}, GeneratorUIState> {
 
     state: GeneratorUIState = {
@@ -36,7 +39,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         width: "720",
         height: "480",
         renderItems: this.createInitialItems(),
-        generator: new Generator(720, 480),
+        renderer: new Renderer(),
         idCounter: 4,
         rendering: false,
         gasBlooming: 40
@@ -67,13 +70,30 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         return [cluster1, cluster2, nebula1, nebula2];
     }
 
+    componentDidMount() {
+        generator.onmessage = (message: MessageEvent) => {
+            if (message.data.logItem) {
+                console.log(message.data.logItem)
+            } else if (message.data) {
+                this.state.renderer.updateData(RenderData.copyFromAny(message.data));
+                this.setState({shouldPaint: true, rendering: false})
+            }
+        };
+        generator.onerror = (error: ErrorEvent) => {
+            console.log(error);
+        }
+        generator.postMessage({width: this.getWidth(), height: this.getHeight(), gasBlooming: this.state.gasBlooming})
+    }
+
     setWidth(newValueAsString: string) {
         this.setState({
             width: newValueAsString
         }, () => {
             let newValue = parseInt(newValueAsString)
             if (!isNaN(newValue)) {
-                this.state.generator.setSize(newValue, this.state.generator.height);
+                generator.postMessage({
+                    width: newValue
+                })
                 this.setState({shouldPaint: true});
             }
         });
@@ -85,7 +105,9 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         }, () => {
             let newValue = parseInt(newValueAsString)
             if (!isNaN(newValue)) {
-                this.state.generator.setSize(this.state.generator.width, newValue);
+                generator.postMessage({
+                    height: newValue
+                })
                 this.setState({shouldPaint: true});
             }
         });
@@ -123,14 +145,12 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     }
 
     performRender(id: number) {
-        this.state.renderItems
-            .filter((item) => {
-                return item.id === id || id === -1;
-            })
-            .forEach((item => {
-                this.state.generator.generateOrRender(item);
-            }));
-        this.setState({shouldPaint: true, rendering: false});
+        let itemsToRender = this.state.renderItems.filter((item) => {
+            return item.id === id || id === -1;
+        });
+        generator.postMessage({
+            items: itemsToRender
+        });
     }
 
     onRender(id: number) {
@@ -145,14 +165,8 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     }
 
     onRenderAll() {
-        this.setState(
-            {rendering: true},
-            () => {
-                setTimeout(() => {
-                    this.performRender(-1);
-                }, 10)
-            }
-        );
+        this.performRender(-1)
+        this.setState({rendering: true});
     }
 
     onRemoveSettings(id: number) {
@@ -162,7 +176,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         for (let i = 0; i < newRenderItems.length; i++) {
             newRenderItems[i].id = i;
         }
-        this.state.generator.clearAllLayers();
+        generator.postMessage({reset: true})
         this.setState({renderItems: newRenderItems, idCounter: newRenderItems.length})
     }
 
@@ -178,8 +192,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     }
 
     onUpdateGasBlooming(newValue: number) {
-        let generator = this.state.generator;
-        generator.gasBlooming = newValue;
+        generator.postMessage({gasBlooming: newValue})
         this.setState({gasBlooming: newValue})
     }
 
@@ -192,6 +205,16 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         if (newWindow) {
             newWindow.focus();
         }
+    }
+
+    getWidth() {
+        let wdt = parseInt(this.state.width);
+        return isNaN(wdt) ? 712 : wdt
+    }
+
+    getHeight() {
+        let ht = parseInt(this.state.height);
+        return isNaN(ht) ? 480 : ht
     }
 
     render() {
@@ -258,12 +281,12 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                             this.onAddCanvasItem(point)
                         }}
                         shouldPaint={this.state.shouldPaint}
-                        generator={this.state.generator}
+                        renderer={this.state.renderer}
                         donePainting={() => {
                             this.onDonePainting()
                         }}
-                        width={this.state.generator.width}
-                        height={this.state.generator.height}>
+                        width={this.getWidth()}
+                        height={this.getHeight()}>
                     {this.state.renderItems.map(item => {
                         return item.getPointsToRender().map((point, index) => {
                             return <CanvasWidget

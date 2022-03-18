@@ -42,17 +42,22 @@ class Starcluster extends ConfigurableItem {
     constructor(id: number, points: Array<Point>) {
         super(id)
         this.points = points;
+        this.itemType = 0;
     }
 
     copy(): Starcluster {
-        let copy = new Starcluster(this.id, this.points);
-        copy.minRadius = this.minRadius;
-        copy.maxRadius = this.maxRadius;
-        copy.clusterType = this.clusterType;
-        copy.brightness = this.brightness;
-        copy.blooming = this.blooming;
-        copy.nrOfStars = this.nrOfStars;
-        copy.needsGenerate = this.needsGenerate;
+        return Starcluster.copyFromAny(this);
+    }
+
+    static copyFromAny(other: any) {
+        let copy = new Starcluster(other.id, other.points);
+        copy.minRadius = other.minRadius;
+        copy.maxRadius = other.maxRadius;
+        copy.clusterType = other.clusterType;
+        copy.brightness = other.brightness;
+        copy.blooming = other.blooming;
+        copy.nrOfStars = other.nrOfStars;
+        copy.needsGenerate = other.needsGenerate;
         return copy;
     }
 

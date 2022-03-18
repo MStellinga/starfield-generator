@@ -1,8 +1,8 @@
 import './canvas.css';
 import React, {CSSProperties, DragEvent, RefObject} from "react";
-import {Generator} from "../../generator/Generator";
 import {PointID} from "../generator-ui";
 import {Loader} from "./loader";
+import {Renderer} from "../../generator/Renderer";
 
 enum Mode {
     VIEW,
@@ -15,7 +15,7 @@ type PictureProps = {
     setValueCallback: Function;
     donePainting: Function;
     shouldPaint: boolean;
-    generator: Generator;
+    renderer: Renderer;
     width: number;
     height: number;
     loading: boolean;
@@ -42,14 +42,18 @@ class Canvas extends React.Component<PictureProps, PictureState> {
     paintCanvas() {
         let canvas = this.state.starCanvas.current;
         if (canvas !== null) {
-            this.props.generator.paint(canvas.getContext("2d"));
-            this.setState({pictureData: canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")})
+            this.props.renderer.paint(canvas.getContext("2d"));
+            this.setState({
+                pictureData: canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"),
+            })
         }
     }
 
     componentDidUpdate() {
         if (this.props.shouldPaint) {
+            console.log("Painting");
             this.paintCanvas();
+            console.log("done");
             this.props.donePainting();
         }
     }

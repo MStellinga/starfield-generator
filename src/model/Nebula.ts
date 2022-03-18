@@ -134,32 +134,37 @@ class Nebula extends ConfigurableItem {
         super(id)
         this.points = points;
         this.nebulaType = NebulaType.CIRCULAR;
+        this.itemType = 1;
     }
 
     copy(): Nebula {
-        let copy = new Nebula(this.id, this.points);
-        copy.nrOfSeeds = this.nrOfSeeds;
-        copy.radius = this.radius;
-        copy.minSeedRadius = this.minSeedRadius;
-        copy.maxSeedRadius = this.maxSeedRadius;
-        copy.hue1 = this.hue1;
-        copy.hue2 = this.hue2;
-        copy.hue1Fraction = this.hue1Fraction;
-        copy.hue2Fraction = this.hue2Fraction;
-        copy.nebulaType = this.nebulaType;
-        copy.minRadiusPart = this.minRadiusPart;
-        copy.maxRadiusPart = this.maxRadiusPart;
-        copy.minAngleOffset = this.minAngleOffset;
-        copy.maxAngleOffset = this.maxAngleOffset;
-        copy.fractalCount = this.fractalCount;
-        copy.subdivisionCount = this.subdivisionCount;
-        copy.innerFade = this.innerFade;
-        copy.outerFade = this.outerFade;
-        copy.smooth = this.smooth;
-        copy.brightness = this.brightness;
-        copy.needsGenerate = this.needsGenerate;
-        copy.hollowEmpty = this.hollowEmpty;
-        copy.hollowFull = this.hollowFull;
+        return Nebula.copyFromAny(this);
+    }
+
+    static copyFromAny(other: any) {
+        let copy = new Nebula(other.id, other.points);
+        copy.nrOfSeeds = other.nrOfSeeds;
+        copy.radius = other.radius;
+        copy.minSeedRadius = other.minSeedRadius;
+        copy.maxSeedRadius = other.maxSeedRadius;
+        copy.hue1 = other.hue1;
+        copy.hue2 = other.hue2;
+        copy.hue1Fraction = other.hue1Fraction;
+        copy.hue2Fraction = other.hue2Fraction;
+        copy.nebulaType = other.nebulaType;
+        copy.minRadiusPart = other.minRadiusPart;
+        copy.maxRadiusPart = other.maxRadiusPart;
+        copy.minAngleOffset = other.minAngleOffset;
+        copy.maxAngleOffset = other.maxAngleOffset;
+        copy.fractalCount = other.fractalCount;
+        copy.subdivisionCount = other.subdivisionCount;
+        copy.innerFade = other.innerFade;
+        copy.outerFade = other.outerFade;
+        copy.smooth = other.smooth;
+        copy.brightness = other.brightness;
+        copy.needsGenerate = other.needsGenerate;
+        copy.hollowEmpty = other.hollowEmpty;
+        copy.hollowFull = other.hollowFull;
         return copy;
     }
 

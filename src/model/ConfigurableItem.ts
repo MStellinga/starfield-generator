@@ -11,6 +11,7 @@ abstract class ConfigurableItem {
     counter: number;
     needsGenerate: boolean = true;
     active: boolean = true;
+    itemType: number = -1;
 
     protected constructor(id: number) {
         this.id = id;
