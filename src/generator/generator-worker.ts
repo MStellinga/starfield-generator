@@ -28,7 +28,7 @@ self.onmessage = ({data: {width, height, gasBlooming, items, reset}}) => {
             generator.setHeight(height);
         }
         if (gasBlooming) {
-            generator.gasBlooming = gasBlooming;
+            generator.setGasBlooming(gasBlooming);
         }
         if (items) {
             items.forEach((item: ConfigurableItem) => {

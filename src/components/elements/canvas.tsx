@@ -51,9 +51,7 @@ class Canvas extends React.Component<PictureProps, PictureState> {
 
     componentDidUpdate() {
         if (this.props.shouldPaint) {
-            console.log("Painting");
             this.paintCanvas();
-            console.log("done");
             this.props.donePainting();
         }
     }

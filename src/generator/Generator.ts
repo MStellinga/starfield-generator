@@ -187,6 +187,11 @@ class Generator {
             for (let y = leftTop.y; y < leftTop.y + radius * 2; y++) {
                 let pt = {x: x, y: y}
                 let dist = distanceToPoint(center, pt);
+                let angleValue = nebula.getAngleValue(pt);
+                if (angleValue === 0.0) {
+                    continue;
+                }
+
                 let totalDist = nebula.getDistanceToPoints(pt);
                 if (dist <= radius && this.isValidPoint(pt.x, pt.y)) {
                     let value = 1.0;
@@ -200,6 +205,7 @@ class Generator {
                     } else if (totalDist < hollowFullRadius) {
                         value = value * (totalDist - hollowEmptyRadius) / (hollowFullRadius - hollowEmptyRadius);
                     }
+                    value = value * angleValue;
                     renderData.addValue(pt.x, pt.y, value * nebula.brightness);
                     renderData.addExtraValueWithBrightness(pt.x, pt.y, nebula.calcHue(totalDist, hue1Radius, hue2Radius), value * nebula.brightness);
                 }

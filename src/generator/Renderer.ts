@@ -26,7 +26,7 @@ class Renderer {
         let nebulaLayers = this.layers.filter((layer) => {
             return layer.layerType === LayerType.SATURATION && layer.active
         });
-        console.log(`Creating image ${this.width}x${this.height} with ${starLayers.length} star layers and ${nebulaLayers.length} nebula layers.`);
+        // console.log(`Creating image ${this.width}x${this.height} with ${starLayers.length} star layers and ${nebulaLayers.length} nebula layers.`);
         for (let i = 0; i < imageData.data.length; i += 4) {
             let l1 = 0.0;
             let l2 = 0.0;

@@ -118,17 +118,25 @@ class Nebula extends ConfigurableItem {
     hue2Fraction: number = 100;
 
     hollowEmpty: number = 0;
-    hollowFull: number = 30;
+    hollowFull: number = 0;
 
     smooth: number = 50;
 
     brightness: number = 20;
+
+    cutOutSize: number = 0;
+    cutOutAngle: number = 0;
+    cutOutFade: number = 0;
 
     generatedMinX = -1;
     generatedMaxX = -1;
     generatedMinY = -1;
     generatedMaxY = -1;
     generatedRadius = 0;
+
+    cutOutRad: number = 0.0;
+    fadeRad: number = 0.0;
+    angleRad: number = 0.0;
 
     constructor(id: number, points: Array<Point>) {
         super(id)
@@ -165,6 +173,9 @@ class Nebula extends ConfigurableItem {
         copy.needsGenerate = other.needsGenerate;
         copy.hollowEmpty = other.hollowEmpty;
         copy.hollowFull = other.hollowFull;
+        copy.cutOutSize = other.cutOutSize;
+        copy.cutOutFade = other.cutOutFade;
+        copy.cutOutAngle = other.cutOutAngle;
         return copy;
     }
 
@@ -317,19 +328,24 @@ class Nebula extends ConfigurableItem {
                 break;
             case 'hue1Fraction':
                 this.hue1Fraction = newInt;
-                this.needsGenerate = true;
                 break;
             case 'hue2Fraction':
                 this.hue2Fraction = newInt;
-                this.needsGenerate = true;
                 break;
             case 'hollowEmpty':
                 this.hollowEmpty = newInt;
-                this.needsGenerate = true;
                 break;
             case 'hollowFull':
                 this.hollowFull = newInt;
-                this.needsGenerate = true;
+                break;
+            case 'cutOutSize':
+                this.cutOutSize = newInt;
+                break;
+            case 'cutOutFade':
+                this.cutOutFade = newInt;
+                break;
+            case 'cutOutAngle':
+                this.cutOutAngle = newInt;
                 break;
         }
     }
@@ -399,8 +415,45 @@ class Nebula extends ConfigurableItem {
         return result;
     }
 
+    getAngleValue(pt: Point) {
+        if (this.cutOutRad < 0.1) {
+            return 1.0;
+        }
+        let angle = this.getAngleToCenter(pt) - this.angleRad;
+        while (angle < 0.0) {
+            angle = angle + Math.PI * 2;
+        }
+        let val = 0.0;
+        let l2 = this.fadeRad;
+        let r1 = this.cutOutRad - this.fadeRad;
+        let r2 = this.cutOutRad;
+
+        if (angle >= l2 && angle < r1) {
+            return 0.0;
+        }
+        if (angle >= r2) {
+            return 1.0;
+        }
+        if (angle < l2) {
+            val += (l2 - angle) / l2;
+        }
+        if (angle >= r1) {
+            val += 1 - (r2 - angle) / (r2 - r1);
+        }
+        return val;
+    }
+
     generateNebulae(): Array<NebulaBubble> {
         let settings = new Settings(this)
+        if (this.nebulaType == NebulaType.CIRCULAR) {
+            this.cutOutFade = Math.min(this.cutOutFade, this.cutOutSize / 2);
+            this.cutOutRad = this.cutOutSize * Math.PI / 50.0;
+            this.fadeRad = this.cutOutFade * Math.PI / 50.0;
+            this.angleRad = this.cutOutAngle * Math.PI / 50.0;
+        } else {
+            this.cutOutRad = 0.0;
+        }
+
         this.generatedMinX = this.points[0].x;
         this.generatedMaxX = this.points[0].x;
         this.generatedMinY = this.points[0].y;

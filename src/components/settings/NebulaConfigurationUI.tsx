@@ -295,7 +295,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                     onChange={(newValue) => {
                                         this.onChangeIntValue("smooth", newValue as number)
                                     }}/></td>
-            <td colSpan={1}>Fade:</td>
+            <td>Fade:</td>
             <td colSpan={6}><Slider range={true} count={1}
                                     value={[this.props.settings.innerFade, this.props.settings.outerFade]}
                                     onChange={(newValue) => {
@@ -306,6 +306,26 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                         }]);
                                     }}/></td>
         </tr>
+        {this.props.settings.nebulaType == 0 && <tr>
+            <td colSpan={5}/>
+            <td>Cut out fade:</td>
+            <td colSpan={2}><Slider value={this.props.settings.cutOutFade}
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("cutOutFade", newValue as number)
+                                    }}/></td>
+            <td>Cut-out size:</td>
+            <td colSpan={6}><Slider value={this.props.settings.cutOutSize}
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("cutOutSize", newValue as number)
+                                    }}/></td>
+        </tr>}
+        {this.props.settings.nebulaType == 0 && <tr>
+            <td colSpan={9}>Cut-out angle:</td>
+            <td colSpan={6}><Slider value={this.props.settings.cutOutAngle}
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("cutOutAngle", newValue as number)
+                                    }}/></td>
+        </tr>}
         </tbody>
     }
 
