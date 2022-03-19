@@ -270,6 +270,7 @@ class Generator {
         layer.layerType = LayerType.LIGHT;
         layer.cluster = cluster;
         layer.stars = stars;
+        layer.active = cluster.active;
         this.renderStars(index, false);
     }
 
@@ -293,6 +294,7 @@ class Generator {
         layer.layerType = LayerType.SATURATION;
         layer.nebula = nebula;
         layer.bubbles = bubbles;
+        layer.active = nebula.active;
         this.renderNebula(index, false);
     }
 

@@ -6,6 +6,7 @@ class Renderer {
     width: number = 0;
     height: number = 0;
     gasBlooming: number = 0;
+    transparency: boolean = false
     layers: Array<RenderLayer> = [];
 
     updateData(data: RenderData) {
@@ -21,7 +22,7 @@ class Renderer {
         }
         let imageData = context.createImageData(this.width, this.height);
         let starLayers = this.layers.filter((layer) => {
-            return layer.layerType === LayerType.LIGHT && layer.active
+            return layer.layerType === LayerType.LIGHT
         });
         let nebulaLayers = this.layers.filter((layer) => {
             return layer.layerType === LayerType.SATURATION && layer.active
@@ -35,8 +36,10 @@ class Renderer {
             let b = 0;
             let blooming = this.gasBlooming;
             let colorCount = 0;
+            let lInActive = 0.0;
             starLayers.forEach(layer => {
                 l1 += layer.getValueByIndex(i / 4);
+                lInActive += layer.active ? 0.0 : l1;
                 l2 += layer.getExtraValueByIndex(i / 4);
                 if (nebulaLayers.length === 0) {
                     let rgb = hslToRgb(0.0, 0.0, l1 / 100.0);
@@ -49,8 +52,8 @@ class Renderer {
             nebulaLayers.forEach(layer => {
                 let s = layer.getValueByIndex(i / 4);
                 if (s > 0 || l1 > 0) {
+                    let l = l1 - lInActive;
                     let h = layer.getExtraValueByIndex(i / 4);
-                    let l = l1;
                     if (s > 0) {
                         l += blooming / 200 * Math.sqrt(l2) + s / 20;
                     }
@@ -71,7 +74,15 @@ class Renderer {
             imageData.data[i] = r / colorCount;
             imageData.data[i + 1] = g / colorCount;
             imageData.data[i + 2] = b / colorCount;
-            imageData.data[i + 3] = 255;
+            if (this.transparency) {
+                let avg = (r / colorCount + g / colorCount + b / colorCount);
+                if (avg > 255) {
+                    avg = 255;
+                }
+                imageData.data[i + 3] = avg;
+            } else {
+                imageData.data[i + 3] = 255;
+            }
         }
         context.putImageData(imageData, 0, 0);
     }

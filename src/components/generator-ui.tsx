@@ -22,6 +22,7 @@ type GeneratorUIState = {
     idCounter: number,
     rendering: boolean,
     gasBlooming: number;
+    transparency: boolean;
 };
 
 type PointID = {
@@ -42,6 +43,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         renderer: new Renderer(),
         idCounter: -1,
         rendering: false,
+        transparency: false,
         gasBlooming: 40
     }
 
@@ -175,6 +177,11 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         this.setState({gasBlooming: newValue})
     }
 
+    onUpdateTransparency(newValue: boolean) {
+        this.state.renderer.transparency = newValue;
+        this.setState({transparency: newValue})
+    }
+
     onDonePainting() {
         this.setState({shouldPaint: false})
     }
@@ -247,6 +254,11 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                                 <td><input className="numberField" value={this.state.height} onChange={(event) => {
                                     this.setHeight(event.currentTarget.value);
                                 }}/></td>
+                                <td><input type="checkbox" checked={this.state.transparency}
+                                           onChange={(event) => {
+                                               this.onUpdateTransparency(event.currentTarget.checked);
+                                           }}/> Add transparency
+                                </td>
                             </tr>
                             </tbody>
                         </table>
