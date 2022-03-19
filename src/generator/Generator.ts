@@ -73,6 +73,10 @@ class RenderLayer {
         }
     }
 
+    setValue(x: number, y: number, value: number) {
+        this.values[y * this.width + x] = value;
+    }
+
     addExtraValue(x: number, y: number, value: number) {
         let index = y * this.width + x;
         if (this.extraValues[index] && !isNaN(this.extraValues[index])) {
@@ -80,6 +84,10 @@ class RenderLayer {
         } else {
             this.extraValues[index] = value;
         }
+    }
+
+    setExtraValue(x: number, y: number, value: number) {
+        this.extraValues[y * this.width + x] = value;
     }
 
     addExtraValueWithBrightness(x: number, y: number, value: number, weight: number) {
@@ -110,6 +118,10 @@ class RenderLayer {
         } else {
             return result;
         }
+    }
+
+    getExtraValue(x: number, y: number) {
+        return this.getExtraValueByIndex(y * this.width + x);
     }
 
     getExtraValueByIndex(idx: number): number {
@@ -182,16 +194,17 @@ class Generator {
         let hollowFullRadius = nebula.generatedRadius * nebula.hollowFull / 100.0;
         let hue1Radius = nebula.generatedRadius * nebula.hue1Fraction / 100.0;
         let hue2Radius = nebula.generatedRadius * nebula.hue2Fraction / 100.0;
-        let leftTop = {x: center.x - radius, y: center.y - radius}
-        for (let x = leftTop.x; x < leftTop.x + radius * 2; x++) {
-            for (let y = leftTop.y; y < leftTop.y + radius * 2; y++) {
-                let pt = {x: x, y: y}
+        let pt = {x: center.x - radius, y: center.y - radius}
+        let maxX = pt.x + radius * 2;
+        let maxY = pt.y + radius * 2;
+        let minY = pt.y;
+        for (; pt.x < maxX; pt.x++) {
+            for (pt.y = minY; pt.y < maxY; pt.y++) {
                 let dist = distanceToPoint(center, pt);
                 let angleValue = nebula.getAngleValue(pt);
                 if (angleValue === 0.0) {
                     continue;
                 }
-
                 let totalDist = nebula.getDistanceToPoints(pt);
                 if (dist <= radius && this.isValidPoint(pt.x, pt.y)) {
                     let value = 1.0;

@@ -543,9 +543,9 @@ class Nebula extends ConfigurableItem {
     }
 
     private calcGeneratedRadius() {
-        let rad1 = distanceToPoint({x: this.generatedMinX, y: this.generatedMinY}, this.points[0])
-        let rad2 = distanceToPoint({x: this.generatedMinX, y: this.generatedMinY}, this.points[0])
-        this.generatedRadius = (Math.max(rad1, rad2) + parseInt(this.radius)) / 2.0
+        let rad1 = distanceToPoint({x: this.generatedMinX, y: this.generatedMinY}, this.points[0]);
+        let rad2 = distanceToPoint({x: this.generatedMaxX, y: this.generatedMaxY}, this.points[0]);
+        this.generatedRadius = (Math.max(rad1, rad2) + parseInt(this.radius)) / 2.0;
     }
 
 }

@@ -5,8 +5,7 @@ import {Point} from "../model/Point";
 import {ConfigurableItem} from "../model/ConfigurableItem";
 import {ConfigurableItemUI} from "./settings/ConfigurableItemUI";
 import {CanvasWidget} from "./elements/canvas-widget";
-import {Starcluster, StarClusterType} from "../model/Starcluster";
-import {Nebula, NebulaType} from "../model/Nebula";
+import {Starcluster} from "../model/Starcluster";
 import {Loader} from "./elements/loader";
 import Slider from "rc-slider";
 import {Renderer} from "../generator/Renderer";
@@ -229,7 +228,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                             }}>Help
                             </button>
                         </div>
-                        <table>
+                        <table className="config-table">
                             <tbody>
                             <tr>
                                 <td>Extra gas bloom:</td>

@@ -20,7 +20,7 @@ h2 {
 }
 
 button {
-    padding: 5px 15px;
+    padding: 3px 3px;
     font-size: small;
     cursor: pointer;
 }
@@ -28,7 +28,7 @@ button {
 .container {
     margin-left: auto;
     margin-right: auto;
-    width: 53em;
+    width: 57em;
     position: relative;
 }
 
@@ -52,10 +52,6 @@ button {
     padding: 5px 1px;
 }
 
-.section button {
-    padding: 5px 3px;
-}
-
 .numberField {
     width: 3em;
 }
@@ -69,8 +65,7 @@ button {
 }
 
 .highlight {
-    font-size: medium;
-    padding: 5px 16px !important;
+    padding: 3px 16px !important;
 }
 
 Slider {
@@ -79,4 +74,8 @@ Slider {
 
 .min-width-slider {
     min-width: 10em;
+}
+
+.config-table {
+    width: 100%;
 }
