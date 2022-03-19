@@ -62,6 +62,9 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     }
 
     setWidth(newValueAsString: string) {
+        this.state.renderItems.forEach((item) => {
+            item.needsGenerate = true;
+        })
         this.setState({
             width: newValueAsString
         }, () => {
@@ -199,7 +202,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                 <div className="container">
                     <Loader visible={this.state.rendering} showIcon={false}/>
                     <div className="section">
-                        <table>
+                        <table className="config-table">
                             {this.state.renderItems.map(item => {
                                 return <ConfigurableItemUI
                                     key={"" + item.id + "-" + item.counter}
@@ -228,7 +231,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                             }}>Help
                             </button>
                         </div>
-                        <table className="config-table">
+                        <table>
                             <tbody>
                             <tr>
                                 <td>Extra gas bloom:</td>

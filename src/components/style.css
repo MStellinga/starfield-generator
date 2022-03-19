@@ -68,8 +68,9 @@ button {
     padding: 3px 16px !important;
 }
 
-Slider {
+.rc-slider {
     -moz-user-select: none; /* Firefox */
+    margin-left: 3px;
 }
 
 .min-width-slider {

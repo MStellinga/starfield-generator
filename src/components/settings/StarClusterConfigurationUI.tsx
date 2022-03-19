@@ -10,15 +10,7 @@ type StarClusterConfigurationUIProps = {
     renderCallback: Function;
 };
 
-type StarClusterConfigurationUIState = {
-    expanded: boolean
-}
-
-class StarClusterConfigurationUI extends React.Component<StarClusterConfigurationUIProps, StarClusterConfigurationUIState> {
-
-    state: StarClusterConfigurationUIState = {
-        expanded: false
-    }
+class StarClusterConfigurationUI extends React.Component<StarClusterConfigurationUIProps, {}> {
 
     getIdAsLetter() {
         if (this.props.settings.id < 26) {
@@ -51,6 +43,11 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
     onChangeIntValue(property: string, newValue: string | number) {
         this.props.settings.setIntProperty(property, newValue)
         this.props.updateSettingsCallback();
+    }
+
+    onChangeBoolValue(property: string, newValue: boolean) {
+        this.props.settings.setBoolProperty(property, newValue)
+        this.props.updateSettingsCallback(this.props.settings);
     }
 
     onActiveChange(newValue: boolean) {
@@ -149,7 +146,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
 
             <td>
                 <button
-                    onClick={() => this.setState({expanded: !this.state.expanded})}>{this.state.expanded ? '^' : 'V'}</button>
+                    onClick={() => this.onChangeBoolValue("expanded", !this.props.settings.expanded)}>{this.props.settings.expanded ? '^' : 'V'}</button>
             </td>
             <td>
                 <button onClick={() => {
@@ -164,7 +161,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
                 </button>
             </td>
         </tr>
-        {this.state.expanded && this.props.settings.getPointsToRender().map((pt, index) => {
+        {this.props.settings.expanded && this.props.settings.getPointsToRender().map((pt, index) => {
             return <tr key={'' + index}>
                 <td></td>
                 <td>{index + 1}</td>
@@ -181,7 +178,7 @@ class StarClusterConfigurationUI extends React.Component<StarClusterConfiguratio
                 }}>X</button>)}</td>
             </tr>
         })}
-        {this.state.expanded && this.props.settings.canAddPoints() &&
+        {this.props.settings.expanded && this.props.settings.canAddPoints() &&
             (<tr>
                 <td colSpan={6}/>
                 <td className="pushLeft">

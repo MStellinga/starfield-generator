@@ -148,7 +148,6 @@ class Starcluster extends ConfigurableItem {
         }
     }
 
-
     addPoint() {
         let newPoint = {x: this.points[this.points.length - 1].x + 20, y: this.points[this.points.length - 1].y + 20}
         this.points.push(newPoint);

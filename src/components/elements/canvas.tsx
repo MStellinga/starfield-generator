@@ -36,7 +36,6 @@ class Canvas extends React.Component<PictureProps, PictureState> {
             starCanvas: React.createRef(),
             pictureData: ''
         } as PictureState
-        // document.addEventListener("dragstart", (event)=>{this.onDragStart(event)};
     }
 
     paintCanvas() {

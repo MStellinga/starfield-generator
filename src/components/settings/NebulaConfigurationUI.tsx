@@ -12,15 +12,7 @@ type NebulaConfigurationUIProps = {
     renderCallback: Function;
 };
 
-type NebulaConfigurationUIState = {
-    expanded: boolean
-}
-
-class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, NebulaConfigurationUIState> {
-
-    state: NebulaConfigurationUIState = {
-        expanded: false
-    }
+class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, {}> {
 
     onSwitchType(event: ChangeEvent<HTMLSelectElement>) {
         if (event.currentTarget.selectedIndex === 1) {
@@ -40,15 +32,15 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         this.props.updateSettingsCallback(this.props.settings);
     }
 
+    onChangeBoolValue(property: string, newValue: boolean) {
+        this.props.settings.setBoolProperty(property, newValue)
+        this.props.updateSettingsCallback(this.props.settings);
+    }
+
     onChangeIntValues(properties: Array<any>) {
         properties.forEach((prop) => {
             this.props.settings.setIntProperty(prop.prop, prop.val);
         })
-        this.props.updateSettingsCallback(this.props.settings);
-    }
-
-    onChangeFloatValue(property: string, newValue: string | number) {
-        this.props.settings.setFloatProperty(property, newValue)
         this.props.updateSettingsCallback(this.props.settings);
     }
 
@@ -111,10 +103,6 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
         this.props.updateSettingsCallback();
     }
 
-    onHueChanged() {
-        this.props.renderCallback()
-    }
-
     getIdAsLetter() {
         if (this.props.settings.id < 26) {
             return String.fromCharCode('A'.charCodeAt(0) + this.props.settings.id);
@@ -173,7 +161,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                        }}/></td>
             <td>
                 <button
-                    onClick={() => this.setState({expanded: !this.state.expanded})}>{this.state.expanded ? '^' : 'V'}</button>
+                    onClick={() => this.onChangeBoolValue("expanded", !this.props.settings.expanded)}>{this.props.settings.expanded ? '^' : 'V'}</button>
             </td>
             <td>
                 <button onClick={() => {
@@ -224,7 +212,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                            this.onChangeValue("maxAngleOffset", event.currentTarget.value)
                        }}/></td>
         </tr>
-        {this.state.expanded && this.props.settings.getPointsToRender().map((pt, index) => {
+        {this.props.settings.expanded && this.props.settings.getPointsToRender().map((pt, index) => {
             return <tr key={'' + index}>
                 <td></td>
                 <td>{index + 1}</td>
@@ -241,7 +229,7 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                 }}>X</button>)}</td>
             </tr>
         })}
-        {this.state.expanded && this.props.settings.canAddPoints() &&
+        {this.props.settings.expanded && this.props.settings.canAddPoints() &&
             (<tr>
                 <td colSpan={6}/>
                 <td className="pushLeft">
@@ -257,8 +245,26 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
             <td colSpan={6}><HuePicker color={this.props.settings.getHue1()} onChange={color => {
                 this.onHue1Change(color)
             }}/></td>
-            <td colSpan={2}>Hue points:</td>
-            <td colSpan={6}><Slider range={true} count={1}
+            {this.props.settings.nebulaType == 0 && <td colSpan={2}>Cut-out size:</td>}
+            {this.props.settings.nebulaType == 0 && <td colSpan={6}><Slider value={this.props.settings.cutOutSize}
+                                                                            onChange={(newValue) => {
+                                                                                this.onChangeIntValue("cutOutSize", newValue as number)
+                                                                            }}/></td>}
+        </tr>
+        <tr>
+            <td>Hue 2:</td>
+            <td colSpan={6}><HuePicker color={this.props.settings.getHue2()} onChange={color => {
+                this.onHue2Change(color)
+            }}/></td>
+            {this.props.settings.nebulaType == 0 && <td colSpan={2}>Cut-out angle:</td>}
+            {this.props.settings.nebulaType == 0 && <td colSpan={6}><Slider value={this.props.settings.cutOutAngle}
+                                                                            onChange={(newValue) => {
+                                                                                this.onChangeIntValue("cutOutAngle", newValue as number)
+                                                                            }}/></td>}
+        </tr>
+        <tr>
+            <td>Hue points:</td>
+            <td colSpan={2}><Slider range={true} count={1}
                                     value={[this.props.settings.hue1Fraction, this.props.settings.hue2Fraction]}
                                     onChange={(newValue) => {
                                         let vals = newValue as Array<number>;
@@ -267,14 +273,8 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                             val: vals[0]
                                         }, {prop: "hue2Fraction", val: vals[1]}]);
                                     }}/></td>
-        </tr>
-        <tr>
-            <td>Hue 2:</td>
-            <td colSpan={6}><HuePicker color={this.props.settings.getHue2()} onChange={color => {
-                this.onHue2Change(color)
-            }}/></td>
-            <td colSpan={2}>Hollow center:</td>
-            <td colSpan={6}><Slider range={true} count={1}
+            <td>Hollow:</td>
+            <td colSpan={4}><Slider range={true} count={1}
                                     value={[this.props.settings.hollowEmpty, this.props.settings.hollowFull]}
                                     onChange={(newValue) => {
                                         let vals = newValue as Array<number>;
@@ -283,20 +283,20 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                             val: vals[0]
                                         }, {prop: "hollowFull", val: vals[1]}]);
                                     }}/></td>
+            {this.props.settings.nebulaType == 0 && <td>Cut-out fade:</td>}
+            {this.props.settings.nebulaType == 0 && <td colSpan={6}><Slider value={this.props.settings.cutOutFade}
+                                                                            onChange={(newValue) => {
+                                                                                this.onChangeIntValue("cutOutFade", newValue as number)
+                                                                            }}/></td>}
         </tr>
         <tr>
             <td>Brightness:</td>
-            <td colSpan={4}><Slider value={this.props.settings.brightness}
+            <td colSpan={2}><Slider value={this.props.settings.brightness}
                                     onChange={(newValue) => {
                                         this.onChangeIntValue("brightness", newValue as number)
                                     }}/></td>
-            <td>Smooth:</td>
-            <td colSpan={2}><Slider value={this.props.settings.smooth}
-                                    onChange={(newValue) => {
-                                        this.onChangeIntValue("smooth", newValue as number)
-                                    }}/></td>
             <td>Fade:</td>
-            <td colSpan={6}><Slider range={true} count={1}
+            <td colSpan={4}><Slider range={true} count={1}
                                     value={[this.props.settings.innerFade, this.props.settings.outerFade]}
                                     onChange={(newValue) => {
                                         let vals = newValue as Array<number>;
@@ -305,27 +305,12 @@ class NebulaConfigurationUI extends React.Component<NebulaConfigurationUIProps, 
                                             val: vals[1]
                                         }]);
                                     }}/></td>
+            <td>Smooth</td>
+            <td colSpan={6}><Slider value={this.props.settings.smooth}
+                                    onChange={(newValue) => {
+                                        this.onChangeIntValue("smooth", newValue as number)
+                                    }}/></td>
         </tr>
-        {this.props.settings.nebulaType == 0 && <tr>
-            <td colSpan={5}/>
-            <td>Cut out fade:</td>
-            <td colSpan={2}><Slider value={this.props.settings.cutOutFade}
-                                    onChange={(newValue) => {
-                                        this.onChangeIntValue("cutOutFade", newValue as number)
-                                    }}/></td>
-            <td>Cut-out size:</td>
-            <td colSpan={6}><Slider value={this.props.settings.cutOutSize}
-                                    onChange={(newValue) => {
-                                        this.onChangeIntValue("cutOutSize", newValue as number)
-                                    }}/></td>
-        </tr>}
-        {this.props.settings.nebulaType == 0 && <tr>
-            <td colSpan={9}>Cut-out angle:</td>
-            <td colSpan={6}><Slider value={this.props.settings.cutOutAngle}
-                                    onChange={(newValue) => {
-                                        this.onChangeIntValue("cutOutAngle", newValue as number)
-                                    }}/></td>
-        </tr>}
         </tbody>
     }
 

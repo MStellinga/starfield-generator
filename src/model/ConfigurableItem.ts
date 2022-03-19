@@ -11,6 +11,7 @@ abstract class ConfigurableItem {
     counter: number;
     needsGenerate: boolean = true;
     active: boolean = true;
+    expanded: boolean = false;
     itemType: number = -1;
 
     protected constructor(id: number) {
@@ -23,6 +24,14 @@ abstract class ConfigurableItem {
     abstract getType(): ItemType;
 
     abstract getPointsToRender(): Array<Point>
+
+    setBoolProperty(property: string, newValue: boolean) {
+        switch (property) {
+            case 'expanded':
+                this.expanded = newValue;
+                break;
+        }
+    }
 
 }
 

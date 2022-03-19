@@ -360,6 +360,7 @@ class Generator {
     setWidth(newWidth: number) {
         this.width = newWidth;
         this.layers.forEach(layer => {
+            layer.width = newWidth;
             layer.clear()
         });
     }
@@ -367,6 +368,7 @@ class Generator {
     setHeight(newHeight: number) {
         this.height = newHeight;
         this.layers.forEach(layer => {
+            layer.height = newHeight;
             layer.clear()
         });
     }
