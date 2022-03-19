@@ -50,7 +50,14 @@ class Canvas extends React.Component<PictureProps, PictureState> {
 
     componentDidUpdate() {
         if (this.props.shouldPaint) {
-            this.paintCanvas();
+            if (this.state.mode != Mode.VIEW) {
+                this.setState({mode: Mode.VIEW},
+                    () => {
+                        this.paintCanvas();
+                    })
+            } else {
+                this.paintCanvas();
+            }
             this.props.donePainting();
         }
     }

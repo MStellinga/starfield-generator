@@ -52,13 +52,16 @@ class Renderer {
                     colorCount++
                 }
             })
+            if (l1 === 0) {
+                l1 = 0.001;
+            }
             nebulaLayers.forEach(layer => {
                 let s = layer.getValueByIndex(i / 4);
                 if (s > 0 || l1 > 0) {
                     let l = l1 - lInActive * 0.9;
                     let h = layer.getExtraValueByIndex(i / 4);
                     if (s > 0) {
-                        l += blooming / 200 * Math.sqrt(l2) + s / 20;
+                        l += (blooming / 200) * Math.sqrt(l2) + s / 20;
                     }
                     if (s > 100) {
                         s = 100;

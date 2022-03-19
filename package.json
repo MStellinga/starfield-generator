@@ -24,8 +24,9 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.1",
-    "file-loader": "^6.2.0",
+    "copy-webpack-plugin": "^10.2.4",
     "css-loader": "^6.7.1",
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.2.8",
@@ -34,7 +35,8 @@
     "webpack-dev-server": "^4.7.4"
   },
   "scripts": {
-    "start": "webpack serve"
+    "start": "webpack serve --open --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
   },
   "eslintConfig": {
     "extends": [

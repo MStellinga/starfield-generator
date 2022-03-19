@@ -47,6 +47,9 @@ class Settings {
 
     constructor(nebula: Nebula) {
         this.fractalCount = this.toInt(nebula.fractalCount, 3);
+        if (this.fractalCount > 10) {
+            this.fractalCount = 10;
+        }
         nebula.fractalCount = "" + this.fractalCount;
         this.nrOfSeeds = this.toInt(nebula.nrOfSeeds, 15);
         nebula.nrOfSeeds = "" + this.nrOfSeeds;
@@ -55,16 +58,32 @@ class Settings {
         this.radius = this.toInt(nebula.radius, 50);
         nebula.radius = "" + this.radius;
         this.minSeedRadius = this.toInt(nebula.minSeedRadius, 50);
-        nebula.minSeedRadius = "" + this.minSeedRadius;
         this.maxSeedRadius = this.toInt(nebula.maxSeedRadius, 125);
+        if (this.maxSeedRadius < this.minSeedRadius) {
+            let tmp = this.minSeedRadius
+            this.minSeedRadius = this.maxSeedRadius;
+            this.maxSeedRadius = tmp;
+        }
+        nebula.minSeedRadius = "" + this.minSeedRadius;
         nebula.maxSeedRadius = "" + this.maxSeedRadius;
+
         this.minRadiusPart = this.toFloat(nebula.minRadiusPart, 0.5);
-        nebula.minRadiusPart = "" + this.minRadiusPart;
         this.maxRadiusPart = this.toFloat(nebula.maxRadiusPart, 0.7);
+        if (this.maxRadiusPart < this.minRadiusPart) {
+            let tmp = this.minRadiusPart
+            this.minRadiusPart = this.maxRadiusPart;
+            this.maxRadiusPart = tmp;
+        }
+        nebula.minRadiusPart = "" + this.minRadiusPart;
         nebula.maxRadiusPart = "" + this.maxRadiusPart;
         this.minAngleOffset = this.toFloat(nebula.minAngleOffset, -0.5);
-        nebula.minAngleOffset = "" + this.minAngleOffset;
         this.maxAngleOffset = this.toFloat(nebula.maxAngleOffset, 0.5);
+        if (this.maxAngleOffset < this.minAngleOffset) {
+            let tmp = this.minAngleOffset
+            this.minAngleOffset = this.maxAngleOffset;
+            this.maxAngleOffset = tmp;
+        }
+        nebula.minAngleOffset = "" + this.minAngleOffset;
         nebula.maxAngleOffset = "" + this.maxAngleOffset;
     }
 
