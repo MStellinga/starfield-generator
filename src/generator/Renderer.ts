@@ -20,6 +20,9 @@ class Renderer {
         if (context === null) {
             return;
         }
+        if (this.width == 0 || this.height == 0) {
+            return;
+        }
         let imageData = context.createImageData(this.width, this.height);
         let starLayers = this.layers.filter((layer) => {
             return layer.layerType === LayerType.LIGHT

@@ -176,6 +176,7 @@ class Nebula extends ConfigurableItem {
         copy.cutOutSize = other.cutOutSize;
         copy.cutOutFade = other.cutOutFade;
         copy.cutOutAngle = other.cutOutAngle;
+        copy.expanded = other.expanded;
         return copy;
     }
 

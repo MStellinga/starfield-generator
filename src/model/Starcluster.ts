@@ -58,6 +58,7 @@ class Starcluster extends ConfigurableItem {
         copy.blooming = other.blooming;
         copy.nrOfStars = other.nrOfStars;
         copy.needsGenerate = other.needsGenerate;
+        copy.expanded = other.expanded;
         return copy;
     }
 

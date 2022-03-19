@@ -31,6 +31,18 @@ type PointID = {
     index: number;
 }
 
+const ITEMCOUNT_KEY = "starfield.settings.count";
+const ITEMBASE_KEY = "starfield.settings.";
+const WIDTH_KEY = "starfield.settings.width";
+const HEIGHT_KEY = "starfield.settings.height";
+const BLOOMING_KEY = "starfield.settings.blooming";
+const TRANSPARENCY_KEY = "starfield.settings.transparency";
+
+const DEFAULT_WIDTH = 960;
+const DEFAULT_HEIGHT = 720;
+const DEFAULT_TRANSPARENCY = false;
+const DEFAULT_BLOOMING = 40;
+
 const generator = new Worker(new URL('../generator/generator-worker', import.meta.url));
 
 class GeneratorUI extends React.Component<{}, GeneratorUIState> {
@@ -38,19 +50,28 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     state: GeneratorUIState = {
         progress: 0,
         shouldPaint: false,
-        width: "720",
-        height: "480",
+        width: "" + DEFAULT_WIDTH,
+        height: "" + DEFAULT_HEIGHT,
         renderItems: [],
         renderer: new Renderer(),
         idCounter: 0,
         rendering: false,
-        transparency: false,
-        gasBlooming: 40
+        transparency: DEFAULT_TRANSPARENCY,
+        gasBlooming: DEFAULT_BLOOMING
     }
 
     componentDidMount() {
         let renderItems: Array<ConfigurableItem> = this.loadItems();
         this.setState({renderItems: renderItems, idCounter: renderItems.length});
+        let width = this.loadString(WIDTH_KEY, "" + DEFAULT_WIDTH);
+        this.setState({width: width});
+        let height = this.loadString(HEIGHT_KEY, "" + DEFAULT_HEIGHT);
+        this.setState({height: height});
+        let gasBlooming = this.loadInt(BLOOMING_KEY, DEFAULT_BLOOMING);
+        this.setState({gasBlooming: gasBlooming});
+        let transparency = this.loadBool(TRANSPARENCY_KEY)
+        this.setState({transparency: transparency});
+
         generator.onmessage = (message: MessageEvent) => {
             if (message.data.logItem) {
                 console.log(message.data.logItem)
@@ -74,6 +95,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         }, () => {
             let newValue = parseInt(newValueAsString)
             if (!isNaN(newValue)) {
+                window.localStorage.setItem(WIDTH_KEY, "" + newValue)
                 generator.postMessage({
                     width: newValue
                 })
@@ -88,6 +110,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         }, () => {
             let newValue = parseInt(newValueAsString)
             if (!isNaN(newValue)) {
+                window.localStorage.setItem(HEIGHT_KEY, "" + newValue)
                 generator.postMessage({
                     height: newValue
                 })
@@ -130,14 +153,44 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         }
     }
 
+    loadInt(key: string, fallback: number) {
+        try {
+            let val = window.localStorage.getItem(key);
+            let result = val == null ? fallback : parseInt(val);
+            return isNaN(result) ? fallback : result;
+        } catch (e) {
+            console.log("failed to load " + key + "from local storage");
+            return fallback;
+        }
+    }
+
+    loadBool(key: string) {
+        try {
+            return window.localStorage.getItem(key) === "true";
+        } catch (e) {
+            console.log("failed to load " + key + "from local storage");
+            return false;
+        }
+    }
+
+    loadString(key: string, fallback: string) {
+        try {
+            let result = window.localStorage.getItem(key);
+            return result == null ? fallback : result;
+        } catch (e) {
+            console.log("failed to load " + key + "from local storage");
+            return fallback;
+        }
+    }
+
     loadItems() {
         let renderItems: Array<ConfigurableItem> = []
         try {
-            let countS = window.localStorage.getItem("starfield.settings.count");
+            let countS = window.localStorage.getItem(ITEMCOUNT_KEY);
             let count = countS == null ? 0 : parseInt(countS);
             if (count > 0) {
                 for (let i = 0; i < count; i++) {
-                    let json = window.localStorage.getItem("starfield.settings." + i);
+                    let json = window.localStorage.getItem(ITEMBASE_KEY + i);
                     if (json != null) {
                         let data = JSON.parse(json);
                         if (data.itemType == 0) {
@@ -160,10 +213,10 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     storeItems(renderItems: Array<ConfigurableItem>) {
         let idx = 0;
         renderItems.forEach((item) => {
-            window.localStorage.setItem("starfield.settings." + idx, JSON.stringify(item));
+            window.localStorage.setItem(ITEMBASE_KEY + idx, JSON.stringify(item));
             idx++;
         })
-        window.localStorage.setItem("starfield.settings.count", "" + idx);
+        window.localStorage.setItem(ITEMCOUNT_KEY, "" + idx);
     }
 
     performRender(id: number) {
@@ -214,11 +267,13 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     }
 
     onUpdateGasBlooming(newValue: number) {
+        window.localStorage.setItem(BLOOMING_KEY, "" + newValue)
         generator.postMessage({gasBlooming: newValue})
         this.setState({gasBlooming: newValue})
     }
 
     onUpdateTransparency(newValue: boolean) {
+        window.localStorage.setItem(TRANSPARENCY_KEY, "" + newValue)
         this.state.renderer.transparency = newValue;
         this.setState({transparency: newValue})
     }
@@ -236,12 +291,12 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
 
     getWidth() {
         let wdt = parseInt(this.state.width);
-        return isNaN(wdt) ? 712 : wdt
+        return isNaN(wdt) ? DEFAULT_WIDTH : wdt
     }
 
     getHeight() {
         let ht = parseInt(this.state.height);
-        return isNaN(ht) ? 480 : ht
+        return isNaN(ht) ? DEFAULT_HEIGHT : ht
     }
 
     render() {
@@ -271,8 +326,14 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                     <div className="section">
                         <div className="right">
                             <button onClick={() => {
-                                this.setState({renderItems: generateSamples()}, () => {
+                                this.setState({
+                                    renderItems: generateSamples()
+                                }, () => {
                                     this.storeItems(this.state.renderItems);
+                                    this.setWidth("" + DEFAULT_WIDTH);
+                                    this.setHeight("" + DEFAULT_HEIGHT);
+                                    this.onUpdateTransparency(DEFAULT_TRANSPARENCY);
+                                    this.onUpdateGasBlooming(DEFAULT_BLOOMING);
                                 })
                             }}>Default settings
                             </button>
