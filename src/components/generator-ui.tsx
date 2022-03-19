@@ -11,6 +11,7 @@ import Slider from "rc-slider";
 import {Renderer} from "../generator/Renderer";
 import {RenderData} from "../generator/Generator";
 import {generateSamples} from "./samples";
+import {Nebula} from "../model/Nebula";
 
 type GeneratorUIState = {
     progress: number,
@@ -39,16 +40,17 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         shouldPaint: false,
         width: "720",
         height: "480",
-        renderItems: generateSamples(),
+        renderItems: [],
         renderer: new Renderer(),
-        idCounter: -1,
+        idCounter: 0,
         rendering: false,
         transparency: false,
         gasBlooming: 40
     }
 
     componentDidMount() {
-        this.setState({idCounter: this.state.renderItems.length});
+        let renderItems: Array<ConfigurableItem> = this.loadItems();
+        this.setState({renderItems: renderItems, idCounter: renderItems.length});
         generator.onmessage = (message: MessageEvent) => {
             if (message.data.logItem) {
                 console.log(message.data.logItem)
@@ -119,10 +121,49 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                     newRenderItems.push(this.state.renderItems[i])
                 }
             }
+            this.storeItems(newRenderItems);
             this.setState({renderItems: newRenderItems})
         } else {
-            this.setState({renderItems: [...this.state.renderItems]})
+            this.setState({renderItems: [...this.state.renderItems]}, () => {
+                this.storeItems(this.state.renderItems);
+            })
         }
+    }
+
+    loadItems() {
+        let renderItems: Array<ConfigurableItem> = []
+        try {
+            let countS = window.localStorage.getItem("starfield.settings.count");
+            let count = countS == null ? 0 : parseInt(countS);
+            if (count > 0) {
+                for (let i = 0; i < count; i++) {
+                    let json = window.localStorage.getItem("starfield.settings." + i);
+                    if (json != null) {
+                        let data = JSON.parse(json);
+                        if (data.itemType == 0) {
+                            renderItems.push(Starcluster.copyFromAny(data));
+                        } else {
+                            renderItems.push(Nebula.copyFromAny(data));
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.log("Failed to load items: " + e);
+        }
+        if (renderItems.length == 0) {
+            renderItems = generateSamples();
+        }
+        return renderItems
+    }
+
+    storeItems(renderItems: Array<ConfigurableItem>) {
+        let idx = 0;
+        renderItems.forEach((item) => {
+            window.localStorage.setItem("starfield.settings." + idx, JSON.stringify(item));
+            idx++;
+        })
+        window.localStorage.setItem("starfield.settings.count", "" + idx);
     }
 
     performRender(id: number) {
@@ -229,6 +270,12 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                     </div>
                     <div className="section">
                         <div className="right">
+                            <button onClick={() => {
+                                this.setState({renderItems: generateSamples()}, () => {
+                                    this.storeItems(this.state.renderItems);
+                                })
+                            }}>Default settings
+                            </button>
                             <button onClick={() => {
                                 this.onRenderAll()
                             }}>Render all
