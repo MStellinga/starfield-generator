@@ -1,0 +1,27 @@
+
+.starcanvas {
+    background-color: black;
+  }
+  
+.picture {
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #d0d0ff;
+    padding: 3px;
+    background-color: #006090;
+    position: relative;
+}
+  
+
+.pictureEditButtons{
+    text-align: center;
+}
+
+.clusterEditor {
+    background-color: #333333;
+    position: relative;
+}
+  
+.clusterEditor[data-mode='1']{
+  cursor: crosshair;
+}

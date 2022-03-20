@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico"/>
+    <link rel="stylesheet" href="help.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#000000"/>
+    <meta
+            name="description"
+            content="Help generating starfields"
+    />
+    <title>Starfield Generator II | Help</title>
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root"></div>
+<div class="mainsection">
+    <H1>Help generating star fields</H1>
+    <p>Welcome to the starfield generator by Martin Stellinga. This tool can help you generate and save images of star
+        fields.</p>
+
+    <p>The user interface consists of two sections:</p>
+    <ul>
+        <li>The top section containing the settings.</li>
+        <li>The bottom section containing the generated image.</li>
+    </ul>
+    <p>In the top section, you can create the various layers that will make up the star field you want to generated.
+        There are two types of layers: <strong>star</strong> layers and <strong>nebula</strong> layers. Before going
+        into the settings for
+        each of these, it is important to understand how to create such layers.</p>
+
+    <h2>Creating, deleting and generating layers</h2>
+    <p>When you first open the application, three example layers will be present. They are labeled 'A', 'B', and 'C',
+        respectively.</p>
+    <p>To create the actual image, the settings have to be generated into an actual star fields. That can be done using
+        the
+        <strong>generate</strong> button to the right for each individual layer, or you can generate all of them using
+        the <strong>render all</strong>
+        button at the bottom of the settings section.</p>
+    <p>Note that the 'generate' buttons always regenerate their layer, while the 'render all' only generates layers if
+        required because of setting changes.</p>
+    <p>Next to the 'generate' buttons are 'X' (<strong>delete</strong>) buttons, which can be used to remove a layer.
+    </p>
+    <p>To add a layer, use the <strong>add</strong> button in the lower section of the screen. This puts the image
+        section into 'add mode'
+        where you can click on the image to add a new layer with the first coordinate at the place you click. Click
+        <strong>done</strong> to return to your image.</p>
+    <h3>Coordinates</h3>
+    <p>As noted above, all layers have one or more coordinates that determine where they randomly generate stars or
+        nebulae.
+        You can manipulate these coordinates in move mode.</p>
+    <p>If you click on <strong>Move</strong> in the lower section, you will go to 'move mode'. In that mode you can move
+        coordinates of layers around.
+        All coordinates are marked with the letter of the section, followed by the point index.
+        Click <strong>done</strong> to return to your image.</p>
+    <p>You can also edit the coordinates in the settings section. If you click the 'V' button of a layer, the settings
+        will expand
+        and reveal a numbered list of coordinates. For each of these coordinates you can edit the X and Y values.
+        Note that Y goes from top to bottom, meaning y = 0 is at the <em>top</em> of the image. X goes from left to
+        right.</p>
+    <p>To hide the coordinates again, click the '^' button.</p>
+
+    <h2>Star Layers</h2>
+    <p>A star layer generates a (definable) number of stars in random places of the image. You can adjust the following
+        settings
+        for those generated stars:</p>
+    <ul>
+        <li><strong>Layer type:</strong>If you change this to 'Nebula', the layer changes to a nebula layer (see below).
+        </li>
+        <li><strong>Star type:</strong> This can be 'Circle', 'Rect', or 'Path'.
+            A Circle layer has a single coordinate and generates stars in a circle around that coordinate.
+            A Rect layer has two coordinate and generates stars in a rectangle with the left-top corner and bottom-right
+            corner at these two coordinates.
+            A Path layer has as many coordinates as you want. It generates stars in a radius around the path formed by
+            the coordinates of this layer.
+        </li>
+        <li><strong>Gen. radius:</strong>These two values determine the radius for randomly generating stars. The
+            randomizer favors the first radius over the last radius.
+            Setting the first value lower than the second will cluster stars in the inner radius. If you set them to
+            equal values, the stars will be more evenly distributed
+            in the circle/path.
+        </li>
+        <li><strong>#</strong>The number of stars to randomly generate in this layer.</li>
+        <li><strong>Brightness:</strong>Determine the brightness of the generated stars. The brightness of individual
+            stars is distributed evenly,
+            however you can use the slider to change the brightness value for all generated stars in the layer.<br/>
+            If you already generated this layer, when you release the slider, the image is automatically updated with
+            the new brightness.
+        </li>
+        <li><strong>Bloom:</strong>Determine how much blooming happens to the stars in this layer. A lower value will
+            result in pinprick stars,
+            where a high value will result in the star blooming out.<br/>
+            If you already generated this layer, when you release the slider, the image is automatically updated with
+            the new brightness.
+        </li>
+        </li>
+    </ul>
+
+    <h2>Nebula Layers</h2>
+    <p>A nebula layer generates a (definable) number of nebulae in random places of the image. You can adjust the
+        following settings
+        for those generated nebulae:</p>
+    <ul>
+        <li><strong>Layer type:</strong>If you change this to 'Stars', the layer changes to a star layer (see above).
+        </li>
+        <li><strong>Nebula type:</strong> This can be 'Circle' or 'Path'.
+            A Circle layer has a single coordinate and generates nebulae in a circle around that coordinate.
+            A Path layer has as many coordinates as you want. It generates nebulae in a radius around the path formed by
+            the coordinates of this layer.
+        </li>
+        <li><strong>Gen. radius:</strong>These two values determine the radius for randomly generating nebulae. The
+            randomizer favors the first radius over the last radius.
+            Setting the first value lower than the second will cluster nebulae in the inner radius. If you set them to
+            equal values, the nebulae will be more evenly distributed
+            in the circle/path.
+        </li>
+        <li><strong># seeds:</strong>The number of nebulae to randomly generate in this layer.
+            Note that each nebulae starts with a randomly generated seed (which the following settings affect) which is
+            then expanded using a fractal algorithm.<br/>
+            'Fractal' means the initial seed (a circle) is subdivided a number of times to create a random cloud.
+        </li>
+        <li><strong>Seed radius:</strong>The radius of the intial nebula seeds. The size of the seeds is randomly chosen
+            between these two values.
+        </li>
+        <li><strong># fractals:</strong>The number of times to subdivide the initial nebula seed.</li>
+        <li><strong>Shrink/step:</strong>The amount to reduce the radius by at each subdivision.
+            Values above 0.5 will result in a cloud-like nebula, while values below 0.5 will result in isolated puffs.
+        </li>
+        <li><strong>Divisions/step:</strong>How many new circles to generated at each subdivision step.
+            The circles are evenly created with the center along the rim of their parent.
+        </li>
+        <li><strong>Angle shift/step:</strong>When subdividing the nebula, the children are evenly distributed along the
+            rim of their parents,
+            but the initial angle will be shifted by the value (in radians) in this setting.
+        </li>
+        <li><strong>Hue:</strong>The color of this nebula.<br/>
+            If you already generated this layer, when you release the slider, the image is automatically updated with
+            the new hue.
+        </li>
+        <li><strong>Fade:</strong>For each of the subdivided circles of the nebula, the fade determine if they should
+            fade at the center (inner) or outside (outside).<br/>
+            If you already generated this layer, when you release the slider, the image is automatically updated with
+            the new brightness.
+        </li>
+        <li><strong>Brightness:</strong>Determine the brightness of the generated nebulae. Note that nebulae are lighted
+            partially by the stars and partially by this value.<br/>
+            If you already generated this layer, when you release the slider, the image is automatically updated with
+            the new brightness.
+        </li>
+        <li><strong>Smooth:</strong>Determine how much smoothing happens to the nebula in this layer. Higher settings
+            will reduce contrasting edges.<br/>
+            If you already generated this layer, when you release the slider, the image is automatically updated with
+            the new brightness.
+        </li>
+        </li>
+    </ul>
+    <h2>General settings</h2>
+    <p>Below the layers are some general settings that affect the rendering:</p>
+    <ul>
+        <li><strong>Gas fog effect:</strong>This slider effects how the stars and nebulae interact. Higher values will
+            cause more of a blooming effect for stars in nebulae.<br/>
+            When you release the slider, the image is automatically updated with the new brightness for all layers that
+            were already generated.
+        </li>
+        <li><strong>Image size:</strong> Which, unsurprisingly, changes the size of the image to generate.
+        </li>
+    </ul>
+</div>
+</body>
+</html>

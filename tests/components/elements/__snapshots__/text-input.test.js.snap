@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Test input field Text input renders correctly 1`] = `"<input type=\\"text\\" pattern=\\"-?[0-9\\\\.]{1,5}\\" class=\\"smallfield\\" value=\\"123\\" />"`;
