@@ -86,7 +86,7 @@ class Renderer {
             b = b / colorCount;
             let a = 255;
             if (this.transparency) {
-                let a = Math.max(r, g, b);
+                a = Math.max(r, g, b);
                 r = r / a * 255;
                 g = g / a * 255;
                 b = b / a * 255;
