@@ -41,6 +41,9 @@ class Renderer {
             let colorCount = 0;
             let lInActive = 0.0;
             starLayers.forEach(layer => {
+                if (nebulaLayers.length === 0 && !layer.active) {
+                    return;
+                }
                 l1 += layer.getValueByIndex(i / 4);
                 lInActive += layer.active ? 0.0 : l1;
                 l2 += layer.getExtraValueByIndex(i / 4);
@@ -66,6 +69,7 @@ class Renderer {
                     if (s > 100) {
                         s = 100;
                     }
+                    l = l * 0.8;
                     if (l > 100) {
                         l = 100;
                     }
@@ -77,18 +81,20 @@ class Renderer {
                 }
             });
 
-            imageData.data[i] = r / colorCount;
-            imageData.data[i + 1] = g / colorCount;
-            imageData.data[i + 2] = b / colorCount;
+            r = r / colorCount;
+            g = g / colorCount;
+            b = b / colorCount;
+            let a = 255;
             if (this.transparency) {
-                let avg = (r / colorCount + g / colorCount + b / colorCount);
-                if (avg > 255) {
-                    avg = 255;
-                }
-                imageData.data[i + 3] = avg;
-            } else {
-                imageData.data[i + 3] = 255;
+                let a = Math.max(r, g, b);
+                r = r / a * 255;
+                g = g / a * 255;
+                b = b / a * 255;
             }
+            imageData.data[i] = r;
+            imageData.data[i + 1] = g;
+            imageData.data[i + 2] = b;
+            imageData.data[i + 3] = a;
         }
         context.putImageData(imageData, 0, 0);
     }
