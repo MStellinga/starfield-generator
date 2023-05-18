@@ -10,7 +10,7 @@ import {Loader} from "./elements/loader";
 import Slider from "rc-slider";
 import {Renderer} from "../generator/Renderer";
 import {RenderData} from "../generator/Generator";
-import {generateSamples} from "./samples";
+import {generateSamples2, generateSamples3, generateSamples4} from "./samples";
 import {Nebula} from "../model/Nebula";
 
 type GeneratorUIState = {
@@ -38,10 +38,10 @@ const HEIGHT_KEY = "starfield.settings.height";
 const BLOOMING_KEY = "starfield.settings.blooming";
 const TRANSPARENCY_KEY = "starfield.settings.transparency";
 
-const DEFAULT_WIDTH = 960;
-const DEFAULT_HEIGHT = 720;
+const DEFAULT_WIDTH = 1024;
+const DEFAULT_HEIGHT = 768;
 const DEFAULT_TRANSPARENCY = false;
-const DEFAULT_BLOOMING = 40;
+const DEFAULT_BLOOMING = 10;
 
 const generator = new Worker(new URL('../generator/generator-worker', import.meta.url));
 
@@ -76,6 +76,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
             if (message.data.logItem) {
                 console.log(message.data.logItem)
             } else if (message.data) {
+                // console.log(message.data)
                 this.state.renderer.updateData(RenderData.copyFromAny(message.data));
                 this.setState({shouldPaint: true, rendering: false})
             }
@@ -83,7 +84,12 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
         generator.onerror = (error: ErrorEvent) => {
             console.log(error);
         }
-        generator.postMessage({width: this.getWidth(), height: this.getHeight(), gasBlooming: this.state.gasBlooming})
+        generator.postMessage({
+            width: this.getWidth(),
+            height: this.getHeight(),
+            gasBlooming: this.state.gasBlooming,
+            transparency: this.state.transparency
+        })
     }
 
     setWidth(newValueAsString: string) {
@@ -205,7 +211,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
             console.log("Failed to load items: " + e);
         }
         if (renderItems.length == 0) {
-            renderItems = generateSamples();
+            renderItems = generateSamples4();
         }
         return renderItems
     }
@@ -275,6 +281,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
     onUpdateTransparency(newValue: boolean) {
         window.localStorage.setItem(TRANSPARENCY_KEY, "" + newValue)
         this.state.renderer.transparency = newValue;
+        generator.postMessage({transparency: newValue})
         this.setState({transparency: newValue})
     }
 
@@ -327,7 +334,7 @@ class GeneratorUI extends React.Component<{}, GeneratorUIState> {
                         <div className="right">
                             <button onClick={() => {
                                 this.setState({
-                                    renderItems: generateSamples()
+                                    renderItems: generateSamples4()
                                 }, () => {
                                     this.storeItems(this.state.renderItems);
                                     this.setWidth("" + DEFAULT_WIDTH);

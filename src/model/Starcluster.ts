@@ -223,7 +223,7 @@ class Starcluster extends ConfigurableItem {
 
     private generateRandomStarInCircle(radius: number) {
         let newPoint = generateRandomPointInCircle(this.points[0], radius)
-        let brightness = Math.random()
+        let brightness = Math.random(); //4.3
         return new Star(newPoint, brightness)
     }
 

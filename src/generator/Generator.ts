@@ -7,12 +7,14 @@ class RenderData {
     width: number = 0;
     height: number = 0;
     gasBlooming: number = 0;
+    transparency: boolean = false
     layers: Array<RenderLayer> = [];
 
-    constructor(width: number, height: number, gasBlooming: number, layers: Array<RenderLayer>) {
+    constructor(width: number, height: number, gasBlooming: number, transparency: boolean, layers: Array<RenderLayer>) {
         this.width = width;
         this.height = height;
         this.gasBlooming = gasBlooming;
+        this.transparency = transparency
         this.layers = layers;
     }
 
@@ -21,7 +23,7 @@ class RenderData {
         for (let i = 0; i < other.layers.length; i++) {
             newLayers.push(RenderLayer.copyFromAny(other.layers[i]))
         }
-        return new RenderData(other.width, other.height, other.gasBlooming, newLayers);
+        return new RenderData(other.width, other.height, other.gasBlooming, other.transparency, newLayers);
     }
 }
 
@@ -145,6 +147,7 @@ class Generator {
     gasBlooming: number = 60;
     width: number;
     height: number;
+    transparency: boolean;
 
     layers: Array<RenderLayer>
 
@@ -152,6 +155,7 @@ class Generator {
         this.width = 0;
         this.height = 0;
         this.layers = []
+        this.transparency = false;
     }
 
     isValidPoint(x: number, y: number) {
@@ -261,7 +265,7 @@ class Generator {
     }
 
     getData() {
-        return new RenderData(this.width, this.height, this.gasBlooming, this.layers);
+        return new RenderData(this.width, this.height, this.gasBlooming, this.transparency, this.layers);
     }
 
     generateAndRenderStars(index: number, cluster: Starcluster) {
@@ -377,6 +381,10 @@ class Generator {
 
     setGasBlooming(gasBlooming: number) {
         this.gasBlooming = gasBlooming;
+    }
+
+    setTransparency(transparency: boolean) {
+        this.transparency = transparency;
     }
 
 }

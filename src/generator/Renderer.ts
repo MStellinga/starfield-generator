@@ -13,6 +13,7 @@ class Renderer {
         this.width = data.width;
         this.height = data.height;
         this.gasBlooming = data.gasBlooming;
+        //this.transparency = data.transparency
         this.layers = data.layers;
     }
 

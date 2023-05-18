@@ -19,7 +19,7 @@ function copyToItemType(item: any) {
     return result;
 }
 
-self.onmessage = ({data: {width, height, gasBlooming, items, reset}}) => {
+self.onmessage = ({data: {width, height, gasBlooming, transparency, items, reset}}) => {
     try {
         if (width) {
             generator.setWidth(width);
@@ -29,6 +29,9 @@ self.onmessage = ({data: {width, height, gasBlooming, items, reset}}) => {
         }
         if (gasBlooming) {
             generator.setGasBlooming(gasBlooming);
+        }
+        if (transparency) {
+            generator.setTransparency(transparency);
         }
         if (items) {
             items.forEach((item: ConfigurableItem) => {
