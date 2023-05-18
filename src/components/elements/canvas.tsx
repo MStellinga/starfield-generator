@@ -19,6 +19,7 @@ type PictureProps = {
     width: number;
     height: number;
     loading: boolean;
+    children: any;
 }
 
 type PictureState = {
