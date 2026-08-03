@@ -1,7 +1,7 @@
 # Starfield-generator II
 A simple javascript star field generator.
 
-See https://martinstellinga.com for details.
+See https://martinstellinga.com/uncategorized/generating-a-starscape/ for details.
 
 ## Usage
 Change the relative path in preact.config.js
